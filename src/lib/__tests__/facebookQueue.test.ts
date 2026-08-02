@@ -116,7 +116,7 @@ describe("buildFacebookMessage", () => {
   it("include mereu linia de telefon și linia Detalii cu URL absolut", () => {
     const msg = buildFacebookMessage({ ...baseOffer, title: "T" });
     expect(msg).toMatch(/☎️ 0767\.941\.512/);
-    expect(msg).toMatch(/🔗 Detalii: https:\/\/www\.mvaimobiliare\.ro\/proprietate\//);
+    expect(msg).toMatch(/🔗 Detalii: https:\/\/www\.mvaimobiliare\.ro\/proprietati\//);
   });
 
   it("fiecare linie non-goală începe cu un emoji", () => {

@@ -289,6 +289,10 @@
   async function doPost(job) {
     const diag = {
       step: 'start',
+      composerOpened: false,
+      textEntered: false,
+      submitFound: false,
+      submitClicked: false,
       requested: 0,
       fetched: 0,
       usedFallback: false,
@@ -312,9 +316,17 @@
     const found = await waitForDialog(15000);
     if (!found) { const e = new Error('Nu s-a deschis dialogul de postare.'); e.diag = diag; throw e; }
     const { dialog, textbox } = found;
+    diag.composerOpened = true;
 
     diag.step = 'insert-text';
     await insertText(textbox, job.message || '');
+    const probe = (job.message || '').slice(0, 20);
+    diag.textEntered = probe ? (textbox.textContent || '').includes(probe) : false;
+    if (!diag.textEntered) {
+      const e = new Error(buildErr('Textul nu a fost introdus în composer.', diag));
+      e.diag = diag;
+      throw e;
+    }
 
     await sleep(rand(3000, 5000));
 
@@ -331,10 +343,12 @@
     diag.step = 'find-post-button';
     const postBtn = findPostButton(dialog);
     if (!postBtn) { const e = new Error(buildErr('Nu am găsit butonul „Postează".', diag)); e.diag = diag; throw e; }
+    diag.submitFound = true;
     if (postBtn.getAttribute('aria-disabled') === 'true') {
       const e = new Error(buildErr('Butonul „Postează" este dezactivat.', diag)); e.diag = diag; throw e;
     }
     postBtn.click();
+    diag.submitClicked = true;
 
     diag.step = 'wait-dialog-gone';
     const gone = await waitDialogGone(dialog, 60000);
@@ -350,6 +364,9 @@
       `atașate: ${d.attached}`,
       `thumbnails: ${d.thumbnailsReady}`,
       `pas: ${d.step}`,
+      `composer: ${d.composerOpened ? 'deschis' : 'nedeschis'}`,
+      `text: ${d.textEntered ? 'introdus' : 'lipsă'}`,
+      `buton: ${d.submitFound ? (d.submitClicked ? 'apăsat' : 'găsit') : 'negăsit'}`,
     ];
     if (d.attachError) parts.push(`attach: ${d.attachError}`);
     return `${base} [${parts.join(' • ')}]`;
