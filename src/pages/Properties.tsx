@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { getPropertyUrl, generateImmofluxSlug } from "@/lib/propertySlug";
+import { buildTypeOptions, matchesTypeFilter, typeLabel, normalizeType } from "@/lib/propertyType";
 
 const PER_PAGE = 24;
 
@@ -39,11 +40,6 @@ const normalize = (s: string) =>
     .replace(/ț/g, "t")
     .replace(/ţ/g, "t");
 
-/** True for stored types that represent an apartment (garsonieră = apartament + 1 cameră). */
-const isApartmentType = (raw: unknown) => {
-  const t = normalize(String(raw || "").trim());
-  return t.startsWith("apartament") || t.startsWith("apartment");
-};
 
 
 const detectTransactionType = (property: any): "sale" | "rent" => {
@@ -222,22 +218,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     return Array.from(set).sort((a, b) => a.localeCompare(b, "ro"));
   }, [properties]);
   /** Distinct property_type values actually present in the portfolio. */
-  const propertyTypeOptions = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const p of properties) {
-      const raw = String(p.property_type || "").trim();
-      if (!raw) continue;
-      const key = normalize(raw);
-      if (!map.has(key)) map.set(key, raw.charAt(0).toUpperCase() + raw.slice(1));
-    }
-    const list = Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
-    // "Garsonieră" is not a stored type — it is an apartment with a single room.
-    const hasStudios = properties.some(
-      (p: any) => isApartmentType(p.property_type) && p.rooms === 1
-    );
-    if (hasStudios) list.push(["garsoniera", "Garsonieră"]);
-    return list;
-  }, [properties]);
+  const propertyTypeOptions = useMemo(() => buildTypeOptions(properties), [properties]);
 
 
   // ---- Filtering --------------------------------------------------------
@@ -259,13 +240,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         if (!p.price_min || p.price_min > max) return false;
       }
       if (tip && detectTransactionType(p) !== tip) return false;
-      if (tipProprietate) {
-        if (normalize(tipProprietate) === "garsoniera") {
-          if (!isApartmentType(p.property_type) || p.rooms !== 1) return false;
-        } else if (normalize(String(p.property_type || "").trim()) !== normalize(tipProprietate)) {
-          return false;
-        }
-      }
+      if (tipProprietate && !matchesTypeFilter(p, tipProprietate)) return false;
 
       if (suprMin) {
         const min = parseInt(suprMin, 10);
@@ -315,7 +290,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   }, [currentPage]);
 
   // ---- Active chips -----------------------------------------------------
-  const isStudio = normalize(tipProprietate) === "garsoniera";
+  const isStudio = normalizeType(tipProprietate) === "garsoniera";
   const chips: { key: string; label: string }[] = [];
   if (zona) chips.push({ key: "zona", label: zona });
   if (camere && !isStudio)
@@ -325,7 +300,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   if (tipProprietate)
     chips.push({
       key: "tip_proprietate",
-      label: isStudio ? "Garsonieră" : tipProprietate.charAt(0).toUpperCase() + tipProprietate.slice(1),
+      label: typeLabel(normalizeType(tipProprietate)),
     });
 
   if (suprMin) chips.push({ key: "supr_min", label: `min ${suprMin} mp` });
@@ -342,7 +317,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     const next = new URLSearchParams(searchParams);
     if (!v || v === "all") next.delete("tip_proprietate");
     else next.set("tip_proprietate", v);
-    if (normalize(v) === "garsoniera") next.delete("camere");
+    if (normalizeType(v) === "garsoniera") next.delete("camere");
     next.delete("p");
     setSearchParams(next, { replace: true });
   };

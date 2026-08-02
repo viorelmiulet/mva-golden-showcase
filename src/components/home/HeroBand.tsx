@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { buildTypeOptions, normalizeType } from "@/lib/propertyType";
 
 export const HOME_ZONES = [
   "Militari",
@@ -21,8 +22,7 @@ const MAX_PRICES = [60000, 80000, 100000, 130000, 160000, 200000];
 const selectClass =
   "h-11 w-full rounded-sm border border-stone bg-card px-3 text-small text-foreground focus-visible:outline-hidden";
 
-const normalize = (s: string) =>
-  s.toLowerCase().replace(/[ăâ]/g, "a").replace(/î/g, "i").replace(/[șş]/g, "s").replace(/[țţ]/g, "t");
+const normalize = normalizeType;
 
 const HeroBand = () => {
   const navigate = useNavigate();
@@ -52,30 +52,17 @@ const HeroBand = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("catalog_offers")
-        .select("property_type, rooms")
+        .select("property_type, rooms, title")
         .is("project_id", null)
         .neq("availability_status", "sold")
         .neq("is_published", false);
       if (error) throw error;
-      const map = new Map<string, string>();
-      let hasStudios = false;
-      for (const row of data || []) {
-        const raw = String((row as any).property_type || "").trim();
-        if (!raw) continue;
-        const key = normalize(raw);
-        if (!map.has(key)) map.set(key, raw.charAt(0).toUpperCase() + raw.slice(1));
-        if (key.startsWith("apartament") || key.startsWith("apartment")) {
-          if ((row as any).rooms === 1) hasStudios = true;
-        }
-      }
-      const list = Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
-      if (hasStudios) list.push(["garsoniera", "Garsonieră"]);
-      return list;
+      return buildTypeOptions(data || []);
     },
     staleTime: 5 * 60 * 1000,
   });
 
-  const isStudio = normalize(propertyType) === "garsoniera";
+  const isStudio = normalizeType(propertyType) === "garsoniera";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
