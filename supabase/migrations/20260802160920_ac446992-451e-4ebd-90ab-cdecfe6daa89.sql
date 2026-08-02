@@ -1,0 +1,1 @@
+GRANT ALL ON public.app_runtime_config TO service_role;
