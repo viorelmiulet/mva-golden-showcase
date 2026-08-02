@@ -155,13 +155,14 @@ const HeroBand = () => {
               </>
             )}
 
-            <label className="sr-only" htmlFor="hero-price">Preț maxim</label>
+            <label className="sr-only" htmlFor="hero-price">{isRent ? "Chirie maximă" : "Preț maxim"}</label>
             <select id="hero-price" className={`${selectClass} md:w-48`} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}>
-              <option value="">Preț maxim</option>
-              {MAX_PRICES.map((p) => (
-                <option key={p} value={String(p)}>{p.toLocaleString("ro-RO")} €</option>
+              <option value="">{isRent ? "Chirie maximă" : "Preț maxim"}</option>
+              {(isRent ? MAX_RENTS : MAX_PRICES).map((p) => (
+                <option key={p} value={String(p)}>{p.toLocaleString("ro-RO")} €{isRent ? "/lună" : ""}</option>
               ))}
             </select>
+
 
             <button
               type="submit"
