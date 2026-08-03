@@ -122,6 +122,42 @@ export default function FacebookGroupsPage() {
     },
   });
 
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await fbGroupsTable().delete().in("id", ids);
+      if (error) {
+        throw new Error(error.message || "Nu s-au putut șterge grupurile");
+      }
+    },
+    onSuccess: (_data, ids) => {
+      queryClient.invalidateQueries({ queryKey: ["fb_groups"] });
+      setSelectedIds([]);
+      toast.success(`${ids.length} grupuri au fost șterse`);
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error(err instanceof Error ? err.message : "Nu s-au putut șterge grupurile");
+    },
+  });
+
+  const toggleSelected = (id: string, checked: boolean) => {
+    setSelectedIds((prev) => (checked ? [...new Set([...prev, id])] : prev.filter((x) => x !== id)));
+  };
+
+  const allSelected = groups.length > 0 && selectedIds.length === groups.length;
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Ștergi ${selectedIds.length} grupuri din listă?`)) return;
+    try {
+      await bulkDeleteMutation.mutateAsync(selectedIds);
+    } catch {
+      // Error toast is handled by the mutation.
+    }
+  };
+
+
+
   const handleAdd = async () => {
     const name = draft.name.trim();
     const url = draft.url.trim();
