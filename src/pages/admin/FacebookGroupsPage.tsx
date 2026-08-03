@@ -54,6 +54,7 @@ export default function FacebookGroupsPage() {
     setEditingNames(
       Object.fromEntries(groups.map((group) => [group.id, group.name]))
     );
+    setSelectedIds((prev) => prev.filter((id) => groups.some((g) => g.id === id)));
   }, [groups]);
 
   const addMutation = useMutation({
