@@ -215,7 +215,11 @@ export default function FacebookGroupsPage() {
   };
 
   const activeCount = groups.filter((g) => g.active).length;
-  const isSaving = addMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
+  const isSaving =
+    addMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending ||
+    bulkDeleteMutation.isPending;
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-6 space-y-6">
