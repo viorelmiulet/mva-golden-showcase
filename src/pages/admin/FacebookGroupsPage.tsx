@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Facebook, Plus, Trash2, ExternalLink, Download, Chrome, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Helmet } from "@/lib/helmet-compat";
@@ -30,6 +31,7 @@ const isValidFacebookUrl = (url: string) =>
 export default function FacebookGroupsPage() {
   const queryClient = useQueryClient();
   const [editingNames, setEditingNames] = useState<Record<string, string>>({});
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [draft, setDraft] = useState<{ name: string; url: string; notes: string }>({
     name: "",
     url: "",
@@ -52,6 +54,7 @@ export default function FacebookGroupsPage() {
     setEditingNames(
       Object.fromEntries(groups.map((group) => [group.id, group.name]))
     );
+    setSelectedIds((prev) => prev.filter((id) => groups.some((g) => g.id === id)));
   }, [groups]);
 
   const addMutation = useMutation({
@@ -120,6 +123,42 @@ export default function FacebookGroupsPage() {
     },
   });
 
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await fbGroupsTable().delete().in("id", ids);
+      if (error) {
+        throw new Error(error.message || "Nu s-au putut șterge grupurile");
+      }
+    },
+    onSuccess: (_data, ids) => {
+      queryClient.invalidateQueries({ queryKey: ["fb_groups"] });
+      setSelectedIds([]);
+      toast.success(`${ids.length} grupuri au fost șterse`);
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error(err instanceof Error ? err.message : "Nu s-au putut șterge grupurile");
+    },
+  });
+
+  const toggleSelected = (id: string, checked: boolean) => {
+    setSelectedIds((prev) => (checked ? [...new Set([...prev, id])] : prev.filter((x) => x !== id)));
+  };
+
+  const allSelected = groups.length > 0 && selectedIds.length === groups.length;
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Ștergi ${selectedIds.length} grupuri din listă?`)) return;
+    try {
+      await bulkDeleteMutation.mutateAsync(selectedIds);
+    } catch {
+      // Error toast is handled by the mutation.
+    }
+  };
+
+
+
   const handleAdd = async () => {
     const name = draft.name.trim();
     const url = draft.url.trim();
@@ -176,7 +215,11 @@ export default function FacebookGroupsPage() {
   };
 
   const activeCount = groups.filter((g) => g.active).length;
-  const isSaving = addMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
+  const isSaving =
+    addMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending ||
+    bulkDeleteMutation.isPending;
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-6 space-y-6">
@@ -316,9 +359,44 @@ export default function FacebookGroupsPage() {
               Nu ai adăugat încă niciun grup. Folosește formularul de mai sus.
             </p>
           ) : (
-            <ul className="divide-y divide-border">
-              {groups.map((g) => (
-                <li key={g.id} className="py-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <>
+              <div className="mb-3 flex flex-wrap items-center gap-3 rounded-md border border-border bg-muted/40 px-3 py-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={(v) =>
+                      setSelectedIds(v === true ? groups.map((g) => g.id) : [])
+                    }
+                    aria-label="Selectează toate grupurile"
+                  />
+                  Selectează tot
+                </label>
+                <span className="text-xs text-muted-foreground">
+                  {selectedIds.length} selectate
+                </span>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="ml-auto min-h-9"
+                  disabled={selectedIds.length === 0 || bulkDeleteMutation.isPending}
+                  onClick={handleBulkDelete}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {bulkDeleteMutation.isPending
+                    ? "Se șterg…"
+                    : `Șterge selectate (${selectedIds.length})`}
+                </Button>
+              </div>
+              <ul className="divide-y divide-border">
+                {groups.map((g) => (
+                  <li key={g.id} className="py-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Checkbox
+                      checked={selectedIds.includes(g.id)}
+                      onCheckedChange={(v) => toggleSelected(g.id, v === true)}
+                      aria-label={`Selectează ${g.name}`}
+                      className="shrink-0"
+                    />
+
                   <div className="flex-1 min-w-0 space-y-1">
                     <Input
                       value={editingNames[g.id] ?? g.name}
@@ -371,7 +449,8 @@ export default function FacebookGroupsPage() {
                   </div>
                 </li>
               ))}
-            </ul>
+              </ul>
+            </>
           )}
         </CardContent>
       </Card>
