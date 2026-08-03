@@ -135,12 +135,45 @@ const STATIC_PAGES: Array<{ loc: string; priority: string; changefreq: string }>
   { loc: "/termeni-conditii", priority: "0.3", changefreq: "yearly" },
 ];
 
+/**
+ * Static SEO landing routes served by /$seoSlug. The preset list is the route's
+ * own source of truth, so a new landing page appears here automatically.
+ * lastmod is the most recent updated_at among the properties each page covers.
+ */
+async function landingEntries(supabase: ReturnType<typeof publicSupabase>): Promise<string> {
+  const { data: rows } = await supabase
+    .from("catalog_offers")
+    .select(
+      "rooms, transaction_type, title, description, zone, location, city, project_name, year_built, updated_at",
+    )
+    .is("project_id", null)
+    .neq("is_published", false)
+    .limit(10000);
+
+  const offers = rows ?? [];
+  let inner = "";
+
+  for (const preset of seoLandingPresets) {
+    const matches = filterForPreset(offers, preset);
+    const newest = matches.reduce<string | null>((acc, p: any) => {
+      const value = p.updated_at as string | null | undefined;
+      if (!value) return acc;
+      return !acc || value > acc ? value : acc;
+    }, null);
+    inner += urlEntry(`${SITE}/${preset.slug}`, day(newest), "weekly", "0.8");
+  }
+
+  return inner;
+}
+
 export async function buildStaticSitemap(): Promise<string> {
   const supabase = publicSupabase();
   const today = day();
   let inner = STATIC_PAGES.map((p) =>
     urlEntry(`${SITE}${p.loc}`, today, p.changefreq, p.priority),
   ).join("");
+
+  inner += await landingEntries(supabase);
 
   const { data: posts } = await supabase
     .from("blog_posts")
