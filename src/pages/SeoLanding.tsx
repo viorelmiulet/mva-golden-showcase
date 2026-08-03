@@ -42,10 +42,12 @@ export interface SeoLandingPreset {
 
 interface Props {
   preset: SeoLandingPreset;
+  /** Rows already filtered for this preset on the server (SSR first paint). */
+  initialRows?: any[];
 }
 
-const SeoLanding = ({ preset }: Props) => {
-  const { data: all = [], isLoading } = useQuery({
+const SeoLanding = ({ preset, initialRows }: Props) => {
+  const { data: all, isLoading } = useQuery({
     queryKey: ["catalog_offers", "seo-landing"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -60,7 +62,10 @@ const SeoLanding = ({ preset }: Props) => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const filtered = useMemo(() => filterForPreset(all as any[], preset), [all, preset]);
+  const filtered = useMemo(
+    () => (all ? filterForPreset(all as any[], preset) : initialRows ?? []),
+    [all, initialRows, preset]
+  );
 
   const count = filtered.length;
 
