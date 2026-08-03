@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Facebook, Plus, Trash2, ExternalLink, Download, Chrome, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Helmet } from "@/lib/helmet-compat";
