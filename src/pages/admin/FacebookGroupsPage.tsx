@@ -31,6 +31,7 @@ const isValidFacebookUrl = (url: string) =>
 export default function FacebookGroupsPage() {
   const queryClient = useQueryClient();
   const [editingNames, setEditingNames] = useState<Record<string, string>>({});
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [draft, setDraft] = useState<{ name: string; url: string; notes: string }>({
     name: "",
     url: "",
