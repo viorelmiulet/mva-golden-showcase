@@ -449,7 +449,8 @@ export default function FacebookGroupsPage() {
                   </div>
                 </li>
               ))}
-            </ul>
+              </ul>
+            </>
           )}
         </CardContent>
       </Card>
