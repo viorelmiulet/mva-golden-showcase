@@ -68,6 +68,9 @@ const STATIC_EQUIVALENTS: Record<string, string> = {
   "tineretului|||": "/apartamente-tineretului-vacaresti",
   "vacaresti|||": "/apartamente-tineretului-vacaresti",
   "sector-6|||": "/apartamente-sector-6",
+  "||sale|apartament": "/apartamente-de-vanzare",
+  "||sale|casa": "/case-de-vanzare",
+  "||sale|garsoniera": "/garsoniere-de-vanzare",
 };
 
 /** Filters other than zona/camere/tip/tip_proprietate make the view a non-canonical permutation. */
