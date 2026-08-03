@@ -157,6 +157,8 @@ async function landingEntries(supabase: ReturnType<typeof publicSupabase>): Prom
 
   for (const preset of seoLandingPresets) {
     const matches = filterForPreset(offers, preset);
+    // Zero inventory = the page renders noindex, so it must not be listed here.
+    if (matches.length === 0) continue;
     const newest = matches.reduce<string | null>((acc, p: any) => {
       const value = p.updated_at as string | null | undefined;
       if (!value) return acc;
