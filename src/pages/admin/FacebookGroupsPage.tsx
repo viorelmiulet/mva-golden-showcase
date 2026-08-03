@@ -359,9 +359,44 @@ export default function FacebookGroupsPage() {
               Nu ai adăugat încă niciun grup. Folosește formularul de mai sus.
             </p>
           ) : (
-            <ul className="divide-y divide-border">
-              {groups.map((g) => (
-                <li key={g.id} className="py-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <>
+              <div className="mb-3 flex flex-wrap items-center gap-3 rounded-md border border-border bg-muted/40 px-3 py-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={(v) =>
+                      setSelectedIds(v === true ? groups.map((g) => g.id) : [])
+                    }
+                    aria-label="Selectează toate grupurile"
+                  />
+                  Selectează tot
+                </label>
+                <span className="text-xs text-muted-foreground">
+                  {selectedIds.length} selectate
+                </span>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="ml-auto min-h-9"
+                  disabled={selectedIds.length === 0 || bulkDeleteMutation.isPending}
+                  onClick={handleBulkDelete}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {bulkDeleteMutation.isPending
+                    ? "Se șterg…"
+                    : `Șterge selectate (${selectedIds.length})`}
+                </Button>
+              </div>
+              <ul className="divide-y divide-border">
+                {groups.map((g) => (
+                  <li key={g.id} className="py-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Checkbox
+                      checked={selectedIds.includes(g.id)}
+                      onCheckedChange={(v) => toggleSelected(g.id, v === true)}
+                      aria-label={`Selectează ${g.name}`}
+                      className="shrink-0"
+                    />
+
                   <div className="flex-1 min-w-0 space-y-1">
                     <Input
                       value={editingNames[g.id] ?? g.name}
