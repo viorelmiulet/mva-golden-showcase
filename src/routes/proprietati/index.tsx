@@ -68,6 +68,9 @@ const STATIC_EQUIVALENTS: Record<string, string> = {
   "tineretului|||": "/apartamente-tineretului-vacaresti",
   "vacaresti|||": "/apartamente-tineretului-vacaresti",
   "sector-6|||": "/apartamente-sector-6",
+  "||sale|apartament": "/apartamente-de-vanzare",
+  "||sale|casa": "/case-de-vanzare",
+  "||sale|garsoniera": "/garsoniere-de-vanzare",
 };
 
 /** Filters other than zona/camere/tip/tip_proprietate make the view a non-canonical permutation. */
@@ -82,13 +85,18 @@ function resolveIndexing(s: PropertiesSearch): { canonicalPath?: string; noindex
   if (!hasExtra && !hasCore) return { noindex: false }; // unfiltered (incl. ?p=N)
   if (!hasExtra) {
     const tp = typeSlug(s.tip_proprietate);
-    const base = `${zoneSlug(s.zona)}|${s.camere ?? ""}|${tx ?? ""}`;
-    // The static landings are apartment pages, so an "apartament" type filter
-    // resolves to the same canonical target.
-    const target =
-      STATIC_EQUIVALENTS[`${base}|${tp}`] ??
-      (tp === "apartament" ? STATIC_EQUIVALENTS[`${base}|`] : undefined);
-    if (target) return { canonicalPath: target, noindex: false };
+    // "sale" is the implicit default of the static landings, so a ?tranzactie=vanzare
+    // view resolves to the same page as the un-suffixed key.
+    const txKeys = tx === "sale" ? [tx, ""] : [tx ?? ""];
+    for (const t of txKeys) {
+      const base = `${zoneSlug(s.zona)}|${s.camere ?? ""}|${t}`;
+      // The static landings are apartment pages, so an "apartament" type filter
+      // resolves to the same canonical target.
+      const target =
+        STATIC_EQUIVALENTS[`${base}|${tp}`] ??
+        (tp === "apartament" ? STATIC_EQUIVALENTS[`${base}|`] : undefined);
+      if (target) return { canonicalPath: target, noindex: false };
+    }
   }
   return { noindex: true };
 }
