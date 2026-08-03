@@ -42,10 +42,12 @@ export interface SeoLandingPreset {
 
 interface Props {
   preset: SeoLandingPreset;
+  /** Rows already filtered for this preset on the server (SSR first paint). */
+  initialRows?: any[];
 }
 
-const SeoLanding = ({ preset }: Props) => {
-  const { data: all = [], isLoading } = useQuery({
+const SeoLanding = ({ preset, initialRows }: Props) => {
+  const { data: all, isLoading } = useQuery({
     queryKey: ["catalog_offers", "seo-landing"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -60,8 +62,12 @@ const SeoLanding = ({ preset }: Props) => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const filtered = useMemo(() => filterForPreset(all as any[], preset), [all, preset]);
+  const filtered = useMemo(
+    () => (all ? filterForPreset(all as any[], preset) : initialRows ?? []),
+    [all, initialRows, preset]
+  );
 
+  const busy = isLoading && !initialRows?.length;
   const count = filtered.length;
 
   // Title/description/canonical and the ItemList JSON-LD are emitted server-side
@@ -79,11 +85,11 @@ const SeoLanding = ({ preset }: Props) => {
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">{preset.h1}</h1>
           <p className="text-muted-foreground max-w-3xl">{preset.intro}</p>
           <p className="text-sm text-muted-foreground mt-2">
-            {isLoading ? "Se încarcă oferte…" : `${count} ${count === 1 ? "ofertă disponibilă" : "oferte disponibile"}`}
+            {busy ? "Se încarcă oferte…" : `${count} ${count === 1 ? "ofertă disponibilă" : "oferte disponibile"}`}
           </p>
         </header>
 
-        {isLoading ? (
+        {busy ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-80 rounded-lg bg-muted animate-pulse" />
