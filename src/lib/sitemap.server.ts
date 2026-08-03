@@ -6,6 +6,8 @@
  */
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { seoLandingPresets } from "@/lib/seoLandingPresets";
+import { filterForPreset } from "@/lib/seoLandingFilter";
 
 export const SITE = "https://www.mvaimobiliare.ro";
 
