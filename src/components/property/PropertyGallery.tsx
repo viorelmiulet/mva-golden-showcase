@@ -157,7 +157,7 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
               setLightbox(false);
             }}
             className="absolute top-4 right-4 p-2 text-paper hover:text-brass"
-            aria-label="Închide"
+            aria-label="Închide galeria pe tot ecranul"
           >
             <X className="w-6 h-6" />
           </button>
