@@ -80,13 +80,22 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
   );
 
   return (
-    <div>
+    <div
+      role="group"
+      aria-roledescription="carusel"
+      aria-label={`Galerie foto: ${imageAlt}`}
+    >
+      {/* Anunță schimbarea imaginii pentru cititoarele de ecran */}
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {`Imaginea ${index + 1} din ${list.length}`}
+      </p>
       <div ref={main.ref} className="relative touch-pan-y">
         <button
           type="button"
           onClick={() => setLightbox(true)}
           className="block w-full rounded-sm overflow-hidden border border-stone"
-          aria-label="Deschide galeria pe tot ecranul"
+          aria-label={`Deschide imaginea ${index + 1} din ${list.length} pe tot ecranul`}
+          aria-haspopup="dialog"
         >
           <img
             src={list[index]}
