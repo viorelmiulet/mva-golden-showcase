@@ -80,13 +80,22 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
   );
 
   return (
-    <div>
+    <div
+      role="group"
+      aria-roledescription="carusel"
+      aria-label={`Galerie foto: ${imageAlt}`}
+    >
+      {/* Anunță schimbarea imaginii pentru cititoarele de ecran */}
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {`Imaginea ${index + 1} din ${list.length}`}
+      </p>
       <div ref={main.ref} className="relative touch-pan-y">
         <button
           type="button"
           onClick={() => setLightbox(true)}
           className="block w-full rounded-sm overflow-hidden border border-stone"
-          aria-label="Deschide galeria pe tot ecranul"
+          aria-label={`Deschide imaginea ${index + 1} din ${list.length} pe tot ecranul`}
+          aria-haspopup="dialog"
         >
           <img
             src={list[index]}
@@ -115,8 +124,8 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
               type="button"
               onClick={() => setIndex(i)}
               onDoubleClick={() => setLightbox(true)}
-              aria-label={`Imaginea ${i + 1}`}
-              aria-current={i === index}
+              aria-label={`Afișează imaginea ${i + 1} din ${list.length}`}
+              aria-current={i === index ? "true" : undefined}
               className={`rounded-sm overflow-hidden border transition-colors ${
                 i === index ? "border-brass" : "border-stone hover:border-brass/60"
               }`}
@@ -148,7 +157,7 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
               setLightbox(false);
             }}
             className="absolute top-4 right-4 p-2 text-paper hover:text-brass"
-            aria-label="Închide"
+            aria-label="Închide galeria pe tot ecranul"
           >
             <X className="w-6 h-6" />
           </button>
@@ -198,8 +207,11 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
             />
           </div>
 
-          <p className="absolute bottom-5 text-spec text-paper/70">
+          <p className="absolute bottom-5 text-spec text-paper/70" aria-hidden="true">
             {index + 1} / {list.length}
+          </p>
+          <p className="sr-only" aria-live="polite" aria-atomic="true">
+            {`Imaginea ${index + 1} din ${list.length}`}
           </p>
         </div>
       )}
