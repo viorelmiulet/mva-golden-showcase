@@ -124,8 +124,8 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
               type="button"
               onClick={() => setIndex(i)}
               onDoubleClick={() => setLightbox(true)}
-              aria-label={`Imaginea ${i + 1}`}
-              aria-current={i === index}
+              aria-label={`Afișează imaginea ${i + 1} din ${list.length}`}
+              aria-current={i === index ? "true" : undefined}
               className={`rounded-sm overflow-hidden border transition-colors ${
                 i === index ? "border-brass" : "border-stone hover:border-brass/60"
               }`}
