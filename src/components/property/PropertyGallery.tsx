@@ -207,8 +207,11 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
             />
           </div>
 
-          <p className="absolute bottom-5 text-spec text-paper/70">
+          <p className="absolute bottom-5 text-spec text-paper/70" aria-hidden="true">
             {index + 1} / {list.length}
+          </p>
+          <p className="sr-only" aria-live="polite" aria-atomic="true">
+            {`Imaginea ${index + 1} din ${list.length}`}
           </p>
         </div>
       )}
