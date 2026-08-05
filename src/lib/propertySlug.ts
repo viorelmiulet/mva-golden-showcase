@@ -22,43 +22,49 @@ const toKebab = (str: string): string =>
 interface PropertySlugSource {
   id: string;
   slug?: string | null;
+  legacy_slug?: string | null;
   rooms?: number | null;
   project_name?: string | null;
   zone?: string | null;
   location?: string | null;
   surface_min?: number | null;
+  surface_land?: number | null;
   floor?: number | null;
   city?: string | null;
+  property_type?: string | null;
+  title?: string | null;
 }
 
+/**
+ * Slug shape follows the canonical property type — never a hardcoded
+ * "apartament" prefix. Mirrors public.generate_property_slug_db in the database.
+ */
 export const generatePropertySlug = (property: PropertySlugSource): string => {
   const parts: string[] = [];
 
-  // 1. Property type
-  const rooms = property.rooms || 1;
-  if (rooms <= 1) {
-    parts.push('garsoniera');
-  } else {
-    parts.push(`apartament-${rooms}-camere`);
+  // 1. Canonical type, derived from property_type and falling back to the title.
+  let kind = canonicalizeType(String(property.property_type ?? '')) || null;
+  if (!kind) kind = canonicalizeType(String(property.title ?? '')) || null;
+  const rooms = Number(property.rooms) || 0;
+  if (!kind || kind === 'apartament' || kind === 'garsoniera') {
+    kind = rooms <= 1 ? 'garsoniera' : 'apartament';
+  }
+  parts.push(toKebab(kind));
+
+  // 2. Rooms — only for dwellings with more than one room
+  if ((kind === 'apartament' || kind === 'casa') && rooms > 1) {
+    parts.push(`${rooms}-camere`);
   }
 
-  // 2. Surface
-  if (property.surface_min && property.surface_min > 0) {
-    parts.push(`${property.surface_min}mp`);
+  // 3. Surface — land area for teren, usable area otherwise
+  const surface = kind === 'teren'
+    ? property.surface_land
+    : (property.surface_min ?? property.surface_land);
+  if (surface && surface > 0) {
+    parts.push(`${surface}mp`);
   }
 
-  // 3. Floor
-  if (property.floor !== null && property.floor !== undefined && property.floor >= 0) {
-    parts.push(`etaj-${property.floor}`);
-  }
-
-  // 4. Project name
-  if (property.project_name) {
-    const kebabProject = toKebab(property.project_name);
-    if (kebabProject) parts.push(kebabProject);
-  }
-
-  // 5. City
+  // 4. City
   if (property.city) {
     const kebabCity = toKebab(property.city);
     if (kebabCity && kebabCity.length > 1 && !parts.some(p => p.includes(kebabCity))) {
