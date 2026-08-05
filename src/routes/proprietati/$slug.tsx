@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import ImmofluxPropertyDetail, { fetchImmofluxFromCatalog } from "@/pages/ImmofluxPropertyDetail";
 import PropertyDetail from "@/pages/PropertyDetail";
 import NotFound from "@/pages/NotFound";
@@ -25,6 +25,14 @@ async function fetchCatalogFallback(slug: string): Promise<any | null> {
     .maybeSingle();
   if (bySlug) return bySlug;
 
+  // Previously published URL: redirect permanently to the current slug.
+  const { data: byLegacy } = await supabase
+    .from("catalog_offers")
+    .select("*")
+    .eq("legacy_slug", slug)
+    .maybeSingle();
+  if (byLegacy) return byLegacy;
+
   const shortId = extractShortIdFromSlug(slug);
   if (!shortId) return null;
   const { data: candidates } = await supabase.rpc("find_properties_by_id_prefix", { prefix: shortId });
@@ -32,6 +40,7 @@ async function fetchCatalogFallback(slug: string): Promise<any | null> {
   const exact = candidates.find((p: any) => generatePropertySlug(p) === slug);
   return exact || (candidates.length === 1 ? candidates[0] : null);
 }
+
 
 
 export const Route = createFileRoute("/proprietati/$slug")({
@@ -44,6 +53,11 @@ export const Route = createFileRoute("/proprietati/$slug")({
       if (!row) row = await fetchCatalogFallback(params.slug);
     } catch {
       lookupFailed = true;
+    }
+
+    // Legacy URL hit: permanent redirect to the current slug so shared links survive.
+    if (row && row.legacy_slug === params.slug && row.slug && row.slug !== params.slug) {
+      throw redirect({ to: "/proprietati/$slug", params: { slug: row.slug }, statusCode: 301 });
     }
 
     if (!row) {
