@@ -1,15 +1,17 @@
 /**
  * Generate SEO-friendly slug for a property.
- * Format: apartament-2-camere-65mp-etaj-3-militari-residence-bucuresti-militari-a1b2
- * Rules:
- * 1. Property type (garsoniera / apartament-N-camere)
- * 2. Surface (65mp)
- * 3. Floor (etaj-3)
- * 4. Project name in kebab-case
- * 5. City
- * 6. Zone (if not coordinates and different from project/city)
- * 7. First 4 characters of UUID for uniqueness
+ * The prefix comes from the canonical property type (apartament, garsoniera,
+ * casa, depozit, spatiu-comercial, teren) — never hardcoded.
+ * Shapes:
+ *   apartament/casa: {tip}-{camere}-camere-{suprafata}mp-{oras}-{zona}-{hash}
+ *   garsoniera/depozit/spatiu comercial: {tip}-{suprafata}mp-{oras}-{zona}-{hash}
+ *   teren: teren-{suprafata_teren}mp-{oras}-{zona}-{hash}
+ * Segments with null values are omitted.
  */
+
+import { canonicalizeType } from './immofluxTypes';
+
+
 
 const toKebab = (str: string): string =>
   str
