@@ -55,6 +55,11 @@ export const Route = createFileRoute("/proprietati/$slug")({
       lookupFailed = true;
     }
 
+    // Legacy URL hit: permanent redirect to the current slug so shared links survive.
+    if (row && row.legacy_slug === params.slug && row.slug && row.slug !== params.slug) {
+      throw redirect({ to: "/proprietati/$slug", params: { slug: row.slug }, statusCode: 301 });
+    }
+
     if (!row) {
       // Transient DB error → let the client page retry; genuinely missing → real 404.
       if (lookupFailed) return null;
