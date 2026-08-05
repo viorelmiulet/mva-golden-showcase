@@ -231,6 +231,7 @@ export type Database = {
           kitchens: number | null
           land_classification: string | null
           latitude: number | null
+          legacy_slug: string | null
           location: string | null
           longitude: number | null
           parking: number | null
@@ -321,6 +322,7 @@ export type Database = {
           kitchens?: number | null
           land_classification?: string | null
           latitude?: number | null
+          legacy_slug?: string | null
           location?: string | null
           longitude?: number | null
           parking?: number | null
@@ -411,6 +413,7 @@ export type Database = {
           kitchens?: number | null
           land_classification?: string | null
           latitude?: number | null
+          legacy_slug?: string | null
           location?: string | null
           longitude?: number | null
           parking?: number | null
@@ -2391,6 +2394,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      canonicalize_property_type: { Args: { raw: string }; Returns: string }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -2459,6 +2463,7 @@ export type Database = {
           kitchens: number | null
           land_classification: string | null
           latitude: number | null
+          legacy_slug: string | null
           location: string | null
           longitude: number | null
           parking: number | null
@@ -2519,6 +2524,22 @@ export type Database = {
               property_project_name: string
               property_rooms: number
               property_surface?: number
+              property_zone: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              property_city: string
+              property_floor: number
+              property_id: string
+              property_location: string
+              property_project_name: string
+              property_rooms: number
+              property_surface: number
+              property_surface_land: number
+              property_title: string
+              property_type: string
               property_zone: string
             }
             Returns: string
