@@ -520,6 +520,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         </SelectContent>
       </Select>
 
+      {anyVideo && (
       <label className="flex items-center gap-2 h-10 px-3 rounded-sm border border-stone bg-paper text-small cursor-pointer">
         <input
           type="checkbox"
@@ -529,6 +530,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         />
         Cu video
       </label>
+      )}
     </div>
   );
 
