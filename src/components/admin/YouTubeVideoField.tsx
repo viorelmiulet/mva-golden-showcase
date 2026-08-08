@@ -5,6 +5,8 @@ import { extractYouTubeId, youtubeThumb } from "@/lib/videoEmbed";
 interface YouTubeVideoFieldProps {
   value: string;
   onChange: (value: string) => void;
+  /** When provided, renders a "Șterge videoclipul" action that clears both columns on save. */
+  onClear?: () => void;
   label?: string;
   hint?: string;
 }
