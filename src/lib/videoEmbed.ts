@@ -18,8 +18,8 @@ const YT_ID = /^[A-Za-z0-9_-]{11}$/;
 const VIMEO_ID = /^\d{6,12}$/;
 
 /** Embed URL for a bare YouTube ID (nocookie, no end-screen suggestions, inline on iOS). */
-export const youtubeEmbedFromId = (id: string) =>
-  `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&playsinline=1`;
+export const youtubeEmbedFromId = (id: string, autoplay = false) =>
+  `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&playsinline=1${autoplay ? "&autoplay=1" : ""}`;
 
 export const youtubeWatchUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
 
@@ -103,12 +103,14 @@ export interface ResolvedVideo {
 
 function fromRow(row: any): ResolvedVideo | null {
   if (!row) return null;
+  const localThumb = typeof row.video_thumb_url === "string" && row.video_thumb_url ? row.video_thumb_url : null;
   const manualId = extractYouTubeId(row.video_id) || extractYouTubeId(row.video_manual);
   if (manualId) {
     return {
+      // Only our own copy is referenced; img.youtube.com is never called before the user clicks play.
       embedUrl: youtubeEmbedFromId(manualId),
       youtubeId: manualId,
-      thumbnailUrl: youtubeThumb(manualId, "maxresdefault"),
+      thumbnailUrl: localThumb,
       watchUrl: youtubeWatchUrl(manualId),
     };
   }
@@ -119,7 +121,7 @@ function fromRow(row: any): ResolvedVideo | null {
   return {
     embedUrl: feed,
     youtubeId: feedId,
-    thumbnailUrl: feedId ? youtubeThumb(feedId, "maxresdefault") : null,
+    thumbnailUrl: localThumb,
     watchUrl: feedId ? youtubeWatchUrl(feedId) : typeof row.video === "string" ? row.video : null,
   };
 }
