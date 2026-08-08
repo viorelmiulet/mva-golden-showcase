@@ -489,6 +489,9 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
               </p>
             )}
 
+            {/* Development video (nocookie + consent gate) */}
+            {complexVideo && <ComplexVideoSection video={complexVideo} title={project.name} />}
+
             {/* Stadiu Lucrare - Videos Section (Only for RENEW RESIDENCE) */}
             {project.name?.toUpperCase() === "RENEW RESIDENCE" && (() => {
               const projectVideos = (project as any).videos;
@@ -889,9 +892,6 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
                   <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
                 </div>
               )}
-
-          {/* Development video (nocookie + consent gate) */}
-          {complexVideo && <ComplexVideoSection video={complexVideo} title={project.name} />}
 
           {/* Crawlable links to the individual unit pages */}
           <ComplexPropertyLinks properties={linkableProperties} complexName={project.name} />

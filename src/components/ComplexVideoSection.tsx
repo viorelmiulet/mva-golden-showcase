@@ -23,7 +23,7 @@ const ComplexVideoSection = ({ video, title }: Props) => {
         <h2 className="text-xl sm:text-2xl font-bold">Video prezentare</h2>
       </div>
 
-      <div className="aspect-video w-full max-w-3xl overflow-hidden rounded-xl bg-ink">
+      <div className="aspect-video w-full md:w-1/2 md:max-w-[24rem] mr-auto overflow-hidden rounded-xl bg-ink">
         {marketingConsent ? (
           <iframe
             src={video.embedUrl}
