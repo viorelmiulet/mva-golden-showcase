@@ -172,6 +172,8 @@ export async function adminComplexes(body: AnyRecord): Promise<Result> {
           status: data.status ?? "in_progress",
           main_image: data.main_image ?? null,
           videos: data.videos ?? [],
+          video_manual: data.video_manual ?? null,
+          video_id: data.video_id ?? null,
         })
         .select();
       if (error) return fail(error.message);
@@ -194,6 +196,8 @@ export async function adminComplexes(body: AnyRecord): Promise<Result> {
           status: data.status,
           main_image: data.main_image,
           videos: data.videos,
+          video_manual: data.video_manual ?? null,
+          video_id: data.video_id ?? null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id)

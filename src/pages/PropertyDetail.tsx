@@ -241,6 +241,8 @@ const PropertyDetail = () => {
   const [property, setProperty] = useState<Property | null>(null);
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
   const [complexSlug, setComplexSlug] = useState<string | null>(null);
+  // Development-level video: used only when the property has none of its own.
+  const [complexVideo, setComplexVideo] = useState<{ video_manual?: string | null; video_id?: string | null } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGone, setIsGone] = useState(false);
   const [notFound, setNotFound] = useState(false);
@@ -287,13 +289,14 @@ const PropertyDetail = () => {
   const fetchComplexSlug = async () => {
     if (!property?.project_id && !property?.project_name) return;
     try {
-      let query = supabase.from("real_estate_projects").select("slug, name, id").limit(1);
+      let query = supabase.from("real_estate_projects").select("slug, name, id, video_manual, video_id").limit(1);
       if (property.project_id) {
         query = query.eq("id", property.project_id);
       } else if (property.project_name) {
         query = query.ilike("name", property.project_name);
       }
       const { data } = await query.maybeSingle();
+      if (data) setComplexVideo({ video_manual: (data as any).video_manual, video_id: (data as any).video_id });
       if (data?.slug) {
         setComplexSlug(data.slug);
       } else if (data?.name && data?.id) {
@@ -641,7 +644,7 @@ const PropertyDetail = () => {
                       images={images}
                       title={property.title}
                       alt={`${property.title} — ${zona}`}
-                      videoEmbedUrl={rowVideoEmbedUrl(property)}
+                      videoEmbedUrl={rowVideoEmbedUrl(property, complexVideo)}
                     />
                   </div>
 

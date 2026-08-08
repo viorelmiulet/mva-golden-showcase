@@ -261,6 +261,8 @@ export type Database = {
           updated_at: string
           video: string | null
           video_embed_url: string | null
+          video_id: string | null
+          video_manual: string | null
           virtual_tour: string | null
           whatsapp_catalog_id: string | null
           year_built: number | null
@@ -353,6 +355,8 @@ export type Database = {
           updated_at?: string
           video?: string | null
           video_embed_url?: string | null
+          video_id?: string | null
+          video_manual?: string | null
           virtual_tour?: string | null
           whatsapp_catalog_id?: string | null
           year_built?: number | null
@@ -445,6 +449,8 @@ export type Database = {
           updated_at?: string
           video?: string | null
           video_embed_url?: string | null
+          video_id?: string | null
+          video_manual?: string | null
           virtual_tour?: string | null
           whatsapp_catalog_id?: string | null
           year_built?: number | null
@@ -1653,6 +1659,8 @@ export type Database = {
           status: string | null
           surface_range: string | null
           updated_at: string
+          video_id: string | null
+          video_manual: string | null
           videos: Json | null
         }
         Insert: {
@@ -1677,6 +1685,8 @@ export type Database = {
           status?: string | null
           surface_range?: string | null
           updated_at?: string
+          video_id?: string | null
+          video_manual?: string | null
           videos?: Json | null
         }
         Update: {
@@ -1701,6 +1711,8 @@ export type Database = {
           status?: string | null
           surface_range?: string | null
           updated_at?: string
+          video_id?: string | null
+          video_manual?: string | null
           videos?: Json | null
         }
         Relationships: []
@@ -2496,6 +2508,8 @@ export type Database = {
           updated_at: string
           video: string | null
           video_embed_url: string | null
+          video_id: string | null
+          video_manual: string | null
           virtual_tour: string | null
           whatsapp_catalog_id: string | null
           year_built: number | null

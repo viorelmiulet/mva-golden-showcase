@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, X, Image as ImageIcon, Play } from "lucide-react";
 import { useSwipeCarousel, usePrefersReducedMotion } from "@/hooks/useSwipeCarousel";
 import { useMarketingConsent, openCookieSettings } from "@/hooks/useMarketingConsent";
+import { extractYouTubeId, youtubeThumb } from "@/lib/videoEmbed";
 
 interface PropertyGalleryProps {
   images: string[];
@@ -25,6 +26,10 @@ const PropertyGallery = ({ images, title, alt, videoEmbedUrl }: PropertyGalleryP
   const reducedMotion = usePrefersReducedMotion();
   const marketingConsent = useMarketingConsent();
   const hasVideo = Boolean(videoEmbedUrl);
+  const videoThumb = (() => {
+    const id = extractYouTubeId(videoEmbedUrl);
+    return id ? youtubeThumb(id, "maxresdefault") : null;
+  })();
 
   const next = useCallback(() => setIndex((i) => (list.length ? (i + 1) % list.length : 0)), [list.length]);
   const prev = useCallback(
@@ -273,20 +278,30 @@ const PropertyGallery = ({ images, title, alt, videoEmbedUrl }: PropertyGalleryP
                   allowFullScreen
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center gap-3 p-6 text-center bg-ink text-paper">
-                  <Play className="w-8 h-8 text-brass" aria-hidden="true" fill="currentColor" />
-                  <p className="text-small text-paper/80 max-w-sm">
-                    Videoclipul este blocat până acceptați cookie-urile de marketing.
+                <div className="relative w-full h-full flex flex-col items-center justify-center gap-3 p-6 text-center bg-ink text-paper">
+                  {videoThumb && (
+                    <img
+                      src={videoThumb}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover opacity-40"
+                    />
+                  )}
+                  <Play className="relative w-10 h-10 text-brass" aria-hidden="true" fill="currentColor" />
+                  <p className="relative text-small text-paper/90 max-w-sm">
+                    Videoclipul se încarcă de pe YouTube. Activează cookie-urile de marketing pentru
+                    a-l reda.
                   </p>
                   <button
                     type="button"
                     onClick={openCookieSettings}
-                    className="rounded-sm bg-brass text-ink px-4 py-2 text-small font-medium"
+                    className="relative rounded-sm bg-brass text-ink px-4 py-2 text-small font-medium"
                   >
-                    Redă videoclipul
+                    Activează
                   </button>
                 </div>
               )}
+
             </div>
           ) : (
             <div

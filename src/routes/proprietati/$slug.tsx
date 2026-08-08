@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { composePropertyDescription, composeMetaDescription } from "@/lib/propertyDescription";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { generatePropertySlug, extractShortIdFromSlug } from "@/lib/propertySlug";
-import { rowVideoEmbedUrl } from "@/lib/videoEmbed";
+import { resolvePropertyVideo } from "@/lib/videoEmbed";
 
 const SITE = "https://www.mvaimobiliare.ro";
 
@@ -101,7 +101,17 @@ export const Route = createFileRoute("/proprietati/$slug")({
 
     const canonicalSlug = row.immoflux_slug || row.slug || params.slug;
     const metaDescription = composeMetaDescription(description);
-    const videoEmbed = rowVideoEmbedUrl(row);
+    // Property video first, then its development's.
+    let development: any = null;
+    if (!row.video_id && !row.video_manual && !row.video_embed_url && !row.video && row.project_id) {
+      const { data: dev } = await supabase
+        .from("real_estate_projects")
+        .select("video_manual, video_id")
+        .eq("id", row.project_id)
+        .maybeSingle();
+      development = dev || null;
+    }
+    const video = resolvePropertyVideo(row, development);
     const title = `${baseTitle} | MVA Imobiliare`;
     const url = `${SITE}/proprietati/${canonicalSlug}`;
 
@@ -142,19 +152,18 @@ export const Route = createFileRoute("/proprietati/$slug")({
           : {}),
         ...(rooms ? { numberOfRooms: rooms } : {}),
       }),
-      videoLd:
-        videoEmbed && images[0]
-          ? JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "VideoObject",
-              name: `Tur video — ${baseTitle.trim()}`,
-              description: metaDescription.trim(),
-              thumbnailUrl: images[0],
-              uploadDate: new Date(row.date_added || row.created_at || Date.now()).toISOString(),
-              embedUrl: videoEmbed,
-              contentUrl: row.video || videoEmbed,
-            })
-          : null,
+      videoLd: video
+        ? JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "VideoObject",
+            name: `Tur video — ${baseTitle.trim()}`,
+            description: metaDescription.trim(),
+            thumbnailUrl: video.thumbnailUrl || images[0] || undefined,
+            uploadDate: new Date(row.date_added || row.created_at || Date.now()).toISOString(),
+            embedUrl: video.embedUrl,
+            ...(video.watchUrl ? { contentUrl: video.watchUrl } : {}),
+          })
+        : null,
       breadcrumbLd: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",

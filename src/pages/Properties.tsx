@@ -211,6 +211,10 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     [catalogProperties]
   );
 
+  /** Hide the "Cu video" filter while no active listing resolves to a video. */
+  const anyVideo = useMemo(() => properties.some((p: any) => hasVideo(p)), [properties]);
+
+
   // ---- Options derived from data --------------------------------------
   const zoneOptions = useMemo(() => {
     const set = new Set<string>();
@@ -520,6 +524,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         </SelectContent>
       </Select>
 
+      {anyVideo && (
       <label className="flex items-center gap-2 h-10 px-3 rounded-sm border border-stone bg-paper text-small cursor-pointer">
         <input
           type="checkbox"
@@ -529,6 +534,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         />
         Cu video
       </label>
+      )}
     </div>
   );
 

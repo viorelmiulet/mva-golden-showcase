@@ -1,10 +1,12 @@
 /**
- * Normalizes property video links coming from the Immoflux feed (or admin input).
+ * Video helpers for property/development pages.
  *
- * Accepts full YouTube/Vimeo URLs, youtu.be short links and bare video IDs.
- * Returns the raw value plus a privacy-friendly embed URL
- * (youtube-nocookie.com for YouTube, player.vimeo.com with dnt for Vimeo).
- * Unrecognized or empty values yield null.
+ * Two sources exist:
+ *  - manual admin entry (YouTube only) → `video_manual` (raw) + `video_id` (11-char ID)
+ *  - the Immoflux feed → `video` (raw) + `video_embed_url` (normalized YouTube/Vimeo)
+ *
+ * Resolution order when rendering: the property's own video first, then its
+ * development's. Property-level always wins.
  */
 export interface NormalizedVideo {
   raw: string;
@@ -15,51 +17,75 @@ export interface NormalizedVideo {
 const YT_ID = /^[A-Za-z0-9_-]{11}$/;
 const VIMEO_ID = /^\d{6,12}$/;
 
-const youtubeEmbed = (id: string) =>
-  `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1`;
+/** Embed URL for a bare YouTube ID (nocookie, no end-screen suggestions, inline on iOS). */
+export const youtubeEmbedFromId = (id: string) =>
+  `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&playsinline=1`;
+
+export const youtubeWatchUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
+
+export const youtubeThumb = (id: string, quality: "hqdefault" | "maxresdefault" = "hqdefault") =>
+  `https://img.youtube.com/vi/${id}/${quality}.jpg`;
+
 const vimeoEmbed = (id: string) => `https://player.vimeo.com/video/${id}?dnt=1`;
 
-export function normalizeVideoUrl(input: unknown): NormalizedVideo | null {
-  if (typeof input !== "string") return null;
-  const raw = input.trim();
-  if (!raw) return null;
-
-  // Bare IDs
-  if (YT_ID.test(raw)) return { raw, embedUrl: youtubeEmbed(raw), provider: "youtube" };
-  if (VIMEO_ID.test(raw)) return { raw, embedUrl: vimeoEmbed(raw), provider: "vimeo" };
-
-  let url: URL;
+function toUrl(raw: string): URL | null {
   try {
-    url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+    return new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
   } catch {
     return null;
   }
+}
+
+/**
+ * Extracts a bare 11-character YouTube ID from watch/youtu.be/embed/shorts URLs
+ * or from a bare ID. Extra query params (t=, list=, si=) are ignored.
+ * Returns null when the value does not resolve to a valid ID.
+ */
+export function extractYouTubeId(input: unknown): string | null {
+  if (typeof input !== "string") return null;
+  const raw = input.trim();
+  if (!raw) return null;
+  if (YT_ID.test(raw)) return raw;
+
+  const url = toUrl(raw);
+  if (!url) return null;
 
   const host = url.hostname.replace(/^www\./i, "").toLowerCase();
   const segments = url.pathname.split("/").filter(Boolean);
 
   if (host === "youtu.be") {
     const id = segments[0];
-    if (id && YT_ID.test(id)) return { raw, embedUrl: youtubeEmbed(id), provider: "youtube" };
-    return null;
+    return id && YT_ID.test(id) ? id : null;
   }
 
   if (host.endsWith("youtube.com") || host.endsWith("youtube-nocookie.com")) {
     const v = url.searchParams.get("v");
-    if (v && YT_ID.test(v)) return { raw, embedUrl: youtubeEmbed(v), provider: "youtube" };
-    // /embed/ID, /v/ID, /shorts/ID, /live/ID
+    if (v && YT_ID.test(v)) return v;
     const idx = segments.findIndex((s) => ["embed", "v", "shorts", "live"].includes(s));
     const id = idx >= 0 ? segments[idx + 1] : undefined;
-    if (id && YT_ID.test(id)) return { raw, embedUrl: youtubeEmbed(id), provider: "youtube" };
-    return null;
+    if (id && YT_ID.test(id)) return id;
   }
 
+  return null;
+}
+
+export function normalizeVideoUrl(input: unknown): NormalizedVideo | null {
+  if (typeof input !== "string") return null;
+  const raw = input.trim();
+  if (!raw) return null;
+
+  const ytId = extractYouTubeId(raw);
+  if (ytId) return { raw, embedUrl: youtubeEmbedFromId(ytId), provider: "youtube" };
+
+  if (VIMEO_ID.test(raw)) return { raw, embedUrl: vimeoEmbed(raw), provider: "vimeo" };
+
+  const url = toUrl(raw);
+  if (!url) return null;
+  const host = url.hostname.replace(/^www\./i, "").toLowerCase();
   if (host.endsWith("vimeo.com")) {
-    const id = segments.find((s) => VIMEO_ID.test(s));
+    const id = url.pathname.split("/").filter(Boolean).find((s) => VIMEO_ID.test(s));
     if (id) return { raw, embedUrl: vimeoEmbed(id), provider: "vimeo" };
-    return null;
   }
-
   return null;
 }
 
@@ -67,10 +93,46 @@ export function normalizeVideoUrl(input: unknown): NormalizedVideo | null {
 export const videoEmbedUrl = (input: unknown): string | null =>
   normalizeVideoUrl(input)?.embedUrl ?? null;
 
-/** True when a catalog row has a usable video. */
-export const hasVideo = (row: any): boolean =>
-  Boolean(row?.video_embed_url || videoEmbedUrl(row?.video));
+export interface ResolvedVideo {
+  embedUrl: string;
+  /** Present for YouTube videos; enables thumbnails and watch URLs. */
+  youtubeId: string | null;
+  thumbnailUrl: string | null;
+  watchUrl: string | null;
+}
 
-/** Embed URL for a catalog row (prefers the stored normalized column). */
-export const rowVideoEmbedUrl = (row: any): string | null =>
-  (typeof row?.video_embed_url === "string" && row.video_embed_url) || videoEmbedUrl(row?.video);
+function fromRow(row: any): ResolvedVideo | null {
+  if (!row) return null;
+  const manualId = extractYouTubeId(row.video_id) || extractYouTubeId(row.video_manual);
+  if (manualId) {
+    return {
+      embedUrl: youtubeEmbedFromId(manualId),
+      youtubeId: manualId,
+      thumbnailUrl: youtubeThumb(manualId, "maxresdefault"),
+      watchUrl: youtubeWatchUrl(manualId),
+    };
+  }
+  const feed =
+    (typeof row.video_embed_url === "string" && row.video_embed_url) || videoEmbedUrl(row.video);
+  if (!feed) return null;
+  const feedId = extractYouTubeId(row.video);
+  return {
+    embedUrl: feed,
+    youtubeId: feedId,
+    thumbnailUrl: feedId ? youtubeThumb(feedId, "maxresdefault") : null,
+    watchUrl: feedId ? youtubeWatchUrl(feedId) : typeof row.video === "string" ? row.video : null,
+  };
+}
+
+/** Property video first, then its development's. */
+export function resolvePropertyVideo(row: any, development?: any): ResolvedVideo | null {
+  return fromRow(row) || fromRow(development) || null;
+}
+
+/** True when a catalog row (optionally with its development) has a usable video. */
+export const hasVideo = (row: any, development?: any): boolean =>
+  Boolean(resolvePropertyVideo(row, development));
+
+/** Embed URL for a catalog row. */
+export const rowVideoEmbedUrl = (row: any, development?: any): string | null =>
+  resolvePropertyVideo(row, development)?.embedUrl ?? null;
