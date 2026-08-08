@@ -102,12 +102,6 @@ const PropertiesAdmin = () => {
 
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || "Update failed");
-      if (
-        data.data?.video_manual !== videoColumns.video_manual ||
-        data.data?.video_id !== videoColumns.video_id
-      ) {
-        throw new Error("Serverul nu a confirmat salvarea linkului video");
-      }
 
       toast({
         title: "Succes!",
@@ -290,6 +284,12 @@ const PropertiesAdmin = () => {
 
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || "Update failed");
+      if (
+        data.data?.video_manual !== videoColumns.video_manual ||
+        data.data?.video_id !== videoColumns.video_id
+      ) {
+        throw new Error("Serverul nu a confirmat salvarea linkului video");
+      }
 
       toast({
         title: "Succes!",
