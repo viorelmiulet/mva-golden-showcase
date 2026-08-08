@@ -107,7 +107,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
       return data;
     },
     enabled: !!slug && !isLegacyUuid,
-    initialData: initialProject ?? undefined,
+    initialData: (initialProject ?? undefined) as any,
   });
 
   const { data: properties, isLoading: propertiesLoading, refetch } = useQuery({
@@ -122,10 +122,10 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
         .order('title');
       
       if (error) throw error;
-      return data;
+      return (data || []) as any[];
     },
     enabled: !!project?.id,
-    initialData: initialProperties ?? undefined,
+    initialData: (initialProperties ?? undefined) as any[] | undefined,
     staleTime: 0,
     gcTime: 0,
     refetchOnMount: 'always',
