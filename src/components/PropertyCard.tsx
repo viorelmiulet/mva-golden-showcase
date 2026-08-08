@@ -67,10 +67,13 @@ interface PropertyCardProps {
   priority?: boolean;
   /** Override the destination URL (e.g. Immoflux route) */
   to?: string;
+  /** Parent development, so the badge matches the detail page's video resolution. */
+  development?: any;
 }
 
-const PropertyCard = ({ property: p, priority = false, to }: PropertyCardProps) => {
+const PropertyCard = ({ property: p, priority = false, to, development }: PropertyCardProps) => {
   const badge = getBadge(p);
+  const video = hasVideo(p, development);
   return (
     <Link to={to || getPropertyUrl(p)} className="group block">
       <div className="relative overflow-hidden rounded-sm border border-stone">
@@ -84,17 +87,27 @@ const PropertyCard = ({ property: p, priority = false, to }: PropertyCardProps) 
           quality={75}
           priority={priority}
         />
-        {hasVideo(p) && (
+        {/* Status badge and VIDEO share one row; on narrow cards VIDEO drops and the glyph stands in. */}
+        {(badge || video) && (
+          <div className="absolute top-2 left-2 right-2 flex items-center gap-1.5">
+            {badge && (
+              <span className="bg-pine text-paper text-spec px-2 py-1 rounded-sm">{badge}</span>
+            )}
+            {video && (
+              <span
+                className={`bg-brass text-ink text-spec px-2 py-1 rounded-sm ${badge ? "hidden sm:inline-block" : ""}`}
+              >
+                VIDEO
+              </span>
+            )}
+          </div>
+        )}
+        {video && badge && (
           <span
-            className="absolute bottom-2 right-2 flex items-center justify-center w-7 h-7 rounded-full bg-ink/70 text-paper"
+            className="sm:hidden absolute bottom-2 right-2 flex items-center justify-center w-7 h-7 rounded-full bg-ink/70 text-paper"
             aria-label="Anunț cu videoclip"
           >
             <Play className="w-3.5 h-3.5" aria-hidden="true" fill="currentColor" />
-          </span>
-        )}
-        {badge && (
-          <span className="absolute top-2 left-2 bg-pine text-paper text-spec px-2 py-1 rounded-sm">
-            {badge}
           </span>
         )}
       </div>
