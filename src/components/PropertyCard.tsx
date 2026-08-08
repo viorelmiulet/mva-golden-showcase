@@ -2,6 +2,8 @@ import { Link } from "@/lib/router-compat";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import SpecRail from "@/components/SpecRail";
 import { getPropertyUrl } from "@/lib/propertySlug";
+import { hasVideo } from "@/lib/videoEmbed";
+import { Play } from "lucide-react";
 
 const isCoordinates = (str: string | null | undefined) =>
   !!str && (/^\d{2,}\.\d{3,}/.test(str.trim()) || /^-?\d+\.\d+,?\s*-?\d+\.\d+$/.test(str.trim()));
@@ -82,6 +84,14 @@ const PropertyCard = ({ property: p, priority = false, to }: PropertyCardProps) 
           quality={75}
           priority={priority}
         />
+        {hasVideo(p) && (
+          <span
+            className="absolute bottom-2 right-2 flex items-center justify-center w-7 h-7 rounded-full bg-ink/70 text-paper"
+            aria-label="Anunț cu videoclip"
+          >
+            <Play className="w-3.5 h-3.5" aria-hidden="true" fill="currentColor" />
+          </span>
+        )}
         {badge && (
           <span className="absolute top-2 left-2 bg-pine text-paper text-spec px-2 py-1 rounded-sm">
             {badge}

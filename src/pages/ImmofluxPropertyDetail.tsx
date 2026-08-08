@@ -10,6 +10,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import SpecRail from "@/components/SpecRail";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyGallery from "@/components/property/PropertyGallery";
+import { rowVideoEmbedUrl } from "@/lib/videoEmbed";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { extractImmofluxIdFromSlug } from "@/lib/propertySlug";
@@ -372,7 +373,7 @@ const ImmofluxPropertyDetail = () => {
             {/* Above the fold: 60/40 */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
               <div className="lg:col-span-3">
-                <PropertyGallery images={images} title={title} alt={`${title} — ${zoneLabel}`} />
+                <PropertyGallery images={images} title={title} alt={`${title} — ${zoneLabel}`} videoEmbedUrl={rowVideoEmbedUrl(property)} />
               </div>
 
               <aside className="lg:col-span-2 lg:sticky lg:top-24">
