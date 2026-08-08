@@ -107,6 +107,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
       return data;
     },
     enabled: !!slug && !isLegacyUuid,
+    initialData: initialProject ?? undefined,
   });
 
   const { data: properties, isLoading: propertiesLoading, refetch } = useQuery({
@@ -121,14 +122,15 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
         .order('title');
       
       if (error) throw error;
-      console.log('[ComplexDetail] Fetched properties:', data?.length, 'with floor_plan:', data?.filter(p => p.floor_plan).length);
       return data;
     },
     enabled: !!project?.id,
+    initialData: initialProperties ?? undefined,
     staleTime: 0,
     gcTime: 0,
     refetchOnMount: 'always',
   });
+
 
   if (isLegacyUuid) {
     if (legacyProject?.slug) {
