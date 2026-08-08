@@ -10,12 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Building2, ArrowLeft, Upload, X, Loader2, Plus, Video, Trash2, ChevronUp, ChevronDown, Pencil, Check } from "lucide-react";
+import { Building2, ArrowLeft, Upload, X, Loader2 } from "lucide-react";
 
-interface VideoItem {
-  url: string;
-  title: string;
-}
+// NOTE: the legacy `videos` jsonb column on real_estate_projects is no longer
+// written to. One video per development lives in video_manual / video_id.
+// The column can be dropped once the remaining legacy rows are migrated.
 
 const EditComplex = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,11 +23,6 @@ const EditComplex = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [videos, setVideos] = useState<VideoItem[]>([]);
-  const [newVideoUrl, setNewVideoUrl] = useState("");
-  const [newVideoTitle, setNewVideoTitle] = useState("");
-  const [editingVideoIndex, setEditingVideoIndex] = useState<number | null>(null);
-  const [editingVideoTitle, setEditingVideoTitle] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -73,77 +67,8 @@ const EditComplex = () => {
         video_manual: (project as any).video_manual || (project as any).video_id || "",
       });
       setImagePreview(project.main_image);
-      // Load videos from database
-      const projectVideos = (project as any).videos;
-      if (projectVideos && Array.isArray(projectVideos)) {
-        setVideos(projectVideos);
-      }
     }
   }, [project]);
-
-  const extractYouTubeId = (url: string): string | null => {
-    // Support for regular YouTube videos and YouTube Shorts
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? match[2] : null;
-  };
-
-  const addVideo = () => {
-    if (!newVideoUrl.trim()) {
-      toast.error("Introduceți URL-ul videoclipului");
-      return;
-    }
-    
-    const videoId = extractYouTubeId(newVideoUrl);
-    if (!videoId) {
-      toast.error("URL-ul nu este un link YouTube valid");
-      return;
-    }
-
-    setVideos([...videos, { url: newVideoUrl.trim(), title: newVideoTitle.trim() || `Video ${videos.length + 1}` }]);
-    setNewVideoUrl("");
-    setNewVideoTitle("");
-    toast.success("Video adăugat");
-  };
-
-  const removeVideo = (index: number) => {
-    setVideos(videos.filter((_, i) => i !== index));
-    toast.success("Video eliminat");
-  };
-
-  const moveVideoUp = (index: number) => {
-    if (index === 0) return;
-    const newVideos = [...videos];
-    [newVideos[index - 1], newVideos[index]] = [newVideos[index], newVideos[index - 1]];
-    setVideos(newVideos);
-  };
-
-  const moveVideoDown = (index: number) => {
-    if (index === videos.length - 1) return;
-    const newVideos = [...videos];
-    [newVideos[index], newVideos[index + 1]] = [newVideos[index + 1], newVideos[index]];
-    setVideos(newVideos);
-  };
-
-  const startEditingVideo = (index: number) => {
-    setEditingVideoIndex(index);
-    setEditingVideoTitle(videos[index].title);
-  };
-
-  const saveVideoTitle = () => {
-    if (editingVideoIndex === null) return;
-    const newVideos = [...videos];
-    newVideos[editingVideoIndex] = { ...newVideos[editingVideoIndex], title: editingVideoTitle.trim() || `Video ${editingVideoIndex + 1}` };
-    setVideos(newVideos);
-    setEditingVideoIndex(null);
-    setEditingVideoTitle("");
-    toast.success("Titlu actualizat");
-  };
-
-  const cancelEditingVideo = () => {
-    setEditingVideoIndex(null);
-    setEditingVideoTitle("");
-  };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -239,7 +164,6 @@ const EditComplex = () => {
             completion_date: formData.completion_date.trim() || null,
             status: formData.status,
             main_image: imageUrl,
-            videos: videos,
             ...videoColumns,
           }
         }
@@ -265,7 +189,17 @@ const EditComplex = () => {
       await queryClient.invalidateQueries({ queryKey: ['admin-projects'] });
       await queryClient.invalidateQueries({ queryKey: ['public-projects'] });
 
-      toast.success("Complexul a fost actualizat cu succes!");
+      setFormData((current) => ({
+        ...current,
+        video_manual: (response.data?.video_manual as string | null) ?? "",
+      }));
+      await queryClient.refetchQueries({ queryKey: ['project-edit', id] });
+
+      toast.success(
+        videoColumns.video_id
+          ? "Complexul a fost actualizat. Videoclip salvat."
+          : "Complexul a fost actualizat. Fără videoclip.",
+      );
       navigate(`/admin/complexe/${id}`);
     } catch (error: any) {
       console.error('Error updating complex:', error);
@@ -486,158 +420,9 @@ const EditComplex = () => {
             <YouTubeVideoField
               value={formData.video_manual}
               onChange={(v) => setFormData({ ...formData, video_manual: v })}
+              onClear={() => setFormData({ ...formData, video_manual: "" })}
               hint="Se aplică tuturor proprietăților din ansamblu (videoul proprietății are prioritate)."
             />
-
-            {/* Videos Section - Only for RENEW RESIDENCE */}
-            {formData.name?.toUpperCase() === "RENEW RESIDENCE" && (
-              <div className="space-y-4 pt-4 border-t">
-                <div className="flex items-center gap-2">
-                  <Video className="h-5 w-5 text-primary" />
-                  <Label className="text-lg font-semibold">Stadiu Lucrare - Videoclipuri</Label>
-                </div>
-                
-                {/* Existing Videos */}
-                {videos.length > 0 && (
-                  <div className="space-y-3">
-                    {videos.map((video, index) => {
-                      const videoId = extractYouTubeId(video.url);
-                      return (
-                        <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                          {/* Reorder buttons */}
-                          <div className="flex flex-col gap-1">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => moveVideoUp(index)}
-                              disabled={index === 0}
-                              aria-label="Mută videoclipul mai sus"
-                            >
-                              <ChevronUp className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => moveVideoDown(index)}
-                              disabled={index === videos.length - 1}
-                              aria-label="Mută videoclipul mai jos"
-                            >
-                              <ChevronDown className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          {videoId && (
-                            <img 
-                              src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
-                              alt={video.title}
-                              className="w-24 h-16 object-cover rounded"
-                            />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            {editingVideoIndex === index ? (
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  value={editingVideoTitle}
-                                  onChange={(e) => setEditingVideoTitle(e.target.value)}
-                                  className="h-8"
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') saveVideoTitle();
-                                    if (e.key === 'Escape') cancelEditingVideo();
-                                  }}
-                                  autoFocus
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-10 w-10 md:h-8 md:w-8 text-green-600"
-                                  onClick={saveVideoTitle}
-                                  aria-label="Salvează titlul videoclipului"
-                                >
-                                  <Check className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-10 w-10 md:h-8 md:w-8"
-                                  onClick={cancelEditingVideo}
-                                  aria-label="Anulează editarea titlului"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            ) : (
-                              <>
-                                <p className="font-medium truncate">{video.title}</p>
-                                <p className="text-xs text-muted-foreground truncate">{video.url}</p>
-                              </>
-                            )}
-                          </div>
-                          {editingVideoIndex !== index && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => startEditingVideo(index)}
-                              aria-label="Editează titlul videoclipului"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => removeVideo(index)}
-                            aria-label="Șterge videoclipul"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Add New Video */}
-                <div className="space-y-3 p-4 border border-dashed rounded-lg">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="videoUrl">URL YouTube</Label>
-                      <Input
-                        id="videoUrl"
-                        value={newVideoUrl}
-                        onChange={(e) => setNewVideoUrl(e.target.value)}
-                        placeholder="https://www.youtube.com/watch?v=..."
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="videoTitle">Titlu Video</Label>
-                      <Input
-                        id="videoTitle"
-                        value={newVideoTitle}
-                        onChange={(e) => setNewVideoTitle(e.target.value)}
-                        placeholder="Ex: Stadiu lucrare Decembrie 2024"
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={addVideo}
-                    className="w-full"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Adaugă Video
-                  </Button>
-                </div>
-              </div>
-            )}
 
             {/* Submit Buttons */}
             <div className="flex gap-4 pt-4">

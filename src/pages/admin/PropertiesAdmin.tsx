@@ -292,9 +292,16 @@ const PropertiesAdmin = () => {
         throw new Error("Serverul nu a confirmat salvarea linkului video");
       }
 
+      setEditForm((current: any) => ({
+        ...current,
+        video_manual: (data.data?.video_manual as string | null) ?? "",
+      }));
+
       toast({
         title: "Succes!",
-        description: "Proprietatea a fost actualizată",
+        description: videoColumns.video_id
+          ? "Proprietatea a fost actualizată. Videoclip salvat."
+          : "Proprietatea a fost actualizată. Fără videoclip.",
       });
 
       queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
@@ -1302,6 +1309,7 @@ const PropertiesAdmin = () => {
                 <YouTubeVideoField
                   value={editForm.video_manual || ""}
                   onChange={(v) => setEditForm({ ...editForm, video_manual: v })}
+                  onClear={() => setEditForm({ ...editForm, video_manual: "" })}
                 />
               </div>
             </div>
@@ -1481,6 +1489,7 @@ const PropertiesAdmin = () => {
                 <YouTubeVideoField
                   value={addForm.video_manual}
                   onChange={(v) => setAddForm({ ...addForm, video_manual: v })}
+                  onClear={() => setAddForm({ ...addForm, video_manual: "" })}
                 />
               </div>
             </div>

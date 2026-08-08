@@ -228,7 +228,7 @@ export async function adminComplexes(body: AnyRecord): Promise<Result> {
           completion_date: data.completion_date ?? null,
           status: data.status ?? "in_progress",
           main_image: data.main_image ?? null,
-          videos: data.videos ?? [],
+          // legacy `videos` jsonb column is intentionally not written anymore
           video_manual: data.video_manual ?? null,
           video_id: data.video_id ?? null,
           video_thumb_url: await thumbFor(data.video_id),
@@ -255,7 +255,7 @@ export async function adminComplexes(body: AnyRecord): Promise<Result> {
           completion_date: data.completion_date,
           status: data.status,
           main_image: data.main_image,
-          videos: data.videos,
+          // legacy `videos` jsonb column is intentionally not written anymore
           video_manual: data.video_manual ?? null,
           video_id: data.video_id ?? null,
           video_thumb_url: await thumbFor(data.video_id),
