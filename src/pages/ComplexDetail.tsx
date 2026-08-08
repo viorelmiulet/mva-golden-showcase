@@ -218,7 +218,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
 
   // Check if this complex has multiple buildings (Scara/Corpul)
   const hasMultipleBuildings = properties?.some(p => 
-    p.features?.some(f => f?.startsWith('Scara') || f?.startsWith('Corpul') || f?.startsWith('Bloc'))
+    p.features?.some((f: string) => f?.startsWith('Scara') || f?.startsWith('Corpul') || f?.startsWith('Bloc'))
   ) || false;
 
   // Get unique room counts for filter options
@@ -255,7 +255,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
   // Sort properties within each group based on selected criteria
   Object.keys(groupedByBuildingAndFloor).forEach(building => {
     Object.keys(groupedByBuildingAndFloor[building]).forEach(floor => {
-      groupedByBuildingAndFloor[building]![floor]!.sort((a, b) => {
+      groupedByBuildingAndFloor[building]![floor]!.sort((a: any, b: any) => {
         switch (sortBy) {
           case "price-asc":
             return (a.price_min || 0) - (b.price_min || 0);
@@ -339,7 +339,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
             },
             "numberOfRooms": project.rooms_range,
             "floorSize": project.surface_range,
-            "amenityFeature": project.amenities?.map(amenity => ({
+            "amenityFeature": project.amenities?.map((amenity: string) => ({
               "@type": "LocationFeatureSpecification",
               "name": amenity
             })),
@@ -635,8 +635,8 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
           {hasMultipleBuildings && (
             <div className="mb-6 sm:mb-8 flex flex-wrap gap-2">
               {sortedBuildings.map((building) => {
-                const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
-                const totalInBuilding = Object.values(floorsInBuilding).reduce((sum, apts) => sum + (apts?.length || 0), 0);
+                const floorsInBuilding: Record<string, any[]> = groupedByBuildingAndFloor[building] || {};
+                const totalInBuilding = Object.values(floorsInBuilding).reduce((sum: number, apts: any[]) => sum + (apts?.length || 0), 0);
                 const isSelected = activeBuilding === building;
                 
                 return (
@@ -660,7 +660,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
 
           {/* Apartments by Building and Floor */}
           {sortedBuildings.filter(b => !hasMultipleBuildings || b === activeBuilding).map((building) => {
-            const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
+            const floorsInBuilding: Record<string, any[]> = groupedByBuildingAndFloor[building] || {};
             const sortedFloorsInBuilding = Object.keys(floorsInBuilding).sort((a, b) => {
               const aIndex = floorOrder.indexOf(a);
               const bIndex = floorOrder.indexOf(b);
@@ -683,7 +683,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-                      {floorsInBuilding[floor]?.map((apt) => {
+                      {floorsInBuilding[floor]?.map((apt: any) => {
                         const isAvailable = apt.availability_status === 'available';
                         // Match "AP 21", "Apartament 21", "ap21", "- AP 48", etc.
                         const aptNumberMatch = apt.title.match(/(?:AP|Apartament)\.?\s*(\d+)/i);
