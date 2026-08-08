@@ -1,5 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import { extractYouTubeId, youtubeThumb } from "@/lib/videoEmbed";
 
 interface YouTubeVideoFieldProps {
@@ -19,6 +21,7 @@ interface YouTubeVideoFieldProps {
 const YouTubeVideoField = ({
   value,
   onChange,
+  onClear,
   label = "Video YouTube",
   hint = "Link YouTube (watch, youtu.be, embed, shorts) sau ID-ul de 11 caractere.",
 }: YouTubeVideoFieldProps) => {
@@ -28,7 +31,15 @@ const YouTubeVideoField = ({
 
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
+      <div className="flex items-center justify-between gap-2">
+        <Label>{label}</Label>
+        {onClear && raw.length > 0 && (
+          <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={onClear}>
+            <Trash2 className="mr-1 h-4 w-4" />
+            Șterge videoclipul
+          </Button>
+        )}
+      </div>
       <Input
         value={value || ""}
         placeholder="https://www.youtube.com/watch?v=..."
