@@ -1,0 +1,1 @@
+ALTER TABLE public.catalog_offers ADD COLUMN IF NOT EXISTS video_embed_url text;
