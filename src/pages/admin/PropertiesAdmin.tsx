@@ -237,6 +237,16 @@ const PropertiesAdmin = () => {
   const updateProperty = async () => {
     if (!editingProperty) return;
 
+    const videoColumns = videoColumnsFrom(editForm.video_manual || "");
+    if (!videoColumns) {
+      toast({
+        title: "Link video invalid",
+        description: "Corectează câmpul „Video YouTube” înainte de a salva.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsUpdating(true);
     try {
       const updateData = {
@@ -262,8 +272,10 @@ const PropertiesAdmin = () => {
               .filter(Boolean)
           : [],
         images: editImages,
+        ...videoColumns,
         updated_at: new Date().toISOString(),
       };
+
 
       const { data, error } = await invokeAdminFn("admin-offers", {
         body: { action: "update_offer", id: editingProperty.id, data: updateData },
