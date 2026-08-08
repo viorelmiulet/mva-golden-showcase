@@ -65,6 +65,7 @@ const AddComplex = () => {
     completion_date: "",
     status: "available",
   });
+  const [videos, setVideos] = useState<VideoEntry[]>([]);
 
   const finalUrlPreview = useMemo(
     () => `mvaimobiliare.ro/complexe/${formData.slug || "slug-complex"}`,
