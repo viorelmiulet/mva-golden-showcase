@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import YouTubeVideoField, { videoColumnsFrom } from "@/components/admin/YouTubeVideoField";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -1276,6 +1277,12 @@ const PropertiesAdmin = () => {
                 <Input
                   value={editForm.amenities || ""}
                   onChange={(e) => setEditForm({ ...editForm, amenities: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <YouTubeVideoField
+                  value={editForm.video_manual || ""}
+                  onChange={(v) => setEditForm({ ...editForm, video_manual: v })}
                 />
               </div>
             </div>
