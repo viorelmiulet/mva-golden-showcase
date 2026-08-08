@@ -289,7 +289,7 @@ const PropertyDetail = () => {
   const fetchComplexSlug = async () => {
     if (!property?.project_id && !property?.project_name) return;
     try {
-      let query = supabase.from("real_estate_projects").select("slug, name, id, video_manual, video_id").limit(1);
+      let query = supabase.from("real_estate_projects").select("slug, name, id, video_manual, video_id, video_thumb_url, project_videos(youtube_id, title, position, thumb_url)").limit(1);
       if (property.project_id) {
         query = query.eq("id", property.project_id);
       } else if (property.project_name) {
