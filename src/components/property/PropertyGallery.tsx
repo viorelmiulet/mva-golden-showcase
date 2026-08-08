@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, X, Image as ImageIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Image as ImageIcon, Play } from "lucide-react";
 import { useSwipeCarousel, usePrefersReducedMotion } from "@/hooks/useSwipeCarousel";
+import { useMarketingConsent, openCookieSettings } from "@/hooks/useMarketingConsent";
 
 interface PropertyGalleryProps {
   images: string[];
   title: string;
   alt?: string;
+  /** Normalized embed URL (youtube-nocookie / vimeo). Omitted when the listing has no video. */
+  videoEmbedUrl?: string | null;
 }
 
 /**
@@ -14,11 +17,14 @@ interface PropertyGalleryProps {
  * Touch devices get finger-tracked horizontal swipes; the lightbox also
  * closes on swipe down. Desktop layout, thumbnails and arrows are unchanged.
  */
-const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
+const PropertyGallery = ({ images, title, alt, videoEmbedUrl }: PropertyGalleryProps) => {
   const list = (images || []).filter(Boolean);
   const [index, setIndex] = useState(0);
   const [lightbox, setLightbox] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
+  const marketingConsent = useMarketingConsent();
+  const hasVideo = Boolean(videoEmbedUrl);
 
   const next = useCallback(() => setIndex((i) => (list.length ? (i + 1) % list.length : 0)), [list.length]);
   const prev = useCallback(
@@ -36,19 +42,24 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
   }, [index, list.length]);
 
   const main = useSwipeCarousel<HTMLDivElement>({ onNext: next, onPrev: prev });
+  const closeLightbox = useCallback(() => {
+    setLightbox(false);
+    setVideoOpen(false);
+  }, []);
+
   const box = useSwipeCarousel<HTMLDivElement>({
     onNext: next,
     onPrev: prev,
-    onDismiss: () => setLightbox(false),
-    enabled: lightbox,
+    onDismiss: closeLightbox,
+    enabled: lightbox && !videoOpen,
   });
 
   useEffect(() => {
     if (!lightbox) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightbox(false);
-      else if (e.key === "ArrowRight") next();
-      else if (e.key === "ArrowLeft") prev();
+      if (e.key === "Escape") closeLightbox();
+      else if (!videoOpen && e.key === "ArrowRight") next();
+      else if (!videoOpen && e.key === "ArrowLeft") prev();
     };
     window.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
@@ -57,7 +68,7 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [lightbox, next, prev]);
+  }, [lightbox, videoOpen, next, prev, closeLightbox]);
 
   if (list.length === 0) {
     return (
@@ -116,9 +127,9 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
         {list.length > 1 && counter}
       </div>
 
-      {list.length > 1 && (
+      {(list.length > 1 || hasVideo) && (
         <div className="mt-3 grid grid-cols-5 gap-2">
-          {list.slice(0, 5).map((src, i) => (
+          {list.slice(0, 1).map((src, i) => (
             <button
               key={`${src}-${i}`}
               type="button"
@@ -139,6 +150,62 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
               />
             </button>
           ))}
+
+          {/* Video tile takes the second thumbnail slot when the listing has one. */}
+          {hasVideo && (
+            <button
+              type="button"
+              onClick={() => {
+                setVideoOpen(true);
+                setLightbox(true);
+              }}
+              aria-label="Redă videoclipul proprietății"
+              aria-haspopup="dialog"
+              className="relative rounded-sm overflow-hidden border border-stone hover:border-brass/60 transition-colors bg-ink"
+            >
+              {list[1] ? (
+                <img
+                  src={list[1]}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-full aspect-[3/2] object-cover opacity-60"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <div className="w-full aspect-[3/2]" />
+              )}
+              <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-paper">
+                <Play className="w-5 h-5" aria-hidden="true" fill="currentColor" />
+                <span className="text-spec">Video</span>
+              </span>
+            </button>
+          )}
+
+          {list.slice(1, hasVideo ? 5 : 5).map((src, i) => {
+            const realIndex = i + 1;
+            return (
+              <button
+                key={`${src}-${realIndex}`}
+                type="button"
+                onClick={() => setIndex(realIndex)}
+                onDoubleClick={() => setLightbox(true)}
+                aria-label={`Afișează imaginea ${realIndex + 1} din ${list.length}`}
+                aria-current={realIndex === index ? "true" : undefined}
+                className={`rounded-sm overflow-hidden border transition-colors ${
+                  realIndex === index ? "border-brass" : "border-stone hover:border-brass/60"
+                }`}
+              >
+                <img
+                  src={src}
+                  alt={`${imageAlt} — imagine ${realIndex + 1} din ${list.length}`}
+                  className="w-full aspect-[3/2] object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </button>
+            );
+          }).slice(0, hasVideo ? 3 : 4)}
         </div>
       )}
 
