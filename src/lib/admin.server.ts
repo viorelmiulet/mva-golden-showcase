@@ -24,6 +24,23 @@ async function db() {
 
 const fail = (error: string): Result => ({ success: false, error });
 
+const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{11}$/;
+
+function validateVideoColumns(data: AnyRecord): string | null {
+  const manual = data.video_manual;
+  const videoId = data.video_id;
+  const hasManual = typeof manual === "string" && manual.trim().length > 0;
+  const hasId = typeof videoId === "string" && videoId.trim().length > 0;
+
+  if (hasManual !== hasId) {
+    return "Câmpurile video_manual și video_id trebuie salvate împreună";
+  }
+  if (hasId && !YOUTUBE_ID_RE.test(String(videoId).trim())) {
+    return "ID-ul YouTube extras nu este valid";
+  }
+  return null;
+}
+
 /* ------------------------------------------------------------------ */
 /* admin-offers                                                        */
 /* ------------------------------------------------------------------ */
@@ -74,10 +91,24 @@ export async function adminOffers(body: AnyRecord): Promise<Result> {
     const id = body?.id as string | undefined;
     const data = body?.data as AnyRecord | undefined;
     if (!id || !data) return fail("Missing required fields: id, data");
+    const invalidVideo = validateVideoColumns(data);
+    if (invalidVideo) return fail(invalidVideo);
     if ("currency" in data) data.currency = "EUR";
-    const { error } = await supabase.from("catalog_offers").update(data).eq("id", id);
+    const { data: updated, error } = await supabase
+      .from("catalog_offers")
+      .update(data)
+      .eq("id", id)
+      .select("id, video_manual, video_id")
+      .maybeSingle();
     if (error) return fail(error.message);
-    return { success: true, message: "Offer updated successfully", id };
+    if (!updated) return fail("Proprietatea nu a fost găsită sau nu a putut fi actualizată");
+    if ("video_manual" in data && updated.video_manual !== (data.video_manual ?? null)) {
+      return fail("Linkul video nu a fost persistat. Reîncarcă pagina și încearcă din nou");
+    }
+    if ("video_id" in data && updated.video_id !== (data.video_id ?? null)) {
+      return fail("ID-ul video nu a fost persistat. Reîncarcă pagina și încearcă din nou");
+    }
+    return { success: true, message: "Offer updated successfully", id, data: updated };
   }
 
   if (action === "update_status") {
@@ -182,6 +213,8 @@ export async function adminComplexes(body: AnyRecord): Promise<Result> {
 
     case "update_complex": {
       if (!id || !data) return fail("Missing id or data");
+      const invalidVideo = validateVideoColumns(data);
+      if (invalidVideo) return fail(invalidVideo);
       const { data: updatedData, error } = await supabase
         .from("real_estate_projects")
         .update({
@@ -201,8 +234,16 @@ export async function adminComplexes(body: AnyRecord): Promise<Result> {
           updated_at: new Date().toISOString(),
         })
         .eq("id", id)
-        .select();
+        .select("id, video_manual, video_id")
+        .maybeSingle();
       if (error) return fail(error.message);
+      if (!updatedData) return fail("Ansamblul nu a fost găsit sau nu a putut fi actualizat");
+      if (updatedData.video_manual !== (data.video_manual ?? null)) {
+        return fail("Linkul video nu a fost persistat. Reîncarcă pagina și încearcă din nou");
+      }
+      if (updatedData.video_id !== (data.video_id ?? null)) {
+        return fail("ID-ul video nu a fost persistat. Reîncarcă pagina și încearcă din nou");
+      }
       return { success: true, data: updatedData };
     }
 
