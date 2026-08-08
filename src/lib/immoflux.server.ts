@@ -17,6 +17,7 @@ import {
   buildSourceCodes,
 } from "@/lib/immofluxTypes";
 import {
+import { normalizeVideoUrl } from "@/lib/videoEmbed";
   loadCodeMap,
   recordUnmappedCodes,
   resolveCodes,
@@ -1356,6 +1357,10 @@ interface ImmofluxProperty {
   pole?: number;
   poleposition?: number;
   tip?: string;
+  video_url?: string | null;
+  video?: string | null;
+  videoclip?: string | null;
+  linkvideo?: string | null;
 }
 
 async function fetchAllProperties(supabase: any): Promise<ImmofluxProperty[]> {
@@ -1522,6 +1527,12 @@ function mapToCatalogOffer(p: ImmofluxProperty, codeMap: CodeMap): Record<string
     if (!isNaN(ts)) date_added = new Date(ts * (ts > 1e12 ? 1 : 1000)).toISOString();
   }
 
+  // Feed exposes the video under a few historical field names; first usable wins.
+  const rawVideo = [p.video_url, p.video, p.videoclip, p.linkvideo].find(
+    (v) => typeof v === "string" && v.trim()
+  ) as string | undefined;
+  const normalizedVideo = normalizeVideoUrl(rawVideo);
+
   const floorLabel = p.etaj ? String(p.etaj).trim() : null;
   const floorInt = intOrNull(p.etaj);
   const immofluxSlug = buildImmofluxSlug(p, surface, floorLabel);
@@ -1544,6 +1555,8 @@ function mapToCatalogOffer(p: ImmofluxProperty, codeMap: CodeMap): Record<string
     surface_max: surface,
     surface_land: surfaceLand,
     images,
+    video: normalizedVideo ? normalizedVideo.raw : null,
+    video_embed_url: normalizedVideo ? normalizedVideo.embedUrl : null,
     location: p.adresa || p.zona || p.localitate,
     zone: sanitizeZone(p.zona, p.localitate, p.adresa),
     city: p.localitate || null,
