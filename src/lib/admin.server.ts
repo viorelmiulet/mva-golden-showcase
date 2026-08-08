@@ -70,13 +70,23 @@ export async function adminOffers(body: AnyRecord): Promise<Result> {
     if (!("amenities" in offer)) offer.amenities = [];
     if (!("is_published" in offer)) offer.is_published = true;
 
+    const invalidVideo = validateVideoColumns(offer);
+    if (invalidVideo) return fail(invalidVideo);
+
     const { data, error } = await supabase
       .from("catalog_offers")
       .insert(offer)
-      .select("id")
+      .select("id, video_manual, video_id")
       .maybeSingle();
     if (error) return fail(error.message);
-    return { success: true, message: "Offer inserted successfully", id: data?.id };
+    if (!data?.id) return fail("Proprietatea nu a putut fi creată");
+    if ("video_manual" in offer && data.video_manual !== (offer.video_manual ?? null)) {
+      return fail("Linkul video nu a fost persistat. Reîncearcă salvarea");
+    }
+    if ("video_id" in offer && data.video_id !== (offer.video_id ?? null)) {
+      return fail("ID-ul video nu a fost persistat. Reîncearcă salvarea");
+    }
+    return { success: true, message: "Offer inserted successfully", id: data.id, data };
   }
 
   if (action === "delete_offer") {
