@@ -222,7 +222,9 @@ const PropertiesAdmin = () => {
       project_name: property.project_name || "",
       features: Array.isArray(property.features) ? property.features.join(", ") : "",
       amenities: Array.isArray(property.amenities) ? property.amenities.join(", ") : "",
+      video_manual: property.video_manual || property.video_id || "",
     });
+
     setEditImages(Array.isArray(property.images) ? property.images : []);
   };
 
