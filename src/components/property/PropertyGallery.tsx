@@ -215,13 +215,13 @@ const PropertyGallery = ({ images, title, alt, videoEmbedUrl }: PropertyGalleryP
           aria-modal="true"
           aria-label="Galerie imagini"
           className="fixed inset-0 z-[100] bg-ink/95 flex items-center justify-center"
-          onClick={() => setLightbox(false)}
+          onClick={closeLightbox}
         >
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              setLightbox(false);
+              closeLightbox();
             }}
             className="absolute top-4 right-4 p-2 text-paper hover:text-brass"
             aria-label="Închide galeria pe tot ecranul"
@@ -229,7 +229,7 @@ const PropertyGallery = ({ images, title, alt, videoEmbedUrl }: PropertyGalleryP
             <X className="w-6 h-6" />
           </button>
 
-          {list.length > 1 && (
+          {list.length > 1 && !videoOpen && (
             <>
               <button
                 type="button"
@@ -256,30 +256,68 @@ const PropertyGallery = ({ images, title, alt, videoEmbedUrl }: PropertyGalleryP
             </>
           )}
 
-          <div
-            ref={box.ref}
-            className="touch-pan-y"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              transform: `translate3d(${box.dx}px, ${box.dy}px, 0)`,
-              transition: box.dragging ? "none" : transition,
-              opacity: box.dy ? Math.max(0.4, 1 - box.dy / 400) : 1,
-            }}
-          >
-            <img
-              src={list[index]}
-              alt={`${imageAlt} — imagine ${index + 1} din ${list.length}`}
-              className="max-h-[88vh] max-w-[92vw] object-contain rounded-sm"
-              draggable={false}
-            />
-          </div>
+          {videoOpen ? (
+            <div
+              className="w-[92vw] max-w-[1100px] aspect-video bg-ink rounded-sm overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {marketingConsent ? (
+                <iframe
+                  src={videoEmbedUrl as string}
+                  title={`Videoclip: ${imageAlt}`}
+                  className="w-full h-full"
+                  loading="lazy"
+                  frameBorder={0}
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3 p-6 text-center bg-ink text-paper">
+                  <Play className="w-8 h-8 text-brass" aria-hidden="true" fill="currentColor" />
+                  <p className="text-small text-paper/80 max-w-sm">
+                    Videoclipul este blocat până acceptați cookie-urile de marketing.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={openCookieSettings}
+                    className="rounded-sm bg-brass text-ink px-4 py-2 text-small font-medium"
+                  >
+                    Redă videoclipul
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div
+              ref={box.ref}
+              className="touch-pan-y"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                transform: `translate3d(${box.dx}px, ${box.dy}px, 0)`,
+                transition: box.dragging ? "none" : transition,
+                opacity: box.dy ? Math.max(0.4, 1 - box.dy / 400) : 1,
+              }}
+            >
+              <img
+                src={list[index]}
+                alt={`${imageAlt} — imagine ${index + 1} din ${list.length}`}
+                className="max-h-[88vh] max-w-[92vw] object-contain rounded-sm"
+                draggable={false}
+              />
+            </div>
+          )}
 
-          <p className="absolute bottom-5 text-spec text-paper/70" aria-hidden="true">
-            {index + 1} / {list.length}
-          </p>
-          <p className="sr-only" aria-live="polite" aria-atomic="true">
-            {`Imaginea ${index + 1} din ${list.length}`}
-          </p>
+          {!videoOpen && (
+            <>
+              <p className="absolute bottom-5 text-spec text-paper/70" aria-hidden="true">
+                {index + 1} / {list.length}
+              </p>
+              <p className="sr-only" aria-live="polite" aria-atomic="true">
+                {`Imaginea ${index + 1} din ${list.length}`}
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>
