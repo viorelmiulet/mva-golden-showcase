@@ -211,6 +211,10 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     [catalogProperties]
   );
 
+  /** Hide the "Cu video" filter while no active listing resolves to a video. */
+  const anyVideo = useMemo(() => properties.some((p: any) => hasVideo(p)), [properties]);
+
+
   // ---- Options derived from data --------------------------------------
   const zoneOptions = useMemo(() => {
     const set = new Set<string>();
