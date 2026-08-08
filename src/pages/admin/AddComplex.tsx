@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Building2, ArrowLeft, Upload, X } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { z } from "zod";
+import YouTubeVideoField, { videoColumnsFrom } from "@/components/admin/YouTubeVideoField";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -61,6 +62,7 @@ const AddComplex = () => {
     rooms_range: "",
     completion_date: "",
     status: "available",
+    video_manual: "",
   });
 
   const finalUrlPreview = useMemo(
@@ -191,6 +193,12 @@ const AddComplex = () => {
       return;
     }
 
+    const videoColumns = videoColumnsFrom(formData.video_manual);
+    if (!videoColumns) {
+      toast.error("Link YouTube invalid — corectează câmpul Video YouTube");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -210,15 +218,27 @@ const AddComplex = () => {
         completion_date: formData.completion_date.trim() || null,
         status: formData.status,
         main_image: imageUrl,
+        ...videoColumns,
       });
 
       if (!result.success) throw new Error(result.error);
 
+      const inserted = (result.data as any[] | undefined)?.[0];
+      if (!inserted?.id) throw new Error("Serverul nu a returnat complexul creat");
+      if (
+        (inserted.video_manual ?? null) !== videoColumns.video_manual ||
+        (inserted.video_id ?? null) !== videoColumns.video_id
+      ) {
+        throw new Error("Serverul nu a confirmat salvarea linkului video");
+      }
+
       toast.success("Complexul a fost adăugat cu succes!");
-      navigate(`/admin/complexe/${(result.data as any[])[0].id}`);
+      navigate(`/admin/complexe/${inserted.id}`);
     } catch (error: any) {
       console.error('Error creating complex:', error);
-      toast.error(error.message || "Eroare la crearea complexului");
+      toast.error(`Salvarea a eșuat: ${error.message || "Eroare la crearea complexului"}`, {
+        duration: 8000,
+      });
     } finally {
       setIsLoading(false);
     }
