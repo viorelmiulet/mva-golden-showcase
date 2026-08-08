@@ -12,7 +12,9 @@ import { toast } from "sonner";
 import { Building2, ArrowLeft, Upload, X } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { z } from "zod";
-import YouTubeVideoField, { videoColumnsFrom } from "@/components/admin/YouTubeVideoField";
+import DevelopmentVideosField, { videoRowsFrom, type VideoEntry } from "@/components/admin/DevelopmentVideosField";
+import { invokeAdminFn } from "@/lib/adminInvoke";
+import { youtubeWatchUrl } from "@/lib/videoEmbed";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -62,8 +64,8 @@ const AddComplex = () => {
     rooms_range: "",
     completion_date: "",
     status: "available",
-    video_manual: "",
   });
+  const [videos, setVideos] = useState<VideoEntry[]>([]);
 
   const finalUrlPreview = useMemo(
     () => `mvaimobiliare.ro/complexe/${formData.slug || "slug-complex"}`,
@@ -193,9 +195,9 @@ const AddComplex = () => {
       return;
     }
 
-    const videoColumns = videoColumnsFrom(formData.video_manual);
-    if (!videoColumns) {
-      toast.error("Link YouTube invalid — corectează câmpul Video YouTube");
+    const videoRows = videoRowsFrom(videos);
+    if (!videoRows) {
+      toast.error("Link YouTube invalid — corectează lista de videoclipuri");
       return;
     }
 
@@ -218,18 +220,23 @@ const AddComplex = () => {
         completion_date: formData.completion_date.trim() || null,
         status: formData.status,
         main_image: imageUrl,
-        ...videoColumns,
       });
 
       if (!result.success) throw new Error(result.error);
 
       const inserted = (result.data as any[] | undefined)?.[0];
       if (!inserted?.id) throw new Error("Serverul nu a returnat complexul creat");
-      if (
-        (inserted.video_manual ?? null) !== videoColumns.video_manual ||
-        (inserted.video_id ?? null) !== videoColumns.video_id
-      ) {
-        throw new Error("Serverul nu a confirmat salvarea linkului video");
+      if (videoRows.length) {
+        const { data: videoResponse, error: videoError } = await invokeAdminFn('admin-complexes', {
+          body: { action: 'set_complex_videos', id: inserted.id, data: { videos: videoRows } },
+        });
+        if (videoError) throw videoError;
+        if (!videoResponse?.success) {
+          throw new Error(videoResponse?.error || "Videoclipurile nu au putut fi salvate");
+        }
+        if (((videoResponse.data as any[]) ?? []).length !== videoRows.length) {
+          throw new Error("Serverul nu a confirmat salvarea videoclipurilor");
+        }
       }
 
       toast.success("Complexul a fost adăugat cu succes!");
@@ -459,11 +466,10 @@ const AddComplex = () => {
               </div>
 
               {/* Manual YouTube video — applies to every property in this complex */}
-              <YouTubeVideoField
-                value={formData.video_manual}
-                onChange={(v) => setFormData({ ...formData, video_manual: v })}
-                onClear={() => setFormData({ ...formData, video_manual: "" })}
-                hint="Se aplică tuturor proprietăților din ansamblu (videoul proprietății are prioritate)."
+              <DevelopmentVideosField
+                value={videos}
+                onChange={setVideos}
+                hint="Primul videoclip se afișează ca player principal și este moștenit de proprietățile din ansamblu (videoul proprietății are prioritate)."
               />
 
 

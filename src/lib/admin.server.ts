@@ -275,6 +275,43 @@ export async function adminComplexes(body: AnyRecord): Promise<Result> {
       return { success: true, data: updatedData };
     }
 
+    case "set_complex_videos": {
+      if (!id) return fail("Missing id");
+      const rows = Array.isArray((data as any)?.videos) ? (data as any).videos : [];
+      const normalized: { project_id: string; youtube_id: string; title: string | null; position: number; thumb_url: string | null }[] = [];
+      for (let i = 0; i < rows.length; i++) {
+        const yid = typeof rows[i]?.youtube_id === "string" ? rows[i].youtube_id.trim() : "";
+        if (!YOUTUBE_ID_RE.test(yid)) return fail(`Videoclipul ${i + 1} are un ID YouTube invalid`);
+        const title = typeof rows[i]?.title === "string" && rows[i].title.trim() ? rows[i].title.trim() : null;
+        normalized.push({
+          project_id: id,
+          youtube_id: yid,
+          title,
+          position: i + 1,
+          thumb_url: await thumbFor(yid),
+        });
+      }
+
+      const { error: delError } = await supabase.from("project_videos").delete().eq("project_id", id);
+      if (delError) return fail(delError.message);
+
+      if (normalized.length) {
+        const { error: insError } = await supabase.from("project_videos").insert(normalized);
+        if (insError) return fail(insError.message);
+      }
+
+      const { data: persisted, error: readError } = await supabase
+        .from("project_videos")
+        .select("youtube_id, title, position, thumb_url")
+        .eq("project_id", id)
+        .order("position");
+      if (readError) return fail(readError.message);
+      if ((persisted?.length ?? 0) !== normalized.length) {
+        return fail("Videoclipurile nu au fost persistate. Reîncarcă pagina și încearcă din nou");
+      }
+      return { success: true, data: persisted };
+    }
+
     case "delete_complex": {
       if (!id) return fail("Missing id");
       const { error } = await supabase.from("real_estate_projects").delete().eq("id", id);

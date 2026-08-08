@@ -4,7 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { supabase } from "@/integrations/supabase/client";
 import { getComplexUrl } from "@/lib/complexSlug";
 import { buildItemListJsonLd } from "@/lib/listingJsonLd";
-import { resolvePropertyVideo } from "@/lib/videoEmbed";
+import { developmentVideos } from "@/lib/videoEmbed";
 import { isUUID } from "@/lib/complexSlug";
 
 const SITE = "https://www.mvaimobiliare.ro";
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/complexe/$slug")({
 
     const { data: project } = await supabase
       .from("real_estate_projects")
-      .select("*")
+      .select("*, project_videos(youtube_id, title, position, thumb_url)")
       .eq("slug", params.slug)
       .maybeSingle();
 
@@ -84,14 +84,13 @@ export const Route = createFileRoute("/complexe/$slug")({
       });
     }
 
-    const video = resolvePropertyVideo(null, project);
-    if (video) {
+    for (const video of developmentVideos(project)) {
       scripts.push({
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "VideoObject",
-          name: `Tur video — ${project.name}`,
+          name: video.title || `Tur video — ${project.name}`,
           description,
           ...(video.thumbnailUrl || image ? { thumbnailUrl: video.thumbnailUrl || image } : {}),
           uploadDate: new Date(project.updated_at || project.created_at || Date.now()).toISOString(),

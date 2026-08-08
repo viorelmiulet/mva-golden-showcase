@@ -1639,6 +1639,47 @@ export type Database = {
         }
         Relationships: []
       }
+      project_videos: {
+        Row: {
+          created_at: string
+          id: string
+          position: number
+          project_id: string
+          thumb_url: string | null
+          title: string | null
+          updated_at: string
+          youtube_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          position?: number
+          project_id: string
+          thumb_url?: string | null
+          title?: string | null
+          updated_at?: string
+          youtube_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          position?: number
+          project_id?: string
+          thumb_url?: string | null
+          title?: string | null
+          updated_at?: string
+          youtube_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_videos_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "real_estate_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       real_estate_projects: {
         Row: {
           amenities: string[] | null

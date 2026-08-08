@@ -106,7 +106,7 @@ export const Route = createFileRoute("/proprietati/$slug")({
     if (!row.video_id && !row.video_manual && !row.video_embed_url && !row.video && row.project_id) {
       const { data: dev } = await supabase
         .from("real_estate_projects")
-        .select("video_manual, video_id")
+        .select("video_manual, video_id, video_thumb_url, project_videos(youtube_id, title, position, thumb_url)")
         .eq("id", row.project_id)
         .maybeSingle();
       development = dev || null;
