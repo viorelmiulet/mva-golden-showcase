@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { composePropertyDescription, composeMetaDescription } from "@/lib/propertyDescription";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { generatePropertySlug, extractShortIdFromSlug } from "@/lib/propertySlug";
+import { rowVideoEmbedUrl } from "@/lib/videoEmbed";
 
 const SITE = "https://www.mvaimobiliare.ro";
 
@@ -100,6 +101,7 @@ export const Route = createFileRoute("/proprietati/$slug")({
 
     const canonicalSlug = row.immoflux_slug || row.slug || params.slug;
     const metaDescription = composeMetaDescription(description);
+    const videoEmbed = rowVideoEmbedUrl(row);
     const title = `${baseTitle} | MVA Imobiliare`;
     const url = `${SITE}/proprietati/${canonicalSlug}`;
 
@@ -140,6 +142,19 @@ export const Route = createFileRoute("/proprietati/$slug")({
           : {}),
         ...(rooms ? { numberOfRooms: rooms } : {}),
       }),
+      videoLd:
+        videoEmbed && images[0]
+          ? JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "VideoObject",
+              name: `Tur video — ${baseTitle.trim()}`,
+              description: metaDescription.trim(),
+              thumbnailUrl: images[0],
+              uploadDate: new Date(row.date_added || row.created_at || Date.now()).toISOString(),
+              embedUrl: videoEmbed,
+              contentUrl: row.video || videoEmbed,
+            })
+          : null,
       breadcrumbLd: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -160,7 +175,7 @@ export const Route = createFileRoute("/proprietati/$slug")({
         ],
       };
     }
-    const { title, description, image, url, jsonLd, breadcrumbLd } = loaderData;
+    const { title, description, image, url, jsonLd, breadcrumbLd, videoLd } = loaderData;
     return {
       meta: [
         { title },
@@ -185,6 +200,7 @@ export const Route = createFileRoute("/proprietati/$slug")({
       scripts: [
         { type: "application/ld+json", children: jsonLd },
         { type: "application/ld+json", children: breadcrumbLd },
+        ...(videoLd ? [{ type: "application/ld+json", children: videoLd }] : []),
       ],
     };
   },
