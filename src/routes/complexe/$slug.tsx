@@ -3,7 +3,6 @@ import ComplexDetail from "@/pages/ComplexDetail";
 import NotFound from "@/pages/NotFound";
 import { supabase } from "@/integrations/supabase/client";
 import { getComplexUrl } from "@/lib/complexSlug";
-import { getPropertyUrl } from "@/lib/propertySlug";
 import { buildItemListJsonLd } from "@/lib/listingJsonLd";
 import { resolvePropertyVideo } from "@/lib/videoEmbed";
 import { isUUID } from "@/lib/complexSlug";
@@ -140,5 +139,3 @@ function ComplexRoute() {
     />
   );
 }
-
-export { getPropertyUrl };

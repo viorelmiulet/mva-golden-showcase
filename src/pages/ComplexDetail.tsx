@@ -41,6 +41,9 @@ import { getComplexUrl, isUUID } from "@/lib/complexSlug";
 import NotFound from "@/pages/NotFound";
 import ComplexFAQ, { generateComplexFAQSchema } from "@/components/ComplexFAQ";
 import RelatedBlogPosts from "@/components/RelatedBlogPosts";
+import ComplexPropertyLinks from "@/components/ComplexPropertyLinks";
+import ComplexVideoSection from "@/components/ComplexVideoSection";
+import { resolvePropertyVideo } from "@/lib/videoEmbed";
 
 interface ComplexDetailProps {
   /** Server-loaded development (SSR first paint). */
@@ -162,6 +165,11 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
   if (!project) {
     return <NotFound />;
   }
+
+  const complexVideo = resolvePropertyVideo(null, project);
+  const linkableProperties = ((properties as any[]) || [])
+    .filter((p: any) => p.is_published !== false && p.availability_status !== "sold" && p.slug)
+    .slice(0, 12);
 
   // Helper function to extract apartment number numerically
   const getApartmentNumber = (title: string): number => {
@@ -881,6 +889,12 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
                   <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
                 </div>
               )}
+
+          {/* Development video (nocookie + consent gate) */}
+          {complexVideo && <ComplexVideoSection video={complexVideo} title={project.name} />}
+
+          {/* Crawlable links to the individual unit pages */}
+          <ComplexPropertyLinks properties={linkableProperties} complexName={project.name} />
 
           {/* Related Blog Posts */}
           <RelatedBlogPosts complexName={project.name} />
