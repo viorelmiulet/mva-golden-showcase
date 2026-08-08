@@ -438,6 +438,14 @@ const AddComplex = () => {
                 />
               </div>
 
+              {/* Manual YouTube video — applies to every property in this complex */}
+              <YouTubeVideoField
+                value={formData.video_manual}
+                onChange={(v) => setFormData({ ...formData, video_manual: v })}
+                hint="Se aplică tuturor proprietăților din ansamblu (videoul proprietății are prioritate)."
+              />
+
+
               {/* Submit Buttons */}
               <div className="flex gap-4 pt-4">
                 <Button type="submit" disabled={isLoading} className="bg-primary hover:bg-primary/90">
