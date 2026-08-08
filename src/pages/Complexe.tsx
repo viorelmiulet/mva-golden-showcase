@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { hasVideo } from "@/lib/videoEmbed";
 import { Building2, Home, MapPin, Heart, Calendar, Phone } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import Header from "@/components/Header";
@@ -241,11 +242,18 @@ const Complexe = () => {
 
 
                         {/* Recommended Badge */}
-                        {project.is_recommended && (
-                          <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-brass text-black font-semibold border-0  text-[10px] sm:text-xs">
-                            ⭐ Recomandat
-                          </Badge>
-                        )}
+                        <div className="absolute top-2 left-2 sm:top-3 sm:left-3 right-2 flex items-center gap-1.5">
+                          {project.is_recommended && (
+                            <Badge className="bg-brass text-black font-semibold border-0 text-[10px] sm:text-xs">
+                              ⭐ Recomandat
+                            </Badge>
+                          )}
+                          {hasVideo(project) && (
+                            <Badge className={`bg-brass text-ink font-semibold border-0 rounded-sm text-[10px] sm:text-xs ${project.is_recommended ? "hidden sm:inline-flex" : ""}`}>
+                              VIDEO
+                            </Badge>
+                          )}
+                        </div>
                         
                         {/* Project Name Overlay */}
                         <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-2 sm:left-3 md:left-4 right-2 sm:right-3 md:right-4">

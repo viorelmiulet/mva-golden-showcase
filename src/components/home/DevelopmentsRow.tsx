@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import SpecRail from "@/components/SpecRail";
 import { getComplexUrl } from "@/lib/complexSlug";
+import { hasVideo } from "@/lib/videoEmbed";
 
 const DevelopmentsRow = () => {
   const { data: projects = [] } = useQuery({
@@ -61,7 +62,12 @@ const DevelopmentsRow = () => {
                 to={getComplexUrl(project)}
                 className="group block min-w-[280px] snap-start md:min-w-0"
               >
-                <div className="overflow-hidden rounded-sm border border-stone">
+                <div className="relative overflow-hidden rounded-sm border border-stone">
+                  {hasVideo(project) && (
+                    <span className="absolute top-2 left-2 z-10 bg-brass text-ink text-spec px-2 py-1 rounded-sm">
+                      VIDEO
+                    </span>
+                  )}
                   <OptimizedPropertyImage
                     src={project.main_image}
                     alt={`Ansamblul rezidențial ${project.name}`}
