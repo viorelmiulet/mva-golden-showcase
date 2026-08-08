@@ -462,6 +462,7 @@ const AddComplex = () => {
               <YouTubeVideoField
                 value={formData.video_manual}
                 onChange={(v) => setFormData({ ...formData, video_manual: v })}
+                onClear={() => setFormData({ ...formData, video_manual: "" })}
                 hint="Se aplică tuturor proprietăților din ansamblu (videoul proprietății are prioritate)."
               />
 
