@@ -73,6 +73,7 @@ const PropertiesAdmin = () => {
     project_name: "",
     features: "",
     amenities: "",
+    video_manual: "",
   });
   const [addImages, setAddImages] = useState<string[]>([]);
   const [editImages, setEditImages] = useState<string[]>([]);
@@ -322,6 +323,7 @@ const PropertiesAdmin = () => {
       project_name: "",
       features: "",
       amenities: "",
+      video_manual: "",
     });
     setAddImages([]);
   };
@@ -541,6 +543,16 @@ const PropertiesAdmin = () => {
       return;
     }
 
+    const videoColumns = videoColumnsFrom(addForm.video_manual);
+    if (!videoColumns) {
+      toast({
+        title: "Eroare",
+        description: "Link YouTube invalid — corectează câmpul Video YouTube",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAdding(true);
     try {
       const offer = {
@@ -563,6 +575,7 @@ const PropertiesAdmin = () => {
         currency: "EUR",
         availability_status: "available",
         source: "manual",
+        ...videoColumns,
       };
 
       const { data, error } = await invokeAdminFn("admin-offers", {
@@ -1462,6 +1475,12 @@ const PropertiesAdmin = () => {
                   value={addForm.amenities}
                   onChange={(e) => setAddForm({ ...addForm, amenities: e.target.value })}
                   placeholder="Lift, Pază, Interfon"
+                />
+              </div>
+              <div className="col-span-2">
+                <YouTubeVideoField
+                  value={addForm.video_manual}
+                  onChange={(v) => setAddForm({ ...addForm, video_manual: v })}
                 />
               </div>
             </div>
