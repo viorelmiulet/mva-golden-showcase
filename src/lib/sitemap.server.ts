@@ -289,11 +289,27 @@ export async function buildComplexesSitemap(): Promise<string> {
     .eq("is_published", true)
     .order("updated_at", { ascending: false });
 
-  const inner = (data ?? [])
+  const projects = data ?? [];
+
+  // A development with zero active units renders as noindex, so keep it out.
+  const { data: units } = await supabase
+    .from("catalog_offers")
+    .select("project_id, availability_status, is_published")
+    .not("project_id", "is", null);
+
+  const activeByProject = new Set(
+    (units ?? [])
+      .filter((u: any) => u.is_published !== false && u.availability_status !== "sold")
+      .map((u: any) => u.project_id as string)
+  );
+
+  const inner = projects
+    .filter((p) => activeByProject.has(p.id))
     .map((p) => urlEntry(`${SITE}/complexe/${getComplexSlug(p)}`, day(p.updated_at), "weekly", "0.8"))
     .join("");
   return urlset(inner);
 }
+
 
 /* --------------------------------------------------------------- images */
 

@@ -41,11 +41,22 @@ import { getComplexUrl, isUUID } from "@/lib/complexSlug";
 import NotFound from "@/pages/NotFound";
 import ComplexFAQ, { generateComplexFAQSchema } from "@/components/ComplexFAQ";
 import RelatedBlogPosts from "@/components/RelatedBlogPosts";
+import ComplexPropertyLinks from "@/components/ComplexPropertyLinks";
+import ComplexVideoSection from "@/components/ComplexVideoSection";
+import { resolvePropertyVideo } from "@/lib/videoEmbed";
 
-const ComplexDetail = () => {
+interface ComplexDetailProps {
+  /** Server-loaded development (SSR first paint). */
+  initialProject?: any | null;
+  /** Server-loaded child properties (SSR first paint). */
+  initialProperties?: any[] | null;
+}
+
+const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps = {}) => {
   const { trackComplex } = usePlausible();
   const { slug } = useParams<{ slug: string }>();
   const isLegacyUuid = slug ? isUUID(slug) : false;
+
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
   const [editingApartment, setEditingApartment] = useState<any>(null);
@@ -99,6 +110,7 @@ const ComplexDetail = () => {
       return data;
     },
     enabled: !!slug && !isLegacyUuid,
+    initialData: (initialProject ?? undefined) as any,
   });
 
   const { data: properties, isLoading: propertiesLoading, refetch } = useQuery({
@@ -113,14 +125,15 @@ const ComplexDetail = () => {
         .order('title');
       
       if (error) throw error;
-      console.log('[ComplexDetail] Fetched properties:', data?.length, 'with floor_plan:', data?.filter(p => p.floor_plan).length);
-      return data;
+      return (data || []) as any[];
     },
     enabled: !!project?.id,
+    initialData: (initialProperties ?? undefined) as any[] | undefined,
     staleTime: 0,
     gcTime: 0,
     refetchOnMount: 'always',
   });
+
 
   if (isLegacyUuid) {
     if (legacyProject?.slug) {
@@ -152,6 +165,11 @@ const ComplexDetail = () => {
   if (!project) {
     return <NotFound />;
   }
+
+  const complexVideo = resolvePropertyVideo(null, project);
+  const linkableProperties = ((properties as any[]) || [])
+    .filter((p: any) => p.is_published !== false && p.availability_status !== "sold" && p.slug)
+    .slice(0, 12);
 
   // Helper function to extract apartment number numerically
   const getApartmentNumber = (title: string): number => {
@@ -208,7 +226,7 @@ const ComplexDetail = () => {
 
   // Check if this complex has multiple buildings (Scara/Corpul)
   const hasMultipleBuildings = properties?.some(p => 
-    p.features?.some(f => f?.startsWith('Scara') || f?.startsWith('Corpul') || f?.startsWith('Bloc'))
+    p.features?.some((f: string) => f?.startsWith('Scara') || f?.startsWith('Corpul') || f?.startsWith('Bloc'))
   ) || false;
 
   // Get unique room counts for filter options
@@ -245,7 +263,7 @@ const ComplexDetail = () => {
   // Sort properties within each group based on selected criteria
   Object.keys(groupedByBuildingAndFloor).forEach(building => {
     Object.keys(groupedByBuildingAndFloor[building]).forEach(floor => {
-      groupedByBuildingAndFloor[building]![floor]!.sort((a, b) => {
+      groupedByBuildingAndFloor[building]![floor]!.sort((a: any, b: any) => {
         switch (sortBy) {
           case "price-asc":
             return (a.price_min || 0) - (b.price_min || 0);
@@ -329,7 +347,7 @@ const ComplexDetail = () => {
             },
             "numberOfRooms": project.rooms_range,
             "floorSize": project.surface_range,
-            "amenityFeature": project.amenities?.map(amenity => ({
+            "amenityFeature": project.amenities?.map((amenity: string) => ({
               "@type": "LocationFeatureSpecification",
               "name": amenity
             })),
@@ -625,8 +643,8 @@ const ComplexDetail = () => {
           {hasMultipleBuildings && (
             <div className="mb-6 sm:mb-8 flex flex-wrap gap-2">
               {sortedBuildings.map((building) => {
-                const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
-                const totalInBuilding = Object.values(floorsInBuilding).reduce((sum, apts) => sum + (apts?.length || 0), 0);
+                const floorsInBuilding: Record<string, any[]> = groupedByBuildingAndFloor[building] || {};
+                const totalInBuilding = Object.values(floorsInBuilding).reduce((sum: number, apts: any[]) => sum + (apts?.length || 0), 0);
                 const isSelected = activeBuilding === building;
                 
                 return (
@@ -650,7 +668,7 @@ const ComplexDetail = () => {
 
           {/* Apartments by Building and Floor */}
           {sortedBuildings.filter(b => !hasMultipleBuildings || b === activeBuilding).map((building) => {
-            const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
+            const floorsInBuilding: Record<string, any[]> = groupedByBuildingAndFloor[building] || {};
             const sortedFloorsInBuilding = Object.keys(floorsInBuilding).sort((a, b) => {
               const aIndex = floorOrder.indexOf(a);
               const bIndex = floorOrder.indexOf(b);
@@ -673,7 +691,7 @@ const ComplexDetail = () => {
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-                      {floorsInBuilding[floor]?.map((apt) => {
+                      {floorsInBuilding[floor]?.map((apt: any) => {
                         const isAvailable = apt.availability_status === 'available';
                         // Match "AP 21", "Apartament 21", "ap21", "- AP 48", etc.
                         const aptNumberMatch = apt.title.match(/(?:AP|Apartament)\.?\s*(\d+)/i);
@@ -871,6 +889,12 @@ const ComplexDetail = () => {
                   <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
                 </div>
               )}
+
+          {/* Development video (nocookie + consent gate) */}
+          {complexVideo && <ComplexVideoSection video={complexVideo} title={project.name} />}
+
+          {/* Crawlable links to the individual unit pages */}
+          <ComplexPropertyLinks properties={linkableProperties} complexName={project.name} />
 
           {/* Related Blog Posts */}
           <RelatedBlogPosts complexName={project.name} />
