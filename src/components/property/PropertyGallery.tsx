@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, X, Image as ImageIcon, Play } from "lucide-react";
 import { useSwipeCarousel, usePrefersReducedMotion } from "@/hooks/useSwipeCarousel";
-import { useMarketingConsent, openCookieSettings } from "@/hooks/useMarketingConsent";
-import { extractYouTubeId, youtubeThumb } from "@/lib/videoEmbed";
 
 interface PropertyGalleryProps {
   images: string[];
@@ -24,12 +22,7 @@ const PropertyGallery = ({ images, title, alt, videoEmbedUrl }: PropertyGalleryP
   const [lightbox, setLightbox] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
-  const marketingConsent = useMarketingConsent();
   const hasVideo = Boolean(videoEmbedUrl);
-  const videoThumb = (() => {
-    const id = extractYouTubeId(videoEmbedUrl);
-    return id ? youtubeThumb(id, "maxresdefault") : null;
-  })();
 
   const next = useCallback(() => setIndex((i) => (list.length ? (i + 1) % list.length : 0)), [list.length]);
   const prev = useCallback(
@@ -266,42 +259,16 @@ const PropertyGallery = ({ images, title, alt, videoEmbedUrl }: PropertyGalleryP
               className="w-[92vw] max-w-[1100px] aspect-video bg-ink rounded-sm overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              {marketingConsent ? (
-                <iframe
-                  src={videoEmbedUrl as string}
-                  title={`Videoclip: ${imageAlt}`}
-                  className="w-full h-full"
-                  loading="lazy"
-                  frameBorder={0}
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                  allowFullScreen
-                />
-              ) : (
-                <div className="relative w-full h-full flex flex-col items-center justify-center gap-3 p-6 text-center bg-ink text-paper">
-                  {videoThumb && (
-                    <img
-                      src={videoThumb}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover opacity-40"
-                    />
-                  )}
-                  <Play className="relative w-10 h-10 text-brass" aria-hidden="true" fill="currentColor" />
-                  <p className="relative text-small text-paper/90 max-w-sm">
-                    Videoclipul se încarcă de pe YouTube. Activează cookie-urile de marketing pentru
-                    a-l reda.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={openCookieSettings}
-                    className="relative rounded-sm bg-brass text-ink px-4 py-2 text-small font-medium"
-                  >
-                    Activează
-                  </button>
-                </div>
-              )}
-
+              {/* The iframe only exists after the user opened the video — no YouTube request before that. */}
+              <iframe
+                src={`${videoEmbedUrl}${String(videoEmbedUrl).includes("?") ? "&" : "?"}autoplay=1`}
+                title={`Videoclip: ${imageAlt}`}
+                className="w-full h-full"
+                frameBorder={0}
+                referrerPolicy="strict-origin-when-cross-origin"
+                allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
+              />
             </div>
           ) : (
             <div
