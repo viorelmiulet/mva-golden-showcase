@@ -251,6 +251,13 @@ const EditComplex = () => {
         throw new Error(response?.error || "Nu s-a putut actualiza complexul");
       }
 
+      if (
+        response.data?.video_manual !== videoColumns.video_manual ||
+        response.data?.video_id !== videoColumns.video_id
+      ) {
+        throw new Error("Serverul nu a confirmat salvarea linkului video");
+      }
+
       // Invalidate all related queries to refresh the data
       await queryClient.invalidateQueries({ queryKey: ['project-edit', id] });
       await queryClient.invalidateQueries({ queryKey: ['project', id] });
@@ -262,7 +269,9 @@ const EditComplex = () => {
       navigate(`/admin/complexe/${id}`);
     } catch (error: any) {
       console.error('Error updating complex:', error);
-      toast.error(error.message || "Eroare la actualizarea complexului");
+      toast.error(`Salvarea a eșuat: ${error.message || "Eroare la actualizarea complexului"}`, {
+        duration: 8000,
+      });
     } finally {
       setIsLoading(false);
     }

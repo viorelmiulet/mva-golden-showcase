@@ -284,6 +284,12 @@ const PropertiesAdmin = () => {
 
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || "Update failed");
+      if (
+        data.data?.video_manual !== videoColumns.video_manual ||
+        data.data?.video_id !== videoColumns.video_id
+      ) {
+        throw new Error("Serverul nu a confirmat salvarea linkului video");
+      }
 
       toast({
         title: "Succes!",
@@ -295,7 +301,7 @@ const PropertiesAdmin = () => {
     } catch (error: any) {
       toast({
         title: "Eroare",
-        description: error.message || "Nu am putut actualiza proprietatea",
+        description: `Salvarea a eșuat: ${error.message || "Nu am putut actualiza proprietatea"}`,
         variant: "destructive",
       });
     } finally {
