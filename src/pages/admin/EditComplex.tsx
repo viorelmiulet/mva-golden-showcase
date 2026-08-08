@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import YouTubeVideoField, { videoColumnsFrom } from "@/components/admin/YouTubeVideoField";
 import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "@/lib/router-compat";
@@ -39,6 +40,7 @@ const EditComplex = () => {
     completion_date: "",
     status: "available",
     main_image: "",
+    video_manual: "",
   });
 
   const { data: project, isLoading: projectLoading } = useQuery({
@@ -68,6 +70,7 @@ const EditComplex = () => {
         completion_date: project.completion_date || "",
         status: project.status || "available",
         main_image: project.main_image || "",
+        video_manual: (project as any).video_manual || (project as any).video_id || "",
       });
       setImagePreview(project.main_image);
       // Load videos from database
@@ -208,6 +211,12 @@ const EditComplex = () => {
       return;
     }
 
+    const videoColumns = videoColumnsFrom(formData.video_manual);
+    if (!videoColumns) {
+      toast.error("Link YouTube invalid — corectează câmpul Video YouTube");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -231,6 +240,7 @@ const EditComplex = () => {
             status: formData.status,
             main_image: imageUrl,
             videos: videos,
+            ...videoColumns,
           }
         }
       });
@@ -462,6 +472,13 @@ const EditComplex = () => {
                 rows={5}
               />
             </div>
+
+            {/* Manual YouTube video — applies to every property in this complex */}
+            <YouTubeVideoField
+              value={formData.video_manual}
+              onChange={(v) => setFormData({ ...formData, video_manual: v })}
+              hint="Se aplică tuturor proprietăților din ansamblu (videoul proprietății are prioritate)."
+            />
 
             {/* Videos Section - Only for RENEW RESIDENCE */}
             {formData.name?.toUpperCase() === "RENEW RESIDENCE" && (
