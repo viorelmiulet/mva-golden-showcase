@@ -128,7 +128,7 @@ function fromRow(row: any): ResolvedVideo | null {
 
 /** Property video first, then its development's. */
 export function resolvePropertyVideo(row: any, development?: any): ResolvedVideo | null {
-  return fromRow(row) || fromRow(development) || null;
+  return fromRow(row) || (development ? firstDevelopmentVideo(development) : null) || null;
 }
 
 /** True when a catalog row (optionally with its development) has a usable video. */
@@ -138,3 +138,43 @@ export const hasVideo = (row: any, development?: any): boolean =>
 /** Embed URL for a catalog row. */
 export const rowVideoEmbedUrl = (row: any, development?: any): string | null =>
   resolvePropertyVideo(row, development)?.embedUrl ?? null;
+
+/* ------------------------------------------------------------------ */
+/* Development videos (ordered list)                                   */
+/* ------------------------------------------------------------------ */
+
+export interface DevelopmentVideo extends ResolvedVideo {
+  title: string | null;
+  position: number;
+}
+
+/**
+ * Ordered videos of a development, read from the `project_videos` relation.
+ * Falls back to the legacy scalar columns for rows loaded without the relation.
+ */
+export function developmentVideos(development: any): DevelopmentVideo[] {
+  const rows = Array.isArray(development?.project_videos) ? development.project_videos : [];
+  const list = rows
+    .map((v: any) => {
+      const id = extractYouTubeId(v?.youtube_id);
+      if (!id) return null;
+      return {
+        embedUrl: youtubeEmbedFromId(id),
+        youtubeId: id,
+        thumbnailUrl: typeof v.thumb_url === "string" && v.thumb_url ? v.thumb_url : null,
+        watchUrl: youtubeWatchUrl(id),
+        title: typeof v.title === "string" && v.title.trim() ? v.title.trim() : null,
+        position: Number(v.position) || 0,
+      } as DevelopmentVideo;
+    })
+    .filter(Boolean) as DevelopmentVideo[];
+
+  if (list.length) return list.sort((a, b) => a.position - b.position);
+
+  const legacy = fromRow(development);
+  return legacy ? [{ ...legacy, title: null, position: 1 }] : [];
+}
+
+/** First development video, used for property-level inheritance. */
+export const firstDevelopmentVideo = (development: any): DevelopmentVideo | null =>
+  developmentVideos(development)[0] ?? null;
