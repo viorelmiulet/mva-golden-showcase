@@ -133,7 +133,7 @@ export function resolvePropertyVideo(row: any, development?: any): ResolvedVideo
 
 /** True when a catalog row (optionally with its development) has a usable video. */
 export const hasVideo = (row: any, development?: any): boolean =>
-  Boolean(resolvePropertyVideo(row, development));
+  Boolean(resolvePropertyVideo(row, development) || firstDevelopmentVideo(row));
 
 /** Embed URL for a catalog row. */
 export const rowVideoEmbedUrl = (row: any, development?: any): string | null =>

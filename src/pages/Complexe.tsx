@@ -28,7 +28,7 @@ const Complexe = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('real_estate_projects')
-        .select('*')
+        .select('*, project_videos(youtube_id, title, position, thumb_url)')
         .neq('is_published', false)
         .order('name');
 
