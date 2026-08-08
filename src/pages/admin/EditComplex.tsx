@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
-import YouTubeVideoField, { videoColumnsFrom } from "@/components/admin/YouTubeVideoField";
+import DevelopmentVideosField, { videoRowsFrom, type VideoEntry } from "@/components/admin/DevelopmentVideosField";
+import { youtubeWatchUrl } from "@/lib/videoEmbed";
 import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "@/lib/router-compat";
@@ -34,15 +35,15 @@ const EditComplex = () => {
     completion_date: "",
     status: "available",
     main_image: "",
-    video_manual: "",
   });
+  const [videos, setVideos] = useState<VideoEntry[]>([]);
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['project-edit', id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('real_estate_projects')
-        .select('*')
+        .select('*, project_videos(youtube_id, title, position)')
         .eq('id', id)
         .maybeSingle();
       
@@ -64,8 +65,13 @@ const EditComplex = () => {
         completion_date: project.completion_date || "",
         status: project.status || "available",
         main_image: project.main_image || "",
-        video_manual: (project as any).video_manual || (project as any).video_id || "",
       });
+      const rows = Array.isArray((project as any).project_videos) ? (project as any).project_videos : [];
+      setVideos(
+        [...rows]
+          .sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0))
+          .map((v: any) => ({ url: youtubeWatchUrl(v.youtube_id), title: v.title || "" })),
+      );
       setImagePreview(project.main_image);
     }
   }, [project]);
@@ -136,9 +142,9 @@ const EditComplex = () => {
       return;
     }
 
-    const videoColumns = videoColumnsFrom(formData.video_manual);
-    if (!videoColumns) {
-      toast.error("Link YouTube invalid — corectează câmpul Video YouTube");
+    const videoRows = videoRowsFrom(videos);
+    if (!videoRows) {
+      toast.error("Link YouTube invalid — corectează lista de videoclipuri");
       return;
     }
 
@@ -164,7 +170,6 @@ const EditComplex = () => {
             completion_date: formData.completion_date.trim() || null,
             status: formData.status,
             main_image: imageUrl,
-            ...videoColumns,
           }
         }
       });
@@ -175,12 +180,18 @@ const EditComplex = () => {
         throw new Error(response?.error || "Nu s-a putut actualiza complexul");
       }
 
-      if (
-        response.data?.video_manual !== videoColumns.video_manual ||
-        response.data?.video_id !== videoColumns.video_id
-      ) {
-        throw new Error("Serverul nu a confirmat salvarea linkului video");
+      const { data: videoResponse, error: videoError } = await invokeAdminFn('admin-complexes', {
+        body: { action: 'set_complex_videos', id, data: { videos: videoRows } },
+      });
+      if (videoError) throw videoError;
+      if (!videoResponse?.success) {
+        throw new Error(videoResponse?.error || "Videoclipurile nu au putut fi salvate");
       }
+      const persisted = (videoResponse.data ?? []) as { youtube_id: string; title: string | null }[];
+      if (persisted.length !== videoRows.length) {
+        throw new Error("Serverul nu a confirmat salvarea videoclipurilor");
+      }
+      setVideos(persisted.map((v) => ({ url: youtubeWatchUrl(v.youtube_id), title: v.title || "" })));
 
       // Invalidate all related queries to refresh the data
       await queryClient.invalidateQueries({ queryKey: ['project-edit', id] });
@@ -189,16 +200,12 @@ const EditComplex = () => {
       await queryClient.invalidateQueries({ queryKey: ['admin-projects'] });
       await queryClient.invalidateQueries({ queryKey: ['public-projects'] });
 
-      setFormData((current) => ({
-        ...current,
-        video_manual: (response.data?.video_manual as string | null) ?? "",
-      }));
       await queryClient.refetchQueries({ queryKey: ['project-edit', id] });
 
       toast.success(
-        videoColumns.video_id
-          ? "Complexul a fost actualizat. Videoclip salvat."
-          : "Complexul a fost actualizat. Fără videoclip.",
+        videoRows.length
+          ? `Complexul a fost actualizat. ${videoRows.length} videoclip(uri) salvate.`
+          : "Complexul a fost actualizat. Fără videoclipuri.",
       );
       navigate(`/admin/complexe/${id}`);
     } catch (error: any) {
@@ -417,11 +424,10 @@ const EditComplex = () => {
             </div>
 
             {/* Manual YouTube video — applies to every property in this complex */}
-            <YouTubeVideoField
-              value={formData.video_manual}
-              onChange={(v) => setFormData({ ...formData, video_manual: v })}
-              onClear={() => setFormData({ ...formData, video_manual: "" })}
-              hint="Se aplică tuturor proprietăților din ansamblu (videoul proprietății are prioritate)."
+            <DevelopmentVideosField
+              value={videos}
+              onChange={setVideos}
+              hint="Primul videoclip se afișează ca player principal și este moștenit de proprietățile din ansamblu (videoul proprietății are prioritate). Trage rândurile pentru a schimba ordinea."
             />
 
             {/* Submit Buttons */}
