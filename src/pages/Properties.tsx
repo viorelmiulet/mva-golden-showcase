@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { hasVideo } from "@/lib/videoEmbed";
 import PropertyCard, { PropertyCardSkeleton, getCardZone } from "@/components/PropertyCard";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -160,6 +161,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   const compartimentare = param("compartimentare");
   const an = param("an");
   const ansamblu = param("ansamblu");
+  const cuVideo = param("video") === "1";
   const sort = param("sort") || "recente";
   const page = Math.max(1, parseInt(param("p") || "1", 10) || 1);
 
@@ -284,9 +286,10 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         if (an === "vechi" && p.year_built >= 2010) return false;
       }
       if (ansamblu && String(p.project_name || "").trim() !== ansamblu) return false;
+      if (cuVideo && !hasVideo(p)) return false;
       return true;
     });
-  }, [properties, zona, camere, pretMax, tip, tipProprietate, suprMin, etaj, compartimentare, an, ansamblu]);
+  }, [properties, zona, camere, pretMax, tip, tipProprietate, suprMin, etaj, compartimentare, an, ansamblu, cuVideo]);
 
   const sorted = useMemo(() => {
     const list = [...filtered];
@@ -336,6 +339,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   if (compartimentare) chips.push({ key: "compartimentare", label: compartimentare });
   if (an) chips.push({ key: "an", label: `An: ${an}` });
   if (ansamblu) chips.push({ key: "ansamblu", label: ansamblu });
+  if (cuVideo) chips.push({ key: "video", label: "Cu video" });
 
   // ---- Controls ---------------------------------------------------------
   const selectClass = "h-10 rounded-sm border-stone bg-paper text-small";
@@ -515,6 +519,16 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
           ))}
         </SelectContent>
       </Select>
+
+      <label className="flex items-center gap-2 h-10 px-3 rounded-sm border border-stone bg-paper text-small cursor-pointer">
+        <input
+          type="checkbox"
+          checked={cuVideo}
+          onChange={(e) => setParam("video", e.target.checked ? "1" : "")}
+          className="accent-brass w-4 h-4"
+        />
+        Cu video
+      </label>
     </div>
   );
 

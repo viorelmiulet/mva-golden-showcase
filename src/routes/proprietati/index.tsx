@@ -32,6 +32,7 @@ export interface PropertiesSearch {
   compartimentare?: string;
   an?: string | number;
   ansamblu?: string;
+  video?: string;
   sort?: string;
   p?: number;
 }
@@ -74,7 +75,7 @@ const STATIC_EQUIVALENTS: Record<string, string> = {
 };
 
 /** Filters other than zona/camere/tip/tip_proprietate make the view a non-canonical permutation. */
-const EXTRA_FILTER_KEYS = ["pret_max", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const;
+const EXTRA_FILTER_KEYS = ["pret_max", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort", "video"] as const;
 
 const typeSlug = (v?: string) => zoneSlug(v);
 
@@ -119,6 +120,7 @@ export const Route = createFileRoute("/proprietati/")({
       compartimentare: str(search.compartimentare),
       an: loose(search.an),
       ansamblu: str(search.ansamblu),
+      video: search.video === "1" || search.video === 1 ? "1" : undefined,
       sort: sort && SORTS.includes(sort) ? sort : undefined,
       p: Number.isFinite(page) && page > 1 ? Math.floor(page) : undefined,
     };
@@ -145,7 +147,7 @@ export const Route = createFileRoute("/proprietati/")({
     const pageSuffix = s.p && s.p > 1 ? ` — pagina ${s.p}` : "";
 
     const qs = new URLSearchParams();
-    for (const key of ["zona", "camere", "pret_max", "tip", "tranzactie", "tip_proprietate", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const) {
+    for (const key of ["zona", "camere", "pret_max", "tip", "tranzactie", "tip_proprietate", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort", "video"] as const) {
       const v = s[key];
       if (v) qs.set(key, String(v));
     }
