@@ -373,7 +373,7 @@ const ImmofluxPropertyDetail = () => {
             {/* Above the fold: 60/40 */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
               <div className="lg:col-span-3">
-                <PropertyGallery images={images} title={title} alt={`${title} — ${zoneLabel}`} videoEmbedUrl={rowVideoEmbedUrl(property)} />
+                <PropertyGallery images={images} title={title} alt={`${title} — ${zoneLabel}`} videoEmbedUrl={rowVideoEmbedUrl(row)} />
               </div>
 
               <aside className="lg:col-span-2 lg:sticky lg:top-24">
