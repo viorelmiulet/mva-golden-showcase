@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, X, Image as ImageIcon, Play } from "lucide-react";
 import { useSwipeCarousel, usePrefersReducedMotion } from "@/hooks/useSwipeCarousel";
 import { useMarketingConsent, openCookieSettings } from "@/hooks/useMarketingConsent";
+import { extractYouTubeId, youtubeThumb } from "@/lib/videoEmbed";
 
 interface PropertyGalleryProps {
   images: string[];
@@ -25,6 +26,10 @@ const PropertyGallery = ({ images, title, alt, videoEmbedUrl }: PropertyGalleryP
   const reducedMotion = usePrefersReducedMotion();
   const marketingConsent = useMarketingConsent();
   const hasVideo = Boolean(videoEmbedUrl);
+  const videoThumb = (() => {
+    const id = extractYouTubeId(videoEmbedUrl);
+    return id ? youtubeThumb(id, "maxresdefault") : null;
+  })();
 
   const next = useCallback(() => setIndex((i) => (list.length ? (i + 1) % list.length : 0)), [list.length]);
   const prev = useCallback(
