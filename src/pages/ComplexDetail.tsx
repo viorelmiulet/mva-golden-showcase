@@ -43,7 +43,7 @@ import ComplexFAQ, { generateComplexFAQSchema } from "@/components/ComplexFAQ";
 import RelatedBlogPosts from "@/components/RelatedBlogPosts";
 import ComplexPropertyLinks from "@/components/ComplexPropertyLinks";
 import ComplexVideoSection from "@/components/ComplexVideoSection";
-import { resolvePropertyVideo } from "@/lib/videoEmbed";
+import { developmentVideos } from "@/lib/videoEmbed";
 
 interface ComplexDetailProps {
   /** Server-loaded development (SSR first paint). */
@@ -102,7 +102,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
 
       const { data, error } = await supabase
         .from('real_estate_projects')
-        .select('*')
+        .select('*, project_videos(youtube_id, title, position, thumb_url)')
         .eq('slug', slug)
         .maybeSingle();
       
@@ -166,7 +166,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
     return <NotFound />;
   }
 
-  const complexVideo = resolvePropertyVideo(null, project);
+  const complexVideos = developmentVideos(project);
   const linkableProperties = ((properties as any[]) || [])
     .filter((p: any) => p.is_published !== false && p.availability_status !== "sold" && p.slug)
     .slice(0, 12);
@@ -490,7 +490,9 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
             )}
 
             {/* Development video (nocookie + consent gate) */}
-            {complexVideo && <ComplexVideoSection video={complexVideo} title={project.name} />}
+            {complexVideos.length > 0 && (
+              <ComplexVideoSection videos={complexVideos} title={project.name} />
+            )}
 
             {/* Stadiu Lucrare - Videos Section (Only for RENEW RESIDENCE) */}
             {project.name?.toUpperCase() === "RENEW RESIDENCE" && (() => {
