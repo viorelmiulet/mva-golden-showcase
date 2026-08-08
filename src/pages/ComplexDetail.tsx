@@ -42,10 +42,18 @@ import NotFound from "@/pages/NotFound";
 import ComplexFAQ, { generateComplexFAQSchema } from "@/components/ComplexFAQ";
 import RelatedBlogPosts from "@/components/RelatedBlogPosts";
 
-const ComplexDetail = () => {
+interface ComplexDetailProps {
+  /** Server-loaded development (SSR first paint). */
+  initialProject?: any | null;
+  /** Server-loaded child properties (SSR first paint). */
+  initialProperties?: any[] | null;
+}
+
+const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps = {}) => {
   const { trackComplex } = usePlausible();
   const { slug } = useParams<{ slug: string }>();
   const isLegacyUuid = slug ? isUUID(slug) : false;
+
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
   const [editingApartment, setEditingApartment] = useState<any>(null);
