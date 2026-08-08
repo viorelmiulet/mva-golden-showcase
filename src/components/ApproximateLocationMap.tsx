@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -11,13 +11,10 @@ interface ApproximateLocationMapProps {
 }
 
 /**
- * Displays an approximate location on Google Maps via iframe embed.
- * - Coordinates are rounded to ~3 decimals (~110m precision) so the exact
- *   address is never exposed.
- * - A semi-transparent circle (~radiusMeters) is overlaid to communicate
- *   the approximation. The map zoom is picked so the circle always
- *   covers ~55% of the smaller container side, on every breakpoint.
- * - No marker is shown.
+ * Approximate location on an OpenStreetMap (Leaflet) map.
+ * - OSM tiles set no cookies, so the map renders for everyone with no consent gate.
+ * - Coordinates are rounded to ~3 decimals (~110m) and only a ~2km circle is
+ *   drawn: no marker, no exact address.
  */
 export const ApproximateLocationMap = ({
   latitude,
@@ -26,51 +23,55 @@ export const ApproximateLocationMap = ({
   radiusMeters = 2000,
 }: ApproximateLocationMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ w: 0, h: 0 });
-  const [mapConsent, setMapConsent] = useState(false);
+  const mapRef = useRef<any>(null);
 
-  useEffect(() => {
-    // Initial read of consent state set by CookieConsent (Marketing category)
-    const consent = (window as unknown as { __mvaConsent?: { marketing?: boolean } }).__mvaConsent;
-    if (consent?.marketing) setMapConsent(true);
-    const onChange = (e: Event) => {
-      const detail = (e as CustomEvent<{ marketing?: boolean }>).detail;
-      setMapConsent(Boolean(detail?.marketing));
-    };
-    window.addEventListener("mva-consent-change", onChange as EventListener);
-    return () => window.removeEventListener("mva-consent-change", onChange as EventListener);
-  }, []);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const el = containerRef.current;
-    const update = () => setSize({ w: el.clientWidth, h: el.clientHeight });
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  if (!latitude || !longitude) return null;
-
-  // Round to ~110m precision so we never leak the precise address
   const lat = Math.round(latitude * 1000) / 1000;
   const lng = Math.round(longitude * 1000) / 1000;
 
-  // Pick a zoom so the 2*radius diameter fits ~55% of the smaller side.
-  // metersPerPixel(zoom) = 156543.03392 * cos(lat) / 2^zoom
-  // We want: diameter / mpp ≈ 0.55 * minSide  →  mpp ≈ (2*radius) / (0.55*minSide)
-  const minSide = Math.min(size.w || 320, size.h || 320);
-  const targetMpp = (2 * radiusMeters) / (0.55 * minSide);
-  const cosLat = Math.cos((lat * Math.PI) / 180);
-  let zoom = Math.log2((156543.03392 * cosLat) / targetMpp);
-  zoom = Math.max(11, Math.min(15, Math.round(zoom)));
+  useEffect(() => {
+    if (!containerRef.current || !latitude || !longitude) return;
+    let cancelled = false;
+    let map: any;
 
-  const metersPerPixel = (156543.03392 * cosLat) / Math.pow(2, zoom);
-  const circleDiameterPx = Math.round((2 * radiusMeters) / metersPerPixel);
+    // Leaflet touches window/document, so it is only imported in the browser.
+    (async () => {
+      const L = (await import("leaflet")).default;
+      await import("leaflet/dist/leaflet.css");
+      if (cancelled || !containerRef.current) return;
 
-  // Google Maps embed (no API key, no marker). Use q= to guarantee centering on the coords.
-  const src = `https://www.google.com/maps?q=${lat},${lng}&z=${zoom}&hl=ro&t=m&output=embed`;
+      map = L.map(containerRef.current, {
+        zoomControl: true,
+        scrollWheelZoom: false,
+        attributionControl: true,
+      }).setView([lat, lng], 13);
+
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
+
+      const circle = L.circle([lat, lng], {
+        radius: radiusMeters,
+        color: "hsl(var(--primary))",
+        weight: 2,
+        opacity: 0.55,
+        fillColor: "hsl(var(--primary))",
+        fillOpacity: 0.18,
+      }).addTo(map);
+
+      map.fitBounds(circle.getBounds(), { padding: [16, 16] });
+      mapRef.current = map;
+      setTimeout(() => map.invalidateSize(), 100);
+    })();
+
+    return () => {
+      cancelled = true;
+      if (map) map.remove();
+      mapRef.current = null;
+    };
+  }, [lat, lng, radiusMeters, latitude, longitude]);
+
+  if (!latitude || !longitude) return null;
 
   return (
     <section aria-label="Locație aproximativă" className="space-y-2">
@@ -80,77 +81,31 @@ export const ApproximateLocationMap = ({
           Locație aproximativă
         </h2>
         {locationLabel && (
-          <span className="text-xs sm:text-sm text-muted-foreground">
-            {locationLabel}
-          </span>
+          <span className="text-xs sm:text-sm text-muted-foreground">{locationLabel}</span>
         )}
       </div>
 
       <div
         ref={containerRef}
-        className="relative w-full h-[300px] sm:h-[400px] md:h-[460px] rounded-lg overflow-hidden border border-brass/20 bg-muted"
-      >
-        {mapConsent ? (
-          <iframe
-            title="Locație aproximativă proprietate"
-            src={src}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            style={{ border: 0, display: "block", width: "100%", height: "100%" }}
-            allowFullScreen
-          />
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center bg-muted">
-            <MapPin className="w-8 h-8 text-brass" aria-hidden="true" />
-            <p className="text-sm text-muted-foreground max-w-sm">
-              Harta Google este blocată până acceptați cookie-urile de marketing.
-            </p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              <Button
-                size="sm"
-                onClick={() => window.dispatchEvent(new Event('open-cookie-settings'))}
-              >
-                Activează harta
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                asChild
-              >
-                <a
-                  href={`https://www.google.com/maps?q=${lat},${lng}&z=${zoom}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Deschide în Google Maps
-                </a>
-              </Button>
-            </div>
-          </div>
-        )}
-        {/* Approximation circle overlay — centered, sized to ~2km, never overflowing */}
-        {mapConsent && size.w > 0 && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div
-              className="rounded-full"
-              style={{
-                width: circleDiameterPx,
-                height: circleDiameterPx,
-                maxWidth: "85%",
-                maxHeight: "85%",
-                background: "hsl(var(--primary) / 0.18)",
-                border: "2px solid hsl(var(--primary) / 0.55)",
-              }}
-              aria-hidden="true"
-            />
-          </div>
-        )}
-      </div>
+        className="relative w-full h-[300px] sm:h-[400px] md:h-[460px] rounded-lg overflow-hidden border border-brass/20 bg-muted z-0"
+      />
 
-      <p className="text-[11px] sm:text-xs text-muted-foreground">
-        Din motive de confidențialitate, locația afișată este aproximativă (rază de ~{(radiusMeters / 1000).toLocaleString('ro-RO')} km).
-        Adresa exactă se comunică la programarea vizionării.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-[11px] sm:text-xs text-muted-foreground max-w-xl">
+          Din motive de confidențialitate, locația afișată este aproximativă (rază de ~
+          {(radiusMeters / 1000).toLocaleString("ro-RO")} km). Adresa exactă se comunică la
+          programarea vizionării.
+        </p>
+        <Button size="sm" variant="outline" asChild>
+          <a
+            href={`https://www.google.com/maps?q=${lat},${lng}&z=13`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Deschide în Google Maps
+          </a>
+        </Button>
+      </div>
     </section>
   );
 };

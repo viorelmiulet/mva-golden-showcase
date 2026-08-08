@@ -263,6 +263,7 @@ export type Database = {
           video_embed_url: string | null
           video_id: string | null
           video_manual: string | null
+          video_thumb_url: string | null
           virtual_tour: string | null
           whatsapp_catalog_id: string | null
           year_built: number | null
@@ -357,6 +358,7 @@ export type Database = {
           video_embed_url?: string | null
           video_id?: string | null
           video_manual?: string | null
+          video_thumb_url?: string | null
           virtual_tour?: string | null
           whatsapp_catalog_id?: string | null
           year_built?: number | null
@@ -451,6 +453,7 @@ export type Database = {
           video_embed_url?: string | null
           video_id?: string | null
           video_manual?: string | null
+          video_thumb_url?: string | null
           virtual_tour?: string | null
           whatsapp_catalog_id?: string | null
           year_built?: number | null
@@ -1661,6 +1664,7 @@ export type Database = {
           updated_at: string
           video_id: string | null
           video_manual: string | null
+          video_thumb_url: string | null
           videos: Json | null
         }
         Insert: {
@@ -1687,6 +1691,7 @@ export type Database = {
           updated_at?: string
           video_id?: string | null
           video_manual?: string | null
+          video_thumb_url?: string | null
           videos?: Json | null
         }
         Update: {
@@ -1713,6 +1718,7 @@ export type Database = {
           updated_at?: string
           video_id?: string | null
           video_manual?: string | null
+          video_thumb_url?: string | null
           videos?: Json | null
         }
         Relationships: []
@@ -2510,6 +2516,7 @@ export type Database = {
           video_embed_url: string | null
           video_id: string | null
           video_manual: string | null
+          video_thumb_url: string | null
           virtual_tour: string | null
           whatsapp_catalog_id: string | null
           year_built: number | null

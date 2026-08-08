@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { Play, Video } from "lucide-react";
-import { useMarketingConsent, openCookieSettings } from "@/hooks/useMarketingConsent";
 import type { ResolvedVideo } from "@/lib/videoEmbed";
 
 interface Props {
@@ -8,11 +8,15 @@ interface Props {
 }
 
 /**
- * Development video, server-rendered. The iframe (youtube-nocookie) is only
- * mounted after marketing consent, mirroring the property gallery gating.
+ * Development video with a click-to-load facade. Nothing is requested from
+ * YouTube until the user presses play: the poster is served from our own
+ * Storage bucket and the youtube-nocookie iframe is mounted on click.
  */
 const ComplexVideoSection = ({ video, title }: Props) => {
-  const marketingConsent = useMarketingConsent();
+  const [playing, setPlaying] = useState(false);
+  const src = playing
+    ? `${video.embedUrl}${video.embedUrl.includes("?") ? "&" : "?"}autoplay=1`
+    : null;
 
   return (
     <section className="mt-8 sm:mt-10" aria-label={`Videoclip ${title}`}>
@@ -24,39 +28,37 @@ const ComplexVideoSection = ({ video, title }: Props) => {
       </div>
 
       <div className="aspect-video w-full md:w-1/2 md:max-w-[24rem] mr-auto overflow-hidden rounded-xl bg-ink">
-        {marketingConsent ? (
+        {src ? (
           <iframe
-            src={video.embedUrl}
+            src={src}
             title={`Videoclip: ${title}`}
             className="w-full h-full"
-            loading="lazy"
             frameBorder={0}
             referrerPolicy="strict-origin-when-cross-origin"
-            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             allowFullScreen
           />
         ) : (
-          <div className="relative w-full h-full flex flex-col items-center justify-center gap-3 p-6 text-center text-paper">
+          <button
+            type="button"
+            onClick={() => setPlaying(true)}
+            aria-label={`Redă videoclipul: ${title}`}
+            className="group relative w-full h-full flex items-center justify-center text-paper"
+          >
             {video.thumbnailUrl && (
               <img
                 src={video.thumbnailUrl}
                 alt=""
                 aria-hidden="true"
-                className="absolute inset-0 w-full h-full object-cover opacity-40"
+                className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
+                loading="lazy"
+                decoding="async"
               />
             )}
-            <Play className="relative w-10 h-10 text-brass" aria-hidden="true" fill="currentColor" />
-            <p className="relative text-small max-w-sm">
-              Videoclipul se încarcă de pe YouTube. Activează cookie-urile de marketing pentru a-l reda.
-            </p>
-            <button
-              type="button"
-              onClick={openCookieSettings}
-              className="relative rounded-sm bg-brass text-ink px-4 py-2 text-small font-medium"
-            >
-              Activează
-            </button>
-          </div>
+            <span className="relative flex items-center justify-center w-14 h-14 rounded-full bg-ink/70">
+              <Play className="w-7 h-7 text-brass" aria-hidden="true" fill="currentColor" />
+            </span>
+          </button>
         )}
       </div>
     </section>

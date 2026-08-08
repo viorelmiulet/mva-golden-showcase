@@ -17,6 +17,7 @@ import {
   buildSourceCodes,
 } from "@/lib/immofluxTypes";
 import { normalizeVideoUrl } from "@/lib/videoEmbed";
+import { attachVideoThumbs } from "@/lib/videoThumbs.server";
 import {
   loadCodeMap,
   recordUnmappedCodes,
@@ -1168,6 +1169,8 @@ async function importXmlWithCustomMapping(supabase: any, xmlUrl: string, fieldMa
     const batchSize = 50;
     for (let i = 0; i < properties.length; i += batchSize) {
       const batch = properties.slice(i, i + batchSize);
+      // Poster images are copied to our own Storage during sync, so pages never call img.youtube.com.
+      await attachVideoThumbs(batch as any[]);
       const { data, error } = await supabase.from("catalog_offers").upsert(batch, { onConflict: "external_id", ignoreDuplicates: false }).select("id");
       if (error) {
         if (error.message.includes("extensions.net.http_post") || error.message.includes("cross-database references")) {
@@ -1715,6 +1718,7 @@ async function runSync(supabase: any, startedAt: string): Promise<Result> {
 
     for (let i = 0; i < mapped.length; i += batchSize) {
       const batch = mapped.slice(i, i + batchSize);
+      await attachVideoThumbs(batch as any[]);
       const { error } = await supabase.from("catalog_offers").upsert(batch, { onConflict: "external_id", ignoreDuplicates: false });
       if (error) {
         if (error.message.includes("extensions.net.http_post") || error.message.includes("cross-database references")) {
