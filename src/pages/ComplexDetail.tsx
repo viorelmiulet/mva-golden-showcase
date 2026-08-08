@@ -894,7 +894,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
               )}
 
           {/* Crawlable links to the individual unit pages */}
-          <ComplexPropertyLinks properties={linkableProperties} complexName={project.name} />
+          <ComplexPropertyLinks properties={linkableProperties} complexName={project.name} development={project} />
 
           {/* Related Blog Posts */}
           <RelatedBlogPosts complexName={project.name} />
