@@ -24,6 +24,20 @@ async function db() {
 
 const fail = (error: string): Result => ({ success: false, error });
 
+/**
+ * The poster must come from our own domain, so it is fetched and stored once
+ * on save instead of hotlinking img.youtube.com at render time.
+ */
+async function thumbFor(videoId: unknown): Promise<string | null> {
+  const { ensureVideoThumb } = await import("@/lib/videoThumbs.server");
+  return ensureVideoThumb(videoId);
+}
+
+async function cacheThumb(payload: AnyRecord): Promise<void> {
+  if (!("video_id" in payload)) return;
+  payload["video_thumb_url"] = await thumbFor(payload["video_id"]);
+}
+
 const YOUTUBE_ID_RE = /^[A-Za-z0-9_-]{11}$/;
 
 function validateVideoColumns(data: AnyRecord): string | null {
@@ -72,6 +86,7 @@ export async function adminOffers(body: AnyRecord): Promise<Result> {
 
     const invalidVideo = validateVideoColumns(offer);
     if (invalidVideo) return fail(invalidVideo);
+    await cacheThumb(offer);
 
     const { data, error } = await supabase
       .from("catalog_offers")
@@ -103,6 +118,7 @@ export async function adminOffers(body: AnyRecord): Promise<Result> {
     if (!id || !data) return fail("Missing required fields: id, data");
     const invalidVideo = validateVideoColumns(data);
     if (invalidVideo) return fail(invalidVideo);
+    await cacheThumb(data);
     if ("currency" in data) data.currency = "EUR";
     const { data: updated, error } = await supabase
       .from("catalog_offers")
@@ -215,6 +231,7 @@ export async function adminComplexes(body: AnyRecord): Promise<Result> {
           videos: data.videos ?? [],
           video_manual: data.video_manual ?? null,
           video_id: data.video_id ?? null,
+          video_thumb_url: await thumbFor(data.video_id),
         })
         .select();
       if (error) return fail(error.message);
@@ -241,6 +258,7 @@ export async function adminComplexes(body: AnyRecord): Promise<Result> {
           videos: data.videos,
           video_manual: data.video_manual ?? null,
           video_id: data.video_id ?? null,
+          video_thumb_url: await thumbFor(data.video_id),
           updated_at: new Date().toISOString(),
         })
         .eq("id", id)
