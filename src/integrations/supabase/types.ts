@@ -260,6 +260,7 @@ export type Database = {
           transaction_type: string | null
           updated_at: string
           video: string | null
+          video_embed_url: string | null
           virtual_tour: string | null
           whatsapp_catalog_id: string | null
           year_built: number | null
@@ -351,6 +352,7 @@ export type Database = {
           transaction_type?: string | null
           updated_at?: string
           video?: string | null
+          video_embed_url?: string | null
           virtual_tour?: string | null
           whatsapp_catalog_id?: string | null
           year_built?: number | null
@@ -442,6 +444,7 @@ export type Database = {
           transaction_type?: string | null
           updated_at?: string
           video?: string | null
+          video_embed_url?: string | null
           virtual_tour?: string | null
           whatsapp_catalog_id?: string | null
           year_built?: number | null
@@ -2492,6 +2495,7 @@ export type Database = {
           transaction_type: string | null
           updated_at: string
           video: string | null
+          video_embed_url: string | null
           virtual_tour: string | null
           whatsapp_catalog_id: string | null
           year_built: number | null

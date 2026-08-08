@@ -50,6 +50,7 @@ import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } 
 import { usePropertyViews } from "@/hooks/usePropertyViews";
 import { Eye } from "lucide-react";
 import PropertyGallery from "@/components/property/PropertyGallery";
+import { rowVideoEmbedUrl } from "@/lib/videoEmbed";
 import SpecRail from "@/components/SpecRail";
 import PropertyCard from "@/components/PropertyCard";
 import { composePropertyDescription } from "@/lib/propertyDescription";
@@ -640,6 +641,7 @@ const PropertyDetail = () => {
                       images={images}
                       title={property.title}
                       alt={`${property.title} — ${zona}`}
+                      videoEmbedUrl={rowVideoEmbedUrl(property)}
                     />
                   </div>
 
