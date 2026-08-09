@@ -26,7 +26,7 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
-import { usePropertyViews } from "@/hooks/usePropertyViews";
+import { usePropertyViews, useRecordPropertyView } from "@/hooks/usePropertyViews";
 
 // Check if a string looks like GPS coordinates
 const isCoordinates = (str: string): boolean => {
@@ -127,8 +127,9 @@ const MobilePropertyDetail = () => {
     enabled: !!slug
   });
 
-  const propertyPath = property ? getPropertyUrl(property) : undefined;
-  const { data: viewCount } = usePropertyViews(propertyPath);
+  const { data: viewStats } = usePropertyViews(property?.id);
+  useRecordPropertyView(property?.id);
+  const viewCount = viewStats?.total ?? 0;
 
   const formatPrice = (price: number, currency: string = 'EUR') => {
     // Ensure valid ISO currency code (LEI is not valid, use RON)
@@ -286,7 +287,7 @@ const MobilePropertyDetail = () => {
             <p className="text-2xl font-bold text-brass">
               {formatPrice(property.price_min || 0, property.currency || 'EUR')}
             </p>
-            {viewCount !== undefined && viewCount > 0 && (
+            {viewCount > 0 && (
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Eye className="w-4 h-4" />
                 <span>{viewCount} {language === 'ro' ? 'vizualizări' : 'views'}</span>
