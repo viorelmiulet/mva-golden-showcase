@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Play, Video } from "lucide-react";
 import type { DevelopmentVideo } from "@/lib/videoEmbed";
+import { CONVERSION_EVENTS, trackConversion } from "@/lib/analytics/conversions";
 
 interface Props {
   videos: DevelopmentVideo[];
