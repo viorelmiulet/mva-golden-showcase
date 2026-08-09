@@ -1,5 +1,6 @@
 import { invokeAdminFn } from "@/lib/adminInvoke";
-import { useState, useCallback } from "react";
+import { useAllPropertyViews } from "@/hooks/usePropertyViews";
+import { useState, useCallback, useMemo } from "react";
 import { toast as sonnerToast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -699,6 +700,16 @@ const PropertiesAdmin = () => {
               <Label htmlFor="select-all" className="text-sm cursor-pointer">
                 Selectează toate ({selectedProperties.size}/{properties.length})
               </Label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                aria-label="Sortează proprietățile"
+                className="h-8 rounded-md border border-border/40 bg-background px-2 text-xs"
+              >
+                <option value="recent">Cele mai recente</option>
+                <option value="views_total">Vizualizări (total)</option>
+                <option value="views_7d">Vizualizări (7 zile)</option>
+              </select>
               {selectedProperties.size > 0 && (
                 <div className="ml-auto flex flex-wrap items-center gap-2">
                   {(isBulkSending || isBulkTogglingVisibility) && bulkProgress.total > 0 && (
@@ -842,6 +853,10 @@ const PropertiesAdmin = () => {
                             <Home className="w-3.5 h-3.5" />
                             {property.rooms} camere
                           </span>
+                          <span className="flex items-center gap-1" title="Vizualizări total / ultimele 7 zile">
+                            <Eye className="w-3.5 h-3.5" />
+                            {viewCounts?.[property.id]?.total ?? 0} · 7z: {viewCounts?.[property.id]?.last7 ?? 0}
+                          </span>
                         </div>
                         
                         {property.location && (
@@ -957,6 +972,10 @@ const PropertiesAdmin = () => {
                           <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
                             <Home className="w-3 h-3 mr-0.5" />
                             {property.rooms}cam
+                          </Badge>
+                          <Badge variant="secondary" className="bg-muted text-xs px-1.5 py-0.5" title="Vizualizări total / ultimele 7 zile">
+                            <Eye className="w-3 h-3 mr-0.5" />
+                            {viewCounts?.[property.id]?.total ?? 0} · 7z: {viewCounts?.[property.id]?.last7 ?? 0}
                           </Badge>
                         </div>
                       </div>
