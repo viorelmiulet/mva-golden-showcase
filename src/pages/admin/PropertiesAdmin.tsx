@@ -1255,6 +1255,19 @@ const PropertiesAdmin = () => {
           <DialogHeader>
             <DialogTitle>Editează Proprietatea</DialogTitle>
           </DialogHeader>
+          {editingProperty && (
+            <div className="flex items-center gap-4 rounded-md border border-border/30 bg-muted/30 px-3 py-2 text-sm">
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <Eye className="w-4 h-4" /> Vizualizări
+              </span>
+              <span className="font-semibold">
+                {viewCounts?.[editingProperty.id]?.total ?? 0} total
+              </span>
+              <span className="text-muted-foreground">
+                {viewCounts?.[editingProperty.id]?.last7 ?? 0} în ultimele 7 zile
+              </span>
+            </div>
+          )}
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
