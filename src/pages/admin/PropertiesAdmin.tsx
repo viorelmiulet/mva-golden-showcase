@@ -1,5 +1,6 @@
 import { invokeAdminFn } from "@/lib/adminInvoke";
-import { useState, useCallback } from "react";
+import { useAllPropertyViews } from "@/hooks/usePropertyViews";
+import { useState, useCallback, useMemo } from "react";
 import { toast as sonnerToast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +53,7 @@ const PropertiesAdmin = () => {
   const { data: immofluxSlugMap } = useImmofluxSlugMap();
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
+  const [sortBy, setSortBy] = useState<"recent" | "views_total" | "views_7d">("recent");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   // IMMOFLUX properties
   const [immofluxPage, setImmofluxPage] = useState(1);
@@ -131,7 +133,9 @@ const PropertiesAdmin = () => {
     disabled: !isMobile,
   });
 
-  const { data: properties, isLoading: propertiesLoading } = useQuery({
+  const { data: viewCounts } = useAllPropertyViews();
+
+  const { data: rawProperties, isLoading: propertiesLoading } = useQuery({
     queryKey: ["catalog_offers"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -144,6 +148,16 @@ const PropertiesAdmin = () => {
       return data;
     },
   });
+
+  // Sorting, including by view counts from `property_views`.
+  const properties = useMemo(() => {
+    if (!rawProperties) return rawProperties;
+    const list = [...rawProperties];
+    const v = (id: string) => viewCounts?.[id] ?? { total: 0, last7: 0 };
+    if (sortBy === "views_total") list.sort((a, b) => v(b.id).total - v(a.id).total);
+    else if (sortBy === "views_7d") list.sort((a, b) => v(b.id).last7 - v(a.id).last7);
+    return list;
+  }, [rawProperties, viewCounts, sortBy]);
 
   const deleteProperty = async (id: string) => {
     setDeletingId(id);
@@ -686,6 +700,16 @@ const PropertiesAdmin = () => {
               <Label htmlFor="select-all" className="text-sm cursor-pointer">
                 Selectează toate ({selectedProperties.size}/{properties.length})
               </Label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                aria-label="Sortează proprietățile"
+                className="h-8 rounded-md border border-border/40 bg-background px-2 text-xs"
+              >
+                <option value="recent">Cele mai recente</option>
+                <option value="views_total">Vizualizări (total)</option>
+                <option value="views_7d">Vizualizări (7 zile)</option>
+              </select>
               {selectedProperties.size > 0 && (
                 <div className="ml-auto flex flex-wrap items-center gap-2">
                   {(isBulkSending || isBulkTogglingVisibility) && bulkProgress.total > 0 && (
@@ -829,6 +853,10 @@ const PropertiesAdmin = () => {
                             <Home className="w-3.5 h-3.5" />
                             {property.rooms} camere
                           </span>
+                          <span className="flex items-center gap-1" title="Vizualizări total / ultimele 7 zile">
+                            <Eye className="w-3.5 h-3.5" />
+                            {viewCounts?.[property.id]?.total ?? 0} · 7z: {viewCounts?.[property.id]?.last7 ?? 0}
+                          </span>
                         </div>
                         
                         {property.location && (
@@ -944,6 +972,10 @@ const PropertiesAdmin = () => {
                           <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
                             <Home className="w-3 h-3 mr-0.5" />
                             {property.rooms}cam
+                          </Badge>
+                          <Badge variant="secondary" className="bg-muted text-xs px-1.5 py-0.5" title="Vizualizări total / ultimele 7 zile">
+                            <Eye className="w-3 h-3 mr-0.5" />
+                            {viewCounts?.[property.id]?.total ?? 0} · 7z: {viewCounts?.[property.id]?.last7 ?? 0}
                           </Badge>
                         </div>
                       </div>
@@ -1223,6 +1255,19 @@ const PropertiesAdmin = () => {
           <DialogHeader>
             <DialogTitle>Editează Proprietatea</DialogTitle>
           </DialogHeader>
+          {editingProperty && (
+            <div className="flex items-center gap-4 rounded-md border border-border/30 bg-muted/30 px-3 py-2 text-sm">
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <Eye className="w-4 h-4" /> Vizualizări
+              </span>
+              <span className="font-semibold">
+                {viewCounts?.[editingProperty.id]?.total ?? 0} total
+              </span>
+              <span className="text-muted-foreground">
+                {viewCounts?.[editingProperty.id]?.last7 ?? 0} în ultimele 7 zile
+              </span>
+            </div>
+          )}
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
