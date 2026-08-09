@@ -172,7 +172,7 @@ const applyConsent = (c: Categories) => {
     clearTrackingCookies();
   }
 
-  // notify the rest of the app (e.g. Google Maps embed) that consent changed
+  // notify the rest of the app (analytics only; video and map are not gated) that consent changed
   window.dispatchEvent(
     new CustomEvent("mva-consent-change", { detail: c })
   );

@@ -489,7 +489,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
               </p>
             )}
 
-            {/* Development video (nocookie + consent gate) */}
+            {/* Development videos: self-hosted poster, nocookie iframe only after click */}
             {complexVideos.length > 0 && (
               <ComplexVideoSection videos={complexVideos} title={project.name} />
             )}
