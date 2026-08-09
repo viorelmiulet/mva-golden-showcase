@@ -52,6 +52,7 @@ const PropertiesAdmin = () => {
   const { data: immofluxSlugMap } = useImmofluxSlugMap();
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
+  const [sortBy, setSortBy] = useState<"recent" | "views_total" | "views_7d">("recent");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   // IMMOFLUX properties
   const [immofluxPage, setImmofluxPage] = useState(1);
@@ -131,7 +132,9 @@ const PropertiesAdmin = () => {
     disabled: !isMobile,
   });
 
-  const { data: properties, isLoading: propertiesLoading } = useQuery({
+  const { data: viewCounts } = useAllPropertyViews();
+
+  const { data: rawProperties, isLoading: propertiesLoading } = useQuery({
     queryKey: ["catalog_offers"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -144,6 +147,16 @@ const PropertiesAdmin = () => {
       return data;
     },
   });
+
+  // Sorting, including by view counts from `property_views`.
+  const properties = useMemo(() => {
+    if (!rawProperties) return rawProperties;
+    const list = [...rawProperties];
+    const v = (id: string) => viewCounts?.[id] ?? { total: 0, last7: 0 };
+    if (sortBy === "views_total") list.sort((a, b) => v(b.id).total - v(a.id).total);
+    else if (sortBy === "views_7d") list.sort((a, b) => v(b.id).last7 - v(a.id).last7);
+    return list;
+  }, [rawProperties, viewCounts, sortBy]);
 
   const deleteProperty = async (id: string) => {
     setDeletingId(id);
