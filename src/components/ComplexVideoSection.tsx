@@ -47,11 +47,25 @@ const ComplexVideoSection = ({ videos, title }: Props) => {
               referrerPolicy="strict-origin-when-cross-origin"
               allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               allowFullScreen
+              onLoad={() =>
+                trackConversion(CONVERSION_EVENTS.videoPlaybackStart, {
+                  video_id: video.youtubeId ?? undefined,
+                  video_title: label,
+                  development: title,
+                })
+              }
             />
           ) : (
             <button
               type="button"
-              onClick={() => setPlaying(true)}
+              onClick={() => {
+                trackConversion(CONVERSION_EVENTS.videoPlayClick, {
+                  video_id: video.youtubeId ?? undefined,
+                  video_title: label,
+                  development: title,
+                });
+                setPlaying(true);
+              }}
               aria-label={`Redă videoclipul: ${label}`}
               className="group relative w-full h-full flex items-center justify-center text-paper"
             >
