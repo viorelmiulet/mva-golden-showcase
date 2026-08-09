@@ -47,7 +47,7 @@ import { usePlausible } from "@/hooks/usePlausible";
 import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
 import { useGA4 } from "@/hooks/useGA4";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
-import { usePropertyViews } from "@/hooks/usePropertyViews";
+import { usePropertyViews, useRecordPropertyView } from "@/hooks/usePropertyViews";
 import { Eye } from "lucide-react";
 import PropertyGallery from "@/components/property/PropertyGallery";
 import { rowVideoEmbedUrl } from "@/lib/videoEmbed";
@@ -251,8 +251,8 @@ const PropertyDetail = () => {
   const { trackProperty, trackContact } = usePlausible();
   const { trackEvent } = useInternalAnalytics();
   const { trackPropertyView } = useGA4();
-  const propertyPath = property ? getPropertyUrl(property) : undefined;
-  const { data: viewCount } = usePropertyViews(propertyPath);
+  const { data: viewStats } = usePropertyViews(property?.id);
+  useRecordPropertyView(property?.id);
 
   useEffect(() => {
     if (!slug) {
@@ -561,6 +561,7 @@ const PropertyDetail = () => {
               : null,
           property.year_built ? String(property.year_built) : null,
           property.compartment ? String(property.compartment).toUpperCase() : null,
+          viewStats && viewStats.total > 0 ? `${viewStats.total} VIZUALIZĂRI` : null,
         ];
 
         const featureSet = new Set<string>();
