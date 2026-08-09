@@ -37,6 +37,8 @@ export const CONVERSION_LABELS: Record<string, string> = {
   [CONVERSION_EVENTS.contactFormSubmit]: "Formular contact",
   [CONVERSION_EVENTS.viewingRequest]: "Cerere vizionare",
   [CONVERSION_EVENTS.jobApplication]: "Aplicare carieră",
+  [CONVERSION_EVENTS.videoPlayClick]: "Click redare video",
+  [CONVERSION_EVENTS.videoPlaybackStart]: "Start redare video",
 };
 
 const SESSION_KEY = "mva_session_id";
