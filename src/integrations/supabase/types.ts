@@ -1680,6 +1680,35 @@ export type Database = {
           },
         ]
       }
+      property_views: {
+        Row: {
+          id: string
+          property_id: string
+          viewed_at: string
+          visitor_hash: string
+        }
+        Insert: {
+          id?: string
+          property_id: string
+          viewed_at?: string
+          visitor_hash: string
+        }
+        Update: {
+          id?: string
+          property_id?: string
+          viewed_at?: string
+          visitor_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_views_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       real_estate_projects: {
         Row: {
           amenities: string[] | null
