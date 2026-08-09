@@ -15,6 +15,8 @@ export const CONVERSION_EVENTS = {
   contactFormSubmit: "contact_form_submit",
   viewingRequest: "viewing_request",
   jobApplication: "job_application",
+  videoPlayClick: "video_play_click",
+  videoPlaybackStart: "video_playback_start",
 } as const;
 
 export type ConversionEvent = (typeof CONVERSION_EVENTS)[keyof typeof CONVERSION_EVENTS];
