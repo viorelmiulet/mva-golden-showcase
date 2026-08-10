@@ -680,6 +680,11 @@ const PropertyDetail = () => {
 
                       <div className="mt-4">
                         <SpecRail items={specItems} className="whitespace-normal" />
+                        {viewCount > 0 && (
+                          <p className="text-spec text-muted-foreground mt-2">
+                            {viewCount.toLocaleString("ro-RO")} VIZUALIZĂRI
+                          </p>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-3 mt-6 pt-6 border-t border-stone">
