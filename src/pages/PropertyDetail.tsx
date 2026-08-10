@@ -561,8 +561,8 @@ const PropertyDetail = () => {
               : null,
           property.year_built ? String(property.year_built) : null,
           property.compartment ? String(property.compartment).toUpperCase() : null,
-          viewStats && viewStats.total > 0 ? `${viewStats.total} VIZUALIZĂRI` : null,
         ];
+        const viewCount = viewStats?.total ?? 0;
 
         const featureSet = new Set<string>();
         if (Array.isArray(property.features)) property.features.forEach((f: string) => f && featureSet.add(f));
@@ -680,6 +680,11 @@ const PropertyDetail = () => {
 
                       <div className="mt-4">
                         <SpecRail items={specItems} className="whitespace-normal" />
+                        {viewCount > 0 && (
+                          <p className="text-spec text-muted-foreground mt-2">
+                            {viewCount.toLocaleString("ro-RO")} VIZUALIZĂRI
+                          </p>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-3 mt-6 pt-6 border-t border-stone">
