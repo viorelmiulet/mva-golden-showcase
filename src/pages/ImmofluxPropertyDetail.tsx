@@ -16,6 +16,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { extractImmofluxIdFromSlug } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { composePropertyDescription } from "@/lib/propertyDescription";
+import { usePropertyViews, useRecordPropertyView } from "@/hooks/usePropertyViews";
 
 const Footer = lazy(() => import("@/components/Footer"));
 const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
@@ -177,6 +178,12 @@ const ImmofluxPropertyDetail = () => {
     enabled: !!row?.id,
     staleTime: 5 * 60 * 1000,
   });
+
+  // Public view tracking (records after hydration; bots excluded server-side)
+  const { data: viewStats } = usePropertyViews(row?.id);
+  useRecordPropertyView(row?.id);
+  const viewCount = viewStats?.total ?? 0;
+
 
   if (isLoading) return (
     <div className="min-h-screen bg-background">
@@ -399,9 +406,7 @@ const ImmofluxPropertyDetail = () => {
                     )}
                   </p>
 
-                  <div className="mt-4">
-                    <SpecRail items={specItems} className="whitespace-normal" />
-                  </div>
+
 
                   <div className="flex items-center gap-3 mt-6 pt-6 border-t border-stone">
                     <img
@@ -448,6 +453,15 @@ const ImmofluxPropertyDetail = () => {
 
             {/* Below the fold */}
             <div className="max-w-[720px] mt-16 space-y-16">
+              <div>
+                <SpecRail items={specItems} className="whitespace-normal" />
+                {viewCount > 0 && (
+                  <p className="text-spec text-muted-foreground mt-2">
+                    {viewCount.toLocaleString("ro-RO")} VIZUALIZĂRI
+                  </p>
+                )}
+              </div>
+
               {descText && (
                 <section aria-labelledby="descriere">
                   <h2 id="descriere" className="text-title text-foreground mb-4">Descriere</h2>
