@@ -178,6 +178,12 @@ const ImmofluxPropertyDetail = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Public view tracking (records after hydration; bots excluded server-side)
+  const { data: viewStats } = usePropertyViews(row?.id);
+  useRecordPropertyView(row?.id);
+  const viewCount = viewStats?.total ?? 0;
+
+
   if (isLoading) return (
     <div className="min-h-screen bg-background">
       <Header />
