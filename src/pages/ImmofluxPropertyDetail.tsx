@@ -16,6 +16,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { extractImmofluxIdFromSlug } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { composePropertyDescription } from "@/lib/propertyDescription";
+import { usePropertyViews, useRecordPropertyView } from "@/hooks/usePropertyViews";
 
 const Footer = lazy(() => import("@/components/Footer"));
 const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
