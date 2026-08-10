@@ -406,9 +406,7 @@ const ImmofluxPropertyDetail = () => {
                     )}
                   </p>
 
-                  <div className="mt-4">
-                    <SpecRail items={specItems} className="whitespace-normal" />
-                  </div>
+
 
                   <div className="flex items-center gap-3 mt-6 pt-6 border-t border-stone">
                     <img
