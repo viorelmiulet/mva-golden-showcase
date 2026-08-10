@@ -376,7 +376,7 @@
     --secondary-foreground: var(--paper);
 
     --muted: var(--graphite);
-    --muted-foreground: 40 8% 70%;
+    --muted-foreground: 40 8% 80%;
 
     --accent: var(--graphite);
     --accent-foreground: var(--paper);
