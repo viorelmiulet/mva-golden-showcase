@@ -222,6 +222,18 @@ const MobilePropertyDetail = () => {
 
   const images = property.images || [];
 
+  const specItems = [
+    property.rooms ? `${property.rooms} CAM` : null,
+    property.surface_min ? `${property.surface_min} MP` : null,
+    property.floor === 0
+      ? 'PARTER'
+      : typeof property.floor === 'number'
+        ? `ET ${property.floor}${property.total_floors ? `/${property.total_floors}` : ''}`
+        : null,
+    property.year_built ? String(property.year_built) : null,
+    property.compartment ? String(property.compartment).toUpperCase() : null,
+  ];
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <MobileHeader 
@@ -273,6 +285,16 @@ const MobilePropertyDetail = () => {
               </div>
            )}
         </div>
+      </div>
+
+      {/* Specs + views — directly below gallery, above description */}
+      <div className="px-4 pt-4">
+        <SpecRail items={specItems} className="whitespace-normal" />
+        {viewCount > 0 && (
+          <p className="text-spec text-muted-foreground mt-2">
+            {viewCount.toLocaleString('ro-RO')} VIZUALIZĂRI
+          </p>
+        )}
       </div>
 
       {/* Content */}
