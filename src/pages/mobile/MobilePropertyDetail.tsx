@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import MobileHeader from "@/components/mobile/MobileHeader";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
+import SpecRail from "@/components/SpecRail";
 import { 
   MapPin, 
   Home, 
@@ -19,8 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  Check,
-  Eye
+  Check
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
@@ -221,6 +221,18 @@ const MobilePropertyDetail = () => {
 
   const images = property.images || [];
 
+  const specItems = [
+    property.rooms ? `${property.rooms} CAM` : null,
+    property.surface_min ? `${property.surface_min} MP` : null,
+    property.floor === 0
+      ? 'PARTER'
+      : typeof property.floor === 'number'
+        ? `ET ${property.floor}${property.total_floors ? `/${property.total_floors}` : ''}`
+        : null,
+    property.year_built ? String(property.year_built) : null,
+    property.compartment ? String(property.compartment).toUpperCase() : null,
+  ];
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <MobileHeader 
@@ -274,6 +286,16 @@ const MobilePropertyDetail = () => {
         </div>
       </div>
 
+      {/* Specs + views — directly below gallery, above description */}
+      <div className="px-4 pt-4">
+        <SpecRail items={specItems} className="whitespace-normal" />
+        {viewCount > 0 && (
+          <p className="text-spec text-muted-foreground mt-2">
+            {viewCount.toLocaleString('ro-RO')} VIZUALIZĂRI
+          </p>
+        )}
+      </div>
+
       {/* Content */}
       <div className="p-4 space-y-4">
         {/* Title and price */}
@@ -283,17 +305,9 @@ const MobilePropertyDetail = () => {
             <MapPin className="w-4 h-4" />
             {getDisplayLocation(property)}
           </p>
-          <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-brass">
-              {formatPrice(property.price_min || 0, property.currency || 'EUR')}
-            </p>
-            {viewCount > 0 && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Eye className="w-4 h-4" />
-                <span>{viewCount} {language === 'ro' ? 'vizualizări' : 'views'}</span>
-              </div>
-            )}
-          </div>
+          <p className="text-2xl font-bold text-brass">
+            {formatPrice(property.price_min || 0, property.currency || 'EUR')}
+          </p>
         </div>
 
         {/* Quick info */}
