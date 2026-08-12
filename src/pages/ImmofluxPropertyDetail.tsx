@@ -381,6 +381,14 @@ const ImmofluxPropertyDetail = () => {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
               <div className="lg:col-span-3">
                 <PropertyGallery images={images} title={title} alt={`${title} — ${zoneLabel}`} videoEmbedUrl={rowVideoEmbedUrl(row)} />
+                <div className="mt-4">
+                  <SpecRail items={specItems} className="whitespace-normal" />
+                  {viewCount > 0 && (
+                    <p className="text-spec text-muted-foreground mt-2">
+                      {viewCount.toLocaleString("ro-RO")} VIZUALIZĂRI
+                    </p>
+                  )}
+                </div>
               </div>
 
               <aside className="lg:col-span-2 lg:sticky lg:top-24">
@@ -453,15 +461,6 @@ const ImmofluxPropertyDetail = () => {
 
             {/* Below the fold */}
             <div className="max-w-[720px] mt-16 space-y-16">
-              <div>
-                <SpecRail items={specItems} className="whitespace-normal" />
-                {viewCount > 0 && (
-                  <p className="text-spec text-muted-foreground mt-2">
-                    {viewCount.toLocaleString("ro-RO")} VIZUALIZĂRI
-                  </p>
-                )}
-              </div>
-
               {descText && (
                 <section aria-labelledby="descriere">
                   <h2 id="descriere" className="text-title text-foreground mb-4">Descriere</h2>
