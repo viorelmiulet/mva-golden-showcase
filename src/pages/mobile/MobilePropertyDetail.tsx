@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import MobileHeader from "@/components/mobile/MobileHeader";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
+import SpecRail from "@/components/SpecRail";
 import { 
   MapPin, 
   Home, 
