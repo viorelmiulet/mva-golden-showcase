@@ -306,17 +306,9 @@ const MobilePropertyDetail = () => {
             <MapPin className="w-4 h-4" />
             {getDisplayLocation(property)}
           </p>
-          <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-brass">
-              {formatPrice(property.price_min || 0, property.currency || 'EUR')}
-            </p>
-            {viewCount > 0 && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Eye className="w-4 h-4" />
-                <span>{viewCount} {language === 'ro' ? 'vizualizări' : 'views'}</span>
-              </div>
-            )}
-          </div>
+          <p className="text-2xl font-bold text-brass">
+            {formatPrice(property.price_min || 0, property.currency || 'EUR')}
+          </p>
         </div>
 
         {/* Quick info */}
