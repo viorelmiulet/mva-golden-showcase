@@ -20,8 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  Check,
-  Eye
+  Check
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
