@@ -21,6 +21,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import AdminPWAInstallBanner from "@/components/AdminPWAInstallBanner";
 import { motion, AnimatePresence } from "framer-motion";
 import "@/styles/admin.css";
+import { setAdminPassword, clearAdminPassword } from "@/lib/adminDb";
+import { adminChangePasswordFn, adminVerifyPasswordFn } from "@/lib/adminWrite.functions";
 
 const DEFAULT_PASSWORD = "123456";
 
@@ -225,24 +227,31 @@ const AdminLayout = () => {
   const location = useLocation();
 
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === getStoredPassword()) {
-      sessionStorage.setItem("admin_auth", "true");
-      setIsAuthenticated(true);
-      setError("");
-    } else {
+    if (password !== getStoredPassword()) {
       setError("Parolă incorectă");
+      return;
     }
+    const { ok } = await adminVerifyPasswordFn({ data: { password } });
+    if (!ok) {
+      setError("Parolă incorectă");
+      return;
+    }
+    sessionStorage.setItem("admin_auth", "true");
+    setAdminPassword(password);
+    setIsAuthenticated(true);
+    setError("");
   };
 
   const handleLogout = () => {
     sessionStorage.removeItem("admin_auth");
+    clearAdminPassword();
     setIsAuthenticated(false);
     setPassword("");
   };
 
-  const handleChangePassword = (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (currentPassword !== getStoredPassword()) {
@@ -259,8 +268,17 @@ const AdminLayout = () => {
       toast.error("Parolele noi nu coincid");
       return;
     }
-    
+
+    const result = await adminChangePasswordFn({
+      data: { currentPassword, newPassword },
+    });
+    if (!result?.success) {
+      toast.error(result?.error || "Parola nu a putut fi schimbată");
+      return;
+    }
+
     localStorage.setItem("admin_password", newPassword);
+    setAdminPassword(newPassword);
     toast.success("Parola a fost schimbată cu succes!");
     setIsSettingsOpen(false);
     setCurrentPassword("");
