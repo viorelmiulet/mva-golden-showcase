@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
 import { motion } from "framer-motion";
 import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
+import { adminDb } from "@/lib/adminDb";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -231,7 +232,7 @@ const IntermediationContractPage = () => {
   const saveContractMutation = useMutation({
     mutationFn: async (contractData: any) => {
       if (editingContractId) {
-        const { data, error } = await supabase
+        const { data, error } = await adminDb
           .from('contracts')
           .update(contractData)
           .eq('id', editingContractId)
@@ -241,7 +242,7 @@ const IntermediationContractPage = () => {
         if (error) throw error;
         return data;
       } else {
-        const { data, error } = await supabase
+        const { data, error } = await adminDb
           .from('contracts')
           .insert(contractData)
           .select()
@@ -266,7 +267,7 @@ const IntermediationContractPage = () => {
 
   const deleteContractMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('contracts')
         .delete()
         .eq('id', id);

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { adminDb } from "@/lib/adminDb";
 
 export interface Client {
   id: string;
@@ -30,7 +31,7 @@ export const useClients = () => {
 
   const addClient = useMutation({
     mutationFn: async (client: Omit<Client, "id" | "created_at" | "updated_at">) => {
-      const { data, error } = await supabase
+      const { data, error } = await adminDb
         .from("clients")
         .insert([client])
         .select()
@@ -50,7 +51,7 @@ export const useClients = () => {
 
   const updateClient = useMutation({
     mutationFn: async ({ id, ...client }: Partial<Client> & { id: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await adminDb
         .from("clients")
         .update(client)
         .eq("id", id)
@@ -71,7 +72,7 @@ export const useClients = () => {
 
   const deleteClient = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("clients").delete().eq("id", id);
+      const { error } = await adminDb.from("clients").delete().eq("id", id);
 
       if (error) throw error;
     },

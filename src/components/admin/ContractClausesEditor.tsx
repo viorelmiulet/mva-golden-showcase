@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { toast } from "sonner";
 import { Save, Plus, Trash2, FileText, GripVertical, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { adminDb } from "@/lib/adminDb";
 
 interface ContractClause {
   id: string;
@@ -71,7 +72,7 @@ const ContractClausesEditor = () => {
 
     setIsSaving(true);
     try {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from("contract_clauses")
         .update(edits)
         .eq("id", clause.id);
@@ -106,7 +107,7 @@ const ContractClausesEditor = () => {
     try {
       for (const id of editedIds) {
         const edits = editedClauses[id];
-        const { error } = await supabase
+        const { error } = await adminDb
           .from("contract_clauses")
           .update(edits)
           .eq("id", id);
@@ -139,7 +140,7 @@ const ContractClausesEditor = () => {
     try {
       const maxOrder = clauses.reduce((max, c) => Math.max(max, c.sort_order), 0);
       
-      const { data, error } = await supabase
+      const { data, error } = await adminDb
         .from("contract_clauses")
         .insert({
           section_key: newClause.section_key,
@@ -172,7 +173,7 @@ const ContractClausesEditor = () => {
     if (!confirm("Sigur dorești să ștergi această clauză?")) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from("contract_clauses")
         .delete()
         .eq("id", id);
@@ -222,7 +223,7 @@ const ContractClausesEditor = () => {
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from("contract_clauses")
         .update({
           section_title: defaultClause.title,

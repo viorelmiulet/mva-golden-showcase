@@ -45,6 +45,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileFilterSort, type FilterOption, type SortOption } from "@/components/admin/MobileFilterSort";
+import { adminDb } from "@/lib/adminDb";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -240,7 +241,7 @@ const ComplexDetail = () => {
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('catalog_offers')
         .delete()
         .in('id', selectedProperties);
@@ -297,7 +298,7 @@ const ComplexDetail = () => {
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('catalog_offers')
         .delete()
         .in('id', duplicates);

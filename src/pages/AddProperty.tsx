@@ -18,6 +18,7 @@ import { Link } from "@/lib/router-compat"
 import { triggerSocialAutoPost } from "@/lib/socialAutoPost"
 import { toast as sonnerToast } from "sonner"
 import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
+import { adminDb } from "@/lib/adminDb";
 
 interface ScrapedProperty {
   title: string
@@ -59,7 +60,7 @@ const AddProperty = () => {
 
       if (data.success) {
         // Add the scraped property to database
-        const { data: insertedData, error: insertError } = await supabase
+        const { data: insertedData, error: insertError } = await adminDb
           .from('catalog_offers')
           .insert({
             title: data.property.title,

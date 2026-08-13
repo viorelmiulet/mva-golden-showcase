@@ -45,6 +45,7 @@ import type { Json } from "@/integrations/supabase/types";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
+import { adminDb } from "@/lib/adminDb";
 
 interface ClientPreferences {
   min_price?: number;
@@ -182,7 +183,7 @@ export default function ClientsAdminPage() {
     if (!selectedClient) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from("clients")
         .update({ preferences: preferences as Json })
         .eq("id", selectedClient.id);

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
+import { adminDb } from "@/lib/adminDb";
 
 export type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -69,7 +70,7 @@ export const useUserRoles = () => {
 
       if (existingRole) {
         // Update existing role
-        const { error } = await supabase
+        const { error } = await adminDb
           .from("user_roles")
           .update({ role })
           .eq("user_id", userId);
@@ -77,7 +78,7 @@ export const useUserRoles = () => {
         if (error) throw error;
       } else {
         // Insert new role
-        const { error } = await supabase
+        const { error } = await adminDb
           .from("user_roles")
           .insert({ user_id: userId, role });
 
@@ -96,7 +97,7 @@ export const useUserRoles = () => {
   // Delete user (only removes role, profile remains)
   const deleteUserRole = useMutation({
     mutationFn: async (userId: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from("user_roles")
         .delete()
         .eq("user_id", userId);

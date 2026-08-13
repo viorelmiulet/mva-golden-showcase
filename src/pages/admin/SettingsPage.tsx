@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { Settings, Save, Loader2, Phone, Mail, MapPin, Facebook, Instagram, Globe, RefreshCw, Send, Key, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { invokeMiscOpsFn } from "@/lib/miscOpsInvoke";
+import { adminDb } from "@/lib/adminDb";
 
 interface SiteSettings {
   companyName: string;
@@ -157,7 +158,7 @@ const SettingsPage = () => {
       }));
 
       for (const update of updates) {
-        const { error } = await supabase
+        const { error } = await adminDb
           .from('site_settings')
           .upsert(
             { key: update.key, value: update.value, updated_at: update.updated_at },
@@ -182,7 +183,7 @@ const SettingsPage = () => {
   const saveEmailSettingsMutation = useMutation({
     mutationFn: async (settings: EmailFunctionSetting[]) => {
       for (const setting of settings) {
-        const { error } = await supabase
+        const { error } = await adminDb
           .from('email_function_settings')
           .update({
             from_email: setting.from_email,

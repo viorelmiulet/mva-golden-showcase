@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { generatePropertySlug } from "@/lib/propertySlug";
+import { adminDb } from "@/lib/adminDb";
 
 const SITE = "https://www.mvaimobiliare.ro";
 const PHONE_LINE = "☎️ 0767.941.512";
@@ -229,7 +230,7 @@ export const enqueueOfferToFacebook = async (o: OfferLike): Promise<EnqueueResul
       offer_url: resolveOfferUrl(o),
       status: "pending" as const,
     };
-    const { error: insErr } = await supabase.from("fb_post_queue").insert(payload);
+    const { error: insErr } = await adminDb.from("fb_post_queue").insert(payload);
     if (insErr) throw insErr;
     return { offerId: o.id, offerTitle, status: "queued" };
   } catch (err: any) {
@@ -289,7 +290,7 @@ export const regenerateQueuedMessages = async (
       result.skipped += 1;
       continue;
     }
-    const { error: upErr } = await supabase
+    const { error: upErr } = await adminDb
       .from("fb_post_queue")
       .update({ message: newMessage, offer_url: newUrl })
       .eq("id", row.id);

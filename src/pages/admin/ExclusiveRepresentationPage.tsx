@@ -26,6 +26,7 @@ import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
 import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
+import { adminDb } from "@/lib/adminDb";
 
 interface ExtractedData {
   nume: string;
@@ -232,12 +233,12 @@ const ExclusiveRepresentationPage = () => {
         .maybeSingle();
 
       if (existing) {
-        await supabase
+        await adminDb
           .from('site_settings')
           .update({ value: signatureData })
           .eq('key', 'default_agent_signature');
       } else {
-        await supabase
+        await adminDb
           .from('site_settings')
           .insert({ key: 'default_agent_signature', value: signatureData });
       }
@@ -272,7 +273,7 @@ const ExclusiveRepresentationPage = () => {
   const saveContractMutation = useMutation({
     mutationFn: async (contractData: any) => {
       if (editingContractId) {
-        const { data, error } = await supabase
+        const { data, error } = await adminDb
           .from('exclusive_contracts')
           .update(contractData)
           .eq('id', editingContractId)
@@ -282,7 +283,7 @@ const ExclusiveRepresentationPage = () => {
         if (error) throw error;
         return data;
       } else {
-        const { data, error } = await supabase
+        const { data, error } = await adminDb
           .from('exclusive_contracts')
           .insert(contractData)
           .select()
@@ -308,7 +309,7 @@ const ExclusiveRepresentationPage = () => {
   // Delete contract mutation
   const deleteContractMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('exclusive_contracts')
         .delete()
         .eq('id', id);

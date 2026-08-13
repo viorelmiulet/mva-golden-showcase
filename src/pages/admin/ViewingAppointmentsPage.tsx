@@ -50,6 +50,7 @@ import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
+import { adminDb } from "@/lib/adminDb";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -112,7 +113,7 @@ const ViewingAppointmentsPage = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, status, notes }: { id: string; status: string; notes: string }) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('viewing_appointments')
         .update({ status, notes })
         .eq('id', id);
@@ -132,7 +133,7 @@ const ViewingAppointmentsPage = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('viewing_appointments')
         .delete()
         .eq('id', id);
