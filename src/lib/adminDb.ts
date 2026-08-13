@@ -43,6 +43,7 @@ class AdminWriteBuilder implements PromiseLike<Res> {
     private op: "insert" | "update" | "upsert" | "delete",
     private values?: unknown,
     private onConflict?: string,
+    private ignoreDuplicates?: boolean,
   ) {}
 
   private filter(type: FilterType, column: string, value: unknown) {
@@ -79,6 +80,7 @@ class AdminWriteBuilder implements PromiseLike<Res> {
             op: this.op,
             values: this.values,
             onConflict: this.onConflict,
+            ignoreDuplicates: this.ignoreDuplicates,
             filters: this.filters,
             select: this.selectExpr,
             single: this.singleMode,
@@ -105,8 +107,8 @@ class AdminTable {
   constructor(private table: string) {}
   insert(values: unknown) { return new AdminWriteBuilder(this.table, "insert", values); }
   update(values: unknown) { return new AdminWriteBuilder(this.table, "update", values); }
-  upsert(values: unknown, options?: { onConflict?: string }) {
-    return new AdminWriteBuilder(this.table, "upsert", values, options?.onConflict);
+  upsert(values: unknown, options?: { onConflict?: string; ignoreDuplicates?: boolean }) {
+    return new AdminWriteBuilder(this.table, "upsert", values, options?.onConflict, options?.ignoreDuplicates);
   }
   delete() { return new AdminWriteBuilder(this.table, "delete"); }
 }

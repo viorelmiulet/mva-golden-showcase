@@ -20,6 +20,7 @@ export type WriteSpec = {
   op: "insert" | "update" | "upsert" | "delete";
   values?: unknown;
   onConflict?: string;
+  ignoreDuplicates?: boolean;
   filters?: Filter[];
   select?: string | null;
   single?: "single" | "maybeSingle" | null;
@@ -90,7 +91,10 @@ export async function runAdminWrite(spec: WriteSpec): Promise<{ data: unknown; e
       query = query.insert(spec.values);
       break;
     case "upsert":
-      query = query.upsert(spec.values, spec.onConflict ? { onConflict: spec.onConflict } : undefined);
+      query = query.upsert(spec.values, {
+        ...(spec.onConflict ? { onConflict: spec.onConflict } : {}),
+        ...(spec.ignoreDuplicates !== undefined ? { ignoreDuplicates: spec.ignoreDuplicates } : {}),
+      });
       break;
     case "update":
       if (!spec.filters?.length) return { data: null, error: { message: "Update fără filtru este interzis" } };
