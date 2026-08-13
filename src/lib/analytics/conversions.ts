@@ -1,4 +1,3 @@
-import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Sursă unică de adevăr pentru evenimentele de conversie (lead-uri).
