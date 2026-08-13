@@ -1,3 +1,5 @@
+const canonical = "https://www.mvaimobiliare.ro/facilitati-militari-residence";
+
 export const articleSchema = {
   "@context": "https://schema.org",
   "@type": "Article",

@@ -1,3 +1,5 @@
+const canonical = "https://www.mvaimobiliare.ro/comparatie-complexuri-militari-chiajna";
+
 export const articleSchema = {
   "@context": "https://schema.org",
   "@type": "Article",

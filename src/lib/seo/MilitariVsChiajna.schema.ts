@@ -1,3 +1,5 @@
+const canonical = "https://www.mvaimobiliare.ro/militari-vs-chiajna-comparatie";
+
 export const articleSchema = {
   "@context": "https://schema.org",
   "@type": "Article",

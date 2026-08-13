@@ -1,3 +1,5 @@
+const canonical = "https://www.mvaimobiliare.ro/ghid-noua-casa-2024";
+
 export const articleSchema = {
   "@context": "https://schema.org",
   "@type": "Article",

@@ -1,3 +1,6 @@
+const canonical = "https://www.mvaimobiliare.ro/pareri-militari-residence";
+const overallRating = 4.2;
+
 export const reviewSchema = {
   "@context": "https://schema.org",
   "@type": "Review",
