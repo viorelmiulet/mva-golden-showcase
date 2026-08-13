@@ -99,15 +99,16 @@ export const trackConversion = (event: ConversionEvent | string, props?: Convers
   }
 
   // Dashboard intern
-  void supabase
-    .from("events")
-    .insert({
+  void fetch("/api/public/track", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: "event",
       session_id: getAnalyticsSessionId(),
       event_type: event,
       event_data: payload,
       page_path: pagePath,
-    })
-    .then(({ error }) => {
-      if (error) console.warn("[Conversions] insert error:", error.message);
-    });
+    }),
+    keepalive: true,
+  }).catch((err) => console.warn("[Conversions] track error:", err));
 };
