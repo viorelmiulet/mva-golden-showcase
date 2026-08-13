@@ -1,4 +1,3 @@
-import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -7,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+import { faqSchema } from "@/lib/seo/FacilitatiMilitariResidence.schema";
   MapPin,
   Trees,
   Dumbbell,
@@ -28,64 +28,6 @@ import {
  */
 const FacilitatiMilitariResidence = () => {
   const canonical = "https://www.mvaimobiliare.ro/facilitati-militari-residence";
-
-  const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: "Facilități și stil de viață în Militari Residence — tot ce oferă zona",
-    description:
-      "Descoperă facilitățile din Militari Residence: parcuri, săli de fitness, centre comerciale, școli, restaurante și viața de cartier. Ghid complet pentru viitori locuitori.",
-    author: { "@type": "Organization", name: "MVA Imobiliare" },
-    publisher: {
-      "@type": "Organization",
-      name: "MVA Imobiliare",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://www.mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
-      },
-    },
-    mainEntityOfPage: canonical,
-    image: "https://www.mvaimobiliare.ro/og-image.jpg",
-  };
-
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "Ce facilități există în Militari Residence?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Militari Residence oferă parcuri și spații verzi, centre comerciale (Auchan, Carrefour, Cora), săli de fitness, clinici private, școli și grădinițe, restaurante și cafenele, plus acces rapid la metrou și autostradă.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Unde poți face cumpărături în Militari Residence?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "În zonă găsești Auchan Militari, Carrefour, Cora Lujerului, Militari Shopping Center, La Strada și numeroase magazine de proximitate. Sunt disponibile și piețe agroalimentare pentru producători locali.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Există școli și grădinițe în apropiere?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Da. În și lângă Militari Residence funcționează Școala Gimnazială nr. 1 Chiajna, grădinițe private (Smart Kids, Happy Kids, Olga Gudynn) și creșe. Liceele din Sectorul 6 sunt la 10–15 minute.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Ce opțiuni de sport și relaxare există?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Zona dispune de săli de fitness, centre Wellness & Spa, parcuri cu alei pentru alergare și plimbări, locuri de joacă pentru copii și terenuri de sport în interiorul cartierului.",
-        },
-      },
-    ],
-  };
 
   const lifestyleSections = [
     {
@@ -180,31 +122,6 @@ const FacilitatiMilitariResidence = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Facilități Militari Residence — stil de viață, magazine, școli, parcuri</title>
-        <meta
-          name="description"
-          content="Descoperă facilitățile din Militari Residence: parcuri, centre comerciale, săli fitness, școli, restaurante și viața de cartier. Ghid complet pentru viitori locuitori."
-        />
-        <link rel="canonical" href={canonical} />
-        <meta
-          name="keywords"
-          content="facilitati militari residence, militari residence lifestyle, parcuri militari residence, scoli chiajna, centre comerciale militari, wellness spa militari, la strada militari"
-        />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={canonical} />
-        <meta
-          property="og:title"
-          content="Facilități și stil de viață în Militari Residence"
-        />
-        <meta
-          property="og:description"
-          content="Descoperă ce oferă viața în Militari Residence: parcuri, magazine, fitness, școli și restaurante — ghid complet MVA Imobiliare."
-        />
-        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-image.jpg" />
-        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
-      </Helmet>
 
       <BreadcrumbSchema
         items={[
