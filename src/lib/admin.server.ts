@@ -354,13 +354,23 @@ export async function adminComplexes(body: AnyRecord): Promise<Result> {
         .eq("id", id)
         .select();
       if (error) return fail(error.message);
+      if (!updatedData || updatedData.length === 0) {
+        return fail(`Nicio înregistrare nu a fost modificată în ${table} (id: ${id})`);
+      }
       return { success: true, data: updatedData };
     }
 
     case "delete": {
       if (!table || !id) return fail("Missing table or id");
-      const { error } = await supabase.from(table).delete().eq("id", id);
+      const { data: deletedData, error } = await supabase
+        .from(table)
+        .delete()
+        .eq("id", id)
+        .select("id");
       if (error) return fail(error.message);
+      if (!deletedData || deletedData.length === 0) {
+        return fail(`Nicio înregistrare nu a fost ștearsă din ${table} (id: ${id})`);
+      }
       return { success: true };
     }
 
