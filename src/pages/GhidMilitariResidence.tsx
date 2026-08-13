@@ -1,4 +1,4 @@
-import { Helmet } from "@/lib/helmet-compat";
+import { faqSchema } from "@/lib/seo/GhidMilitariResidence.schema";
 import { Link } from "@/lib/router-compat";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -28,72 +28,6 @@ import {
  */
 const GhidMilitariResidence = () => {
   const canonical = "https://www.mvaimobiliare.ro/ghid-militari-residence";
-
-  const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: "Ghid complet Militari Residence 2026 — cartier, prețuri, transport, școli și viață",
-    description:
-      "Ghid complet despre Militari Residence: locație, transport STB și metrou, școli, magazine, parcuri, prețuri apartamente și sfaturi pentru cumpărători.",
-    author: { "@type": "Organization", name: "MVA Imobiliare" },
-    publisher: {
-      "@type": "Organization",
-      name: "MVA Imobiliare",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://www.mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
-      },
-    },
-    mainEntityOfPage: canonical,
-    image: "https://www.mvaimobiliare.ro/og-image.jpg",
-  };
-
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "Unde este Militari Residence?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Militari Residence se află în comuna Chiajna, județul Ilfov, la granița directă cu Sectorul 6 din București, în zona de vest a Capitalei, la aproximativ 2 km de stația de metrou Pacii.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Cât costă un apartament în Militari Residence în 2026?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "În 2026, prețurile pornesc de la aproximativ 50.000€ pentru garsoniere, 70.000–90.000€ pentru apartamente cu 2 camere și 95.000–130.000€ pentru cele cu 3 camere, în funcție de bloc, etaj și finisaje.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Cum ajungi din Militari Residence în centrul Bucureștiului?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Cu mașina pe Autostrada A1 și Bulevardul Iuliu Maniu durează 20–30 de minute. Cu transportul în comun, autobuzele STB 178, 278 și 336 conectează cartierul cu stația de metrou Pacii (M3), de unde ajungi în Piața Unirii în circa 20 de minute.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Sunt școli și grădinițe în Militari Residence?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Da. În cartier funcționează Școala Gimnazială nr. 1 Chiajna, mai multe grădinițe private (Smart Kids, Happy Kids, Olga Gudynn) și creșe particulare. Liceele importante din Sectorul 6 sunt la 10–15 minute distanță.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Merită să cumperi în Militari Residence?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Da, pentru raportul preț/suprafață imbatabil în vestul Bucureștiului, infrastructură comercială completă (Auchan, Carrefour, Cora la câțiva pași) și acces rapid la metroul Pacii. Este o alegere potrivită pentru prima locuință și pentru investiție în închiriere.",
-        },
-      },
-    ],
-  };
 
   const amenities = [
     {
@@ -137,31 +71,6 @@ const GhidMilitariResidence = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Ghid Militari Residence 2026 — cartier, prețuri, transport</title>
-        <meta
-          name="description"
-          content="Ghid complet Militari Residence: locație, transport STB și metrou Pacii, școli, magazine, parcuri și prețuri apartamente 2026. Sfaturi MVA Imobiliare."
-        />
-        <link rel="canonical" href={canonical} />
-        <meta
-          name="keywords"
-          content="militari residence, ghid militari residence, apartamente militari residence, chiajna apartamente, militari residence pret, militari residence harta"
-        />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={canonical} />
-        <meta
-          property="og:title"
-          content="Ghid Militari Residence 2026 — cartier, prețuri, transport"
-        />
-        <meta
-          property="og:description"
-          content="Tot ce trebuie să știi înainte să cumperi în Militari Residence: locație, amenajări, transport, școli, prețuri și sfaturi din partea MVA Imobiliare."
-        />
-        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-image.jpg" />
-        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
-      </Helmet>
 
       <BreadcrumbSchema
         items={[

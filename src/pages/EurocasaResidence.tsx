@@ -1,4 +1,3 @@
-import { Helmet } from "@/lib/helmet-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "@/lib/router-compat";
@@ -52,42 +51,8 @@ const EurocasaResidence = () => {
     refetchOnWindowFocus: false,
   });
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateAgent",
-    name: "MVA Imobiliare",
-    areaServed: {
-      "@type": "Place",
-      name: "Eurocasa Residence, Chiajna, Ilfov",
-    },
-    url: "https://www.mvaimobiliare.ro/eurocasa-residence",
-  };
-
   return (
     <>
-      <Helmet>
-        <title>Apartamente de Vânzare Eurocasa Residence – MVA Imobiliare</title>
-        <meta
-          name="description"
-          content="Apartamente noi disponibile în Eurocasa Residence. MVA Imobiliare – agenție specializată în ansambluri rezidențiale zona Militari, Chiajna."
-        />
-        <link rel="canonical" href="https://www.mvaimobiliare.ro/eurocasa-residence" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.mvaimobiliare.ro/eurocasa-residence" />
-        <meta property="og:title" content="Apartamente Eurocasa Residence – MVA Imobiliare" />
-        <meta property="og:description" content="Apartamente noi în Eurocasa Residence, Chiajna. Garsoniere, 2 și 3 camere. Vizionare gratuită." />
-        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
-        <meta property="og:image:width" content="1216" />
-        <meta property="og:image:height" content="640" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Apartamente Eurocasa Residence – MVA Imobiliare" />
-        <meta name="twitter:description" content="Apartamente noi în Eurocasa Residence, Chiajna." />
-        <meta name="twitter:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
-
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-      </Helmet>
 
       <Header />
 

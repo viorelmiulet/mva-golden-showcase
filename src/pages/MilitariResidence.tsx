@@ -1,4 +1,3 @@
-import { Helmet } from "@/lib/helmet-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "@/lib/router-compat";
@@ -49,74 +48,8 @@ const MilitariResidence = () => {
 
   const visibleProperties = showAll ? properties : properties.slice(0, INITIAL_VISIBLE);
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateAgent",
-    name: "MVA Imobiliare",
-    areaServed: {
-      "@type": "Place",
-      name: "Militari Residence, Chiajna, Ilfov",
-    },
-    url: "https://www.mvaimobiliare.ro/militari-residence",
-  };
-
-  const faqStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "Cât costă un apartament cu 2 camere în Militari Residence?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Prețurile variază între 70.000 și 85.000€ în funcție de etaj, orientare și finisaje. Contactați MVA Imobiliare pentru o evaluare gratuită.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Militari Residence este în București sau Ilfov?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Militari Residence este în comuna Chiajna, județul Ilfov, la granița cu Sectorul 6 București.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Se poate lua credit ipotecar pentru apartamentele din Militari Residence?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Da, toate apartamentele sunt eligibile pentru credit ipotecar. MVA Imobiliare colaborează cu consultanți financiari care oferă preaprobarea gratuit.",
-        },
-      },
-    ],
-  };
-
   return (
     <>
-      <Helmet>
-        <title>Apartamente de Vânzare Militari Residence – MVA Imobiliare</title>
-        <meta
-          name="description"
-          content="Apartamente noi de vânzare în Militari Residence, Chiajna. Garsoniere, 2 și 3 camere, prețuri actualizate. Contactează MVA Imobiliare."
-        />
-        <link rel="canonical" href="https://www.mvaimobiliare.ro/militari-residence" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.mvaimobiliare.ro/militari-residence" />
-        <meta property="og:title" content="Apartamente Militari Residence – MVA Imobiliare" />
-        <meta property="og:description" content="Apartamente noi de vânzare în Militari Residence, Chiajna. Vizionare gratuită cu MVA Imobiliare." />
-        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
-        <meta property="og:image:width" content="1216" />
-        <meta property="og:image:height" content="640" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Apartamente Militari Residence – MVA Imobiliare" />
-        <meta name="twitter:description" content="Apartamente noi în Militari Residence, Chiajna." />
-        <meta name="twitter:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
-
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-        <script type="application/ld+json">{JSON.stringify(faqStructuredData)}</script>
-      </Helmet>
 
       <Header />
 

@@ -47,3 +47,77 @@ export function staticHead({
     links: [{ rel: "canonical", href: url || SITE }],
   };
 }
+
+export interface EditorialHeadInput extends StaticHeadInput {
+  ogTitle?: string;
+  ogDescription?: string;
+  keywords?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  /** JSON-LD objects rendered as <script type="application/ld+json"> */
+  schemas?: unknown[];
+}
+
+/**
+ * Server-rendered metadata for editorial/landing routes.
+ * Mirrors the values these pages previously emitted client-side via <Helmet>.
+ */
+export function editorialHead({
+  title,
+  description,
+  path,
+  image,
+  imageWidth,
+  imageHeight,
+  ogType = "article",
+  ogTitle,
+  ogDescription,
+  keywords,
+  twitterTitle,
+  twitterDescription,
+  twitterImage,
+  noindex = false,
+  schemas = [],
+}: EditorialHeadInput) {
+  const url = `${SITE}${path === "/" ? "" : path}`;
+  return {
+    meta: [
+      { title },
+      { name: "description", content: description },
+      ...(keywords ? [{ name: "keywords", content: keywords }] : []),
+      ...(noindex ? [{ name: "robots", content: "noindex, follow" }] : []),
+      { property: "og:title", content: ogTitle ?? title },
+      { property: "og:description", content: ogDescription ?? description },
+      { property: "og:type", content: ogType },
+      { property: "og:url", content: url },
+      ...(image
+        ? [
+            { property: "og:image", content: image },
+            ...(imageWidth
+              ? [{ property: "og:image:width", content: String(imageWidth) }]
+              : []),
+            ...(imageHeight
+              ? [{ property: "og:image:height", content: String(imageHeight) }]
+              : []),
+          ]
+        : []),
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: twitterTitle ?? ogTitle ?? title },
+      {
+        name: "twitter:description",
+        content: twitterDescription ?? ogDescription ?? description,
+      },
+      ...(twitterImage ?? image
+        ? [{ name: "twitter:image", content: (twitterImage ?? image) as string }]
+        : []),
+    ],
+    links: [{ rel: "canonical", href: url }],
+    scripts: schemas.map((s) => ({
+      type: "application/ld+json",
+      children: JSON.stringify(s),
+    })),
+  };
+}
