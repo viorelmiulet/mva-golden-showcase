@@ -49,6 +49,7 @@ import { generateRentalContractPdf, generateSignedRentalContractPdf } from "@/li
 import { generateRentalContractDocx, generateDocxFilename, downloadDocxBlob } from "@/lib/pdf/rentalContractDocx";
 import { invokeEmailOpsFn } from "@/lib/emailOpsInvoke";
 import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
+import { adminDb } from "@/lib/adminDb";
 
 
 const ContractGeneratorPage = () => {
@@ -769,7 +770,7 @@ const ContractGeneratorPage = () => {
 
   const createSignatureLinks = async (contractId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('contract_signatures')
         .insert([
           { contract_id: contractId, party_type: 'proprietar' },
@@ -811,7 +812,7 @@ const ContractGeneratorPage = () => {
       // If no signature exists, create it
       if (!data) {
         console.log(`Creating signature link for ${partyType}...`);
-        const { data: newSig, error: insertError } = await supabase
+        const { data: newSig, error: insertError } = await adminDb
           .from('contract_signatures')
           .insert({ contract_id: contractId, party_type: partyType })
           .select('signature_token')
@@ -1019,7 +1020,7 @@ const ContractGeneratorPage = () => {
 
       // Update contract in database with new PDF URL
       if (pdfPath) {
-        await supabase
+        await adminDb
           .from('contracts')
           .update({ pdf_url: pdfPath })
           .eq('id', contract.id);

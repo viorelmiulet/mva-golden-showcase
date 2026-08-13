@@ -13,6 +13,7 @@ import { generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
 import { getSignedContractUrl } from "@/lib/storageUrl";
 import ContractPdfViewer from "@/components/admin/ContractPdfViewer";
 import { invokeEmailOpsFn } from "@/lib/emailOpsInvoke";
+import { signContractFn } from "@/lib/signContract.functions";
 
 interface InventoryItem {
   id: string;
@@ -563,109 +564,37 @@ const SignContract = () => {
       const signatureDataUrl = signatureRef.current.toDataURL("image/png");
       const now = new Date().toISOString();
 
-      if (contractType === 'inchiriere' && signatureInfo) {
-        // Update contract_signatures table
-        await supabase
-          .from('contract_signatures')
-          .update({
-            signature_data: signatureDataUrl,
-            signed_at: now,
-            signer_name: partyType === 'proprietar' 
-              ? 'Proprietar' 
-              : `${contractInfo?.client_prenume || ''} ${contractInfo?.client_name || ''}`.trim()
-          })
-          .eq('signature_token', token);
+      const result = await signContractFn({
+        data: {
+          token: token!,
+          signatureDataUrl,
+          signerName:
+            partyType === 'proprietar'
+              ? 'Proprietar'
+              : `${contractInfo?.client_prenume || ''} ${contractInfo?.client_name || ''}`.trim(),
+        },
+      });
 
-        // Update contract signed status
-        const updateField = partyType === 'proprietar' 
-          ? { proprietar_signed: true } 
-          : { chirias_signed: true };
+      if (!result?.success) {
+        toast.error(result?.error || "Eroare la semnarea contractului");
+        return;
+      }
 
-        await supabase
-          .from('contracts')
-          .update(updateField)
-          .eq('id', contractId);
-
-        // Trigger auto-generation
+      if (result.contractType === 'inchiriere') {
         try {
           await invokeEmailOpsFn('auto-generate-signed-contract', {
-            body: { contractId }
+            body: { contractId: result.contractId }
           });
         } catch (e) {
           console.error('Auto-generate error:', e);
         }
-
-        // Send notification
-        await sendSignatureNotification('inchiriere', contractId, partyType);
-      } else if (contractType === 'comodat') {
-        const signatureField = partyType === 'comodant' ? 'comodant_signature' : 'comodatar_signature';
-        const signedAtField = partyType === 'comodant' ? 'comodant_signed_at' : 'comodatar_signed_at';
-        
-        await supabase
-          .from('comodat_contracts')
-          .update({
-            [signatureField]: signatureDataUrl,
-            [signedAtField]: now,
-            status: 'signed'
-          } as any)
-          .eq('id', contractId);
-
-        // Send notification
-        await sendSignatureNotification('comodat', contractId, partyType);
-      } else if (contractType === 'exclusiv') {
-        const signatureField = partyType === 'beneficiary' ? 'beneficiary_signature' : 'agent_signature';
-        const signedAtField = partyType === 'beneficiary' ? 'beneficiary_signed_at' : 'agent_signed_at';
-        
-        await supabase
-          .from('exclusive_contracts')
-          .update({
-            [signatureField]: signatureDataUrl,
-            [signedAtField]: now,
-            status: 'signed'
-          } as any)
-          .eq('id', contractId);
-
-        // Send notification
-        await sendSignatureNotification('exclusiv', contractId, partyType);
-      } else if (contractType === 'intermediere') {
-        const signedField = partyType === 'client' ? 'chirias_signed' : 'proprietar_signed';
-        
-        await supabase
-          .from('contracts')
-          .update({ [signedField]: true } as any)
-          .eq('id', contractId);
-
-        // Also create/update signature entry
-        const { data: existingSig } = await supabase
-          .from('contract_signatures')
-          .select('id')
-          .eq('contract_id', contractId)
-          .eq('party_type', partyType === 'client' ? 'chirias' : 'proprietar')
-          .maybeSingle();
-
-        if (existingSig) {
-          await supabase
-            .from('contract_signatures')
-            .update({
-              signature_data: signatureDataUrl,
-              signed_at: now
-            })
-            .eq('id', existingSig.id);
-        } else {
-          await supabase
-            .from('contract_signatures')
-            .insert({
-              contract_id: contractId,
-              party_type: partyType === 'client' ? 'chirias' : 'proprietar',
-              signature_data: signatureDataUrl,
-              signed_at: now,
-              signer_name: contractInfo?.client_name || ''
-            });
-        }
-
-        // Send notification
-        await sendSignatureNotification('intermediere', contractId, partyType === 'client' ? 'chirias' : 'proprietar');
       }
+
+      await sendSignatureNotification(
+        result.contractType as ContractType,
+        result.contractId,
+        result.partyType,
+      );
 
       toast.success("Contractul a fost semnat cu succes!");
       setAlreadySigned(true);

@@ -46,6 +46,7 @@ import {
 import { toast } from "sonner";
 import { generatePropertySlug } from "@/lib/propertySlug";
 import { regenerateQueuedMessages } from "@/lib/facebookQueue";
+import { adminDb } from "@/lib/adminDb";
 
 type QueueRow = {
   id: string;
@@ -161,7 +162,7 @@ const FacebookQueuePage = () => {
   });
 
   const resumeQueue = async () => {
-    const { error } = await supabase
+    const { error } = await adminDb
       .from("fb_queue_state")
       .update({ stopped: false, stop_reason: null, stopped_at: null, consecutive_failures: 0 })
       .eq("id", 1);
@@ -174,7 +175,7 @@ const FacebookQueuePage = () => {
   };
 
   const resumeGroup = async (id: string) => {
-    const { error } = await supabase
+    const { error } = await adminDb
       .from("fb_groups")
       .update({ paused_until: null, pause_reason: null, consecutive_failures: 0 })
       .eq("id", id);
@@ -209,7 +210,7 @@ const FacebookQueuePage = () => {
 
   const deleteRow = async (id: string) => {
     setBusyId(id);
-    const { error } = await supabase.from("fb_post_queue").delete().eq("id", id);
+    const { error } = await adminDb.from("fb_post_queue").delete().eq("id", id);
     setBusyId(null);
     if (error) {
       toast.error("Nu am putut șterge intrarea", { description: error.message });
@@ -221,7 +222,7 @@ const FacebookQueuePage = () => {
 
   const retryRow = async (id: string) => {
     setBusyId(id);
-    const { error } = await supabase
+    const { error } = await adminDb
       .from("fb_post_queue")
       .update({
         status: "pending",

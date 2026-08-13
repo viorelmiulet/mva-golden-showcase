@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VoiceAgentWidget } from "@/components/VoiceAgentWidget";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { adminDb } from "@/lib/adminDb";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -94,7 +95,7 @@ const VoiceAgentPage = () => {
         .maybeSingle();
 
       if (existing) {
-        const { error } = await supabase
+        const { error } = await adminDb
           .from("site_settings")
           .update({
             value: JSON.stringify(settings),
@@ -104,7 +105,7 @@ const VoiceAgentPage = () => {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { error } = await adminDb
           .from("site_settings")
           .insert({
             key: "voice_agent_settings",

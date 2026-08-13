@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Facebook, Plus, Trash2, ExternalLink, Download, Chrome, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Helmet } from "@/lib/helmet-compat";
+import { adminDb } from "@/lib/adminDb";
 
 type FbGroup = {
   id: string;
@@ -24,6 +25,7 @@ type FbGroup = {
 
 const EMPTY_GROUPS: FbGroup[] = [];
 const fbGroupsTable = () => (supabase as any).from("fb_groups");
+const fbGroupsWrite = () => adminDb.from("fb_groups");
 
 const isValidFacebookUrl = (url: string) =>
   /^https?:\/\/(www\.|m\.|web\.)?facebook\.com\/(groups\/[^\s]+|[^\s]+)/i.test(url.trim());
@@ -59,7 +61,7 @@ export default function FacebookGroupsPage() {
 
   const addMutation = useMutation({
     mutationFn: async (payload: { name: string; url: string; notes: string }) => {
-      const { error } = await fbGroupsTable()
+      const { error } = await fbGroupsWrite()
         .insert({
           name: payload.name,
           url: payload.url,
@@ -85,7 +87,7 @@ export default function FacebookGroupsPage() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, patch }: { id: string; patch: Partial<Pick<FbGroup, "name" | "active" | "notes">> }) => {
-      const { error } = await fbGroupsTable()
+      const { error } = await fbGroupsWrite()
         .update(patch)
         .eq("id", id)
         .select("id")
@@ -106,7 +108,7 @@ export default function FacebookGroupsPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await fbGroupsTable()
+      const { error } = await fbGroupsWrite()
         .delete()
         .eq("id", id);
       if (error) {
@@ -125,7 +127,7 @@ export default function FacebookGroupsPage() {
 
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      const { error } = await fbGroupsTable().delete().in("id", ids);
+      const { error } = await fbGroupsWrite().delete().in("id", ids);
       if (error) {
         throw new Error(error.message || "Nu s-au putut șterge grupurile");
       }

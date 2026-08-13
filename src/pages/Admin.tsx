@@ -49,6 +49,7 @@ import { ExcelApartmentImporter } from "@/components/ExcelApartmentImporter";
 import { ApartmentStatusManager } from "@/components/ApartmentStatusManager";
 import { getPropertyUrl } from "@/lib/propertySlug";
 import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
+import { adminDb } from "@/lib/adminDb";
 
 
 const Admin = () => {
@@ -282,7 +283,7 @@ const Admin = () => {
     } catch (error: any) {
       // Fallback: try client-side delete in case function is unavailable
       try {
-        const { error: fallbackError } = await supabase
+        const { error: fallbackError } = await adminDb
           .from('catalog_offers')
           .delete()
           .eq('id', id)
@@ -370,7 +371,7 @@ const Admin = () => {
     
     setIsUpdating(true)
     try {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('catalog_offers')
         .update({
           title: editForm.title,

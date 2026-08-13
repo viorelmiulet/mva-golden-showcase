@@ -58,6 +58,7 @@ import { MultiEmailInput } from "@/components/inbox/MultiEmailInput";
 import EmailListSkeleton from "@/components/skeletons/EmailListSkeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { adminDb } from "@/lib/adminDb";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEmailThreads } from "@/hooks/useEmailThreads";
@@ -165,7 +166,7 @@ const InboxPage = () => {
       silent?: boolean;
     }) => {
       if (draft.id) {
-        const { error } = await supabase
+        const { error } = await adminDb
           .from('email_drafts')
           .update({
             recipient: draft.recipient,
@@ -180,7 +181,7 @@ const InboxPage = () => {
         if (error) throw error;
         return { id: draft.id, silent: draft.silent };
       } else {
-        const { data, error } = await supabase
+        const { data, error } = await adminDb
           .from('email_drafts')
           .insert({
             user_id: null,
@@ -250,7 +251,7 @@ const InboxPage = () => {
 
   const deleteDraftMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('email_drafts')
         .delete()
         .eq('id', id);
@@ -413,7 +414,7 @@ const InboxPage = () => {
 
   const updateEmailMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<ReceivedEmail> }) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .update(updates)
         .eq('id', id);
@@ -427,7 +428,7 @@ const InboxPage = () => {
 
   const moveToTrashMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .update({ is_deleted: true })
         .eq('id', id);
@@ -443,7 +444,7 @@ const InboxPage = () => {
 
   const deleteEmailMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .delete()
         .eq('id', id);
@@ -459,7 +460,7 @@ const InboxPage = () => {
 
   const restoreFromTrashMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .update({ is_deleted: false })
         .eq('id', id);
@@ -475,7 +476,7 @@ const InboxPage = () => {
 
   const archiveEmailMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .update({ is_archived: true })
         .eq('id', id);
@@ -491,7 +492,7 @@ const InboxPage = () => {
 
   const unarchiveEmailMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .update({ is_archived: false })
         .eq('id', id);
@@ -508,7 +509,7 @@ const InboxPage = () => {
   // Bulk mutations
   const bulkMarkAsReadMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .update({ is_read: true })
         .in('id', ids);
@@ -523,7 +524,7 @@ const InboxPage = () => {
 
   const bulkArchiveMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .update({ is_archived: true })
         .in('id', ids);
@@ -539,7 +540,7 @@ const InboxPage = () => {
 
   const bulkUnarchiveMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .update({ is_archived: false })
         .in('id', ids);
@@ -555,7 +556,7 @@ const InboxPage = () => {
 
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .update({ is_deleted: true })
         .in('id', ids);
@@ -571,7 +572,7 @@ const InboxPage = () => {
 
   const bulkRestoreMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .update({ is_deleted: false })
         .in('id', ids);
@@ -587,7 +588,7 @@ const InboxPage = () => {
 
   const bulkPermanentDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('received_emails')
         .delete()
         .in('id', ids);
@@ -603,7 +604,7 @@ const InboxPage = () => {
 
   const deleteSentEmailMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('sent_emails')
         .update({ is_deleted: true })
         .eq('id', id);
@@ -672,7 +673,7 @@ const InboxPage = () => {
         ? email.match(/<(.+)>/)?.[1]?.toLowerCase() || email.toLowerCase()
         : email.toLowerCase();
       
-      const { error } = await supabase
+      const { error } = await adminDb
         .from('email_contacts')
         .upsert({ 
           email: cleanEmail,
@@ -684,7 +685,7 @@ const InboxPage = () => {
         });
       
       if (error) {
-        await supabase
+        await adminDb
           .from('email_contacts')
           .update({ 
             last_used_at: new Date().toISOString()

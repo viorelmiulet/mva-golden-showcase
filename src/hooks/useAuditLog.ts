@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
+import { adminDb } from "@/lib/adminDb";
 
 export type AuditAction = 
   | 'create' 
@@ -37,7 +38,7 @@ export const logAuditAction = async ({
     // Use admin email from sessionStorage since we no longer use Supabase Auth
     const adminEmail = 'admin@mvaimobiliare.ro';
 
-    const { error } = await supabase.from('audit_logs').insert([{
+    const { error } = await adminDb.from('audit_logs').insert([{
       user_id: null,
       user_email: adminEmail,
       action_type: actionType,
