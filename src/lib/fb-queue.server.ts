@@ -365,6 +365,9 @@ export async function handleResult(body: {
         status: "pending",
         groups_done,
         errors,
+        progress_at: new Date().toISOString(),
+        deferred_at: null,
+        stall_reason: null,
         next_attempt_at: new Date().toISOString(),
       })
       .eq("id", id);
