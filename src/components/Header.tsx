@@ -13,6 +13,7 @@ const navItems = [
   { name: "Proprietăți", to: "/proprietati", prefetch: "properties" as const },
   { name: "Ansambluri", to: "/complexe", prefetch: "complexe" as const },
   { name: "Despre noi", to: "/despre-noi", prefetch: undefined },
+  { name: "Blog", to: "/blog", prefetch: undefined },
   { name: "Contact", to: "/contact", prefetch: undefined },
 ]
 
