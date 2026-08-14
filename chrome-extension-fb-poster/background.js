@@ -73,7 +73,7 @@ function startKeepalive() {
   return () => clearInterval(id);
 }
 
-async function waitForResult(tabId, jobId, timeoutMs = 120000) {
+async function waitForResult(tabId, jobId, timeoutMs = 60000) {
   return new Promise((resolve) => {
     let done = false;
     const finish = (val) => {
@@ -100,7 +100,7 @@ async function waitForResult(tabId, jobId, timeoutMs = 120000) {
         }
       } catch (_) {}
     }, 3000);
-    setTimeout(() => finish({ ok: false, error: 'Timeout așteptând rezultatul postării (120s).' }), timeoutMs);
+    setTimeout(() => finish({ ok: false, error: 'Timeout așteptând rezultatul postării (60s).' }), timeoutMs);
   });
 }
 
