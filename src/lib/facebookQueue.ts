@@ -1,3 +1,4 @@
+import { stripMarkdown } from "@/lib/markdownText";
 import { supabase } from "@/integrations/supabase/client";
 import { generatePropertySlug } from "@/lib/propertySlug";
 import { adminDb } from "@/lib/adminDb";
@@ -140,7 +141,7 @@ export const resolveOfferUrl = (o: OfferLike): string => {
 export const buildFacebookMessage = (o: OfferLike): string => {
   const blocks: string[] = [];
 
-  const title = (o.title || "").trim();
+  const title = stripMarkdown(o.title || "").trim();
   if (title) blocks.push(`🏠 ${title}`);
 
   const priceLine: string[] = [];

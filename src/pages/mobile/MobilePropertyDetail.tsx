@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { renderMarkdownText } from "@/lib/markdownText";
 import { useParams, Link, useNavigate } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -354,7 +355,7 @@ const MobilePropertyDetail = () => {
                   {language === 'ro' ? 'Descriere' : 'Description'}
                 </h2>
                 <p className="text-sm text-muted-foreground whitespace-pre-line">
-                  {fullDescription}
+                  {renderMarkdownText(fullDescription)}
                 </p>
               </CardContent>
             </Card>
