@@ -120,65 +120,86 @@ export async function handleNext(body: { groups?: string[] }): Promise<Response>
 
   const nowIso = new Date().toISOString();
 
+  // Strict grouping: finish one property across ALL groups before starting the
+  // next one. We therefore do NOT filter by next_attempt_at in SQL — a property
+  // that is mid-flight but still in backoff must hold the queue rather than let
+  // another property jump ahead.
   const { data: rows, error } = await supabase
     .from("fb_post_queue")
-    .select("id, offer_id, message, groups_done, status, attempts, next_attempt_at")
+    .select("id, offer_id, message, groups_done, errors, attempts, status, next_attempt_at, created_at")
     .in("status", ["pending", "posting"])
-    
-    .lte("next_attempt_at", nowIso)
     .order("created_at", { ascending: true })
-    .limit(10);
+    .limit(50);
 
   if (error) throw error;
   if (!rows || rows.length === 0) return json(null);
 
-  for (const row of rows) {
+  const remainingFor = (row: (typeof rows)[number]) => {
     const done: string[] = Array.isArray(row.groups_done) ? row.groups_done : [];
-    const remaining = groups.find((g) => !done.includes(g));
+    // `groups` keeps a stable order (fb_groups.created_at asc), so the sequence
+    // inside one property is predictable and repeatable.
+    return groups.find((g) => !done.includes(g)) ?? null;
+  };
 
-    if (remaining) {
-      if (row.status !== "posting") {
-        const { error: upErr } = await supabase
-          .from("fb_post_queue")
-          .update({ status: "posting" })
-          .eq("id", row.id);
-        if (upErr) throw upErr;
-      }
-
-      // Fetch up to 7 property images so the extension can attach real photos.
-      let image_urls: string[] = [];
-      if (row.offer_id) {
-        const { data: offer } = await supabase
-          .from("catalog_offers")
-          .select("images")
-          .eq("id", row.offer_id)
-          .maybeSingle();
-        if (offer && Array.isArray(offer.images)) {
-          image_urls = offer.images
-            .map((u: unknown) => String(u || "").trim())
-            .filter((u) => u.startsWith("http"))
-            .slice(0, 7);
-        }
-      }
-
-      return json({
-        id: row.id,
-        offer_ref: row.offer_id,
-        message: row.message,
-        group_url: remaining,
-        image_urls,
-      });
-    } else {
-      // All configured groups already done for this row -> mark done
-      if (row.status !== "done") {
-        await supabase.from("fb_post_queue").update({ status: "done" }).eq("id", row.id);
-      }
-      continue;
+  const candidates: typeof rows = [];
+  for (const row of rows) {
+    if (remainingFor(row)) {
+      candidates.push(row);
+    } else if (row.status !== "done") {
+      // All configured groups already handled (posted or exhausted) -> done.
+      await supabase.from("fb_post_queue").update({ status: "done" }).eq("id", row.id);
     }
   }
 
-  return json(null);
+  if (candidates.length === 0) return json(null);
+
+  // A property is "mid-flight" once at least one group has been posted or errored.
+  const isMidFlight = (row: (typeof rows)[number]) =>
+    (Array.isArray(row.groups_done) && row.groups_done.length > 0) ||
+    (Array.isArray(row.errors) && row.errors.length > 0) ||
+    (row.attempts ?? 0) > 0;
+
+  const target = candidates.find(isMidFlight) ?? candidates[0]!;
+
+  // Respect the existing backoff / rate limiting: if the current property is not
+  // ready yet, wait instead of serving a different property.
+  if (target.next_attempt_at && target.next_attempt_at > nowIso) return json(null);
+
+  const remaining = remainingFor(target)!;
+
+  if (target.status !== "posting") {
+    const { error: upErr } = await supabase
+      .from("fb_post_queue")
+      .update({ status: "posting" })
+      .eq("id", target.id);
+    if (upErr) throw upErr;
+  }
+
+  // Fetch up to 7 property images so the extension can attach real photos.
+  let image_urls: string[] = [];
+  if (target.offer_id) {
+    const { data: offer } = await supabase
+      .from("catalog_offers")
+      .select("images")
+      .eq("id", target.offer_id)
+      .maybeSingle();
+    if (offer && Array.isArray(offer.images)) {
+      image_urls = offer.images
+        .map((u: unknown) => String(u || "").trim())
+        .filter((u) => u.startsWith("http"))
+        .slice(0, 7);
+    }
+  }
+
+  return json({
+    id: target.id,
+    offer_ref: target.offer_id,
+    message: target.message,
+    group_url: remaining,
+    image_urls,
+  });
 }
+
 
 export type PostDiagnostics = {
   step?: string;
