@@ -109,7 +109,7 @@ async function getActiveGroups(fallbackGroups: unknown): Promise<string[]> {
   return Array.isArray(fallbackGroups) ? fallbackGroups.map((g) => String(g).trim()).filter(Boolean) : [];
 }
 
-export async function handleNext(body: { groups?: string[] }): Promise<Response> {
+export async function handleNext(body: { groups?: string[] }, revived = false): Promise<Response> {
   const state = await getQueueState();
   if (state.stopped) {
     return json({ stopped: true, reason: state.stop_reason });
@@ -118,7 +118,8 @@ export async function handleNext(body: { groups?: string[] }): Promise<Response>
   const groups = await getActiveGroups(body?.groups);
   if (groups.length === 0) return json(null);
 
-  const nowIso = new Date().toISOString();
+  const now = Date.now();
+  const nowIso = new Date(now).toISOString();
 
   // Strict grouping: finish one property across ALL groups before starting the
   // next one. We therefore do NOT filter by next_attempt_at in SQL — a property
@@ -126,10 +127,12 @@ export async function handleNext(body: { groups?: string[] }): Promise<Response>
   // another property jump ahead.
   const { data: rows, error } = await supabase
     .from("fb_post_queue")
-    .select("id, offer_id, message, groups_done, errors, attempts, status, next_attempt_at, created_at")
-    .in("status", ["pending", "posting"])
+    .select(
+      "id, offer_id, message, groups_done, errors, attempts, status, next_attempt_at, created_at, progress_at, defer_count",
+    )
+    .in("status", ["pending", "posting", "deferred"])
     .order("created_at", { ascending: true })
-    .limit(50);
+    .limit(100);
 
   if (error) throw error;
   if (!rows || rows.length === 0) return json(null);
@@ -141,17 +144,19 @@ export async function handleNext(body: { groups?: string[] }): Promise<Response>
     return groups.find((g) => !done.includes(g)) ?? null;
   };
 
-  const candidates: typeof rows = [];
+  const active: typeof rows = [];
+  const deferred: typeof rows = [];
   for (const row of rows) {
-    if (remainingFor(row)) {
-      candidates.push(row);
-    } else if (row.status !== "done") {
-      // All configured groups already handled (posted or exhausted) -> done.
-      await supabase.from("fb_post_queue").update({ status: "done" }).eq("id", row.id);
+    if (!remainingFor(row)) {
+      if (row.status !== "done") {
+        // All configured groups already handled (posted or exhausted) -> done.
+        await supabase.from("fb_post_queue").update({ status: "done" }).eq("id", row.id);
+      }
+      continue;
     }
+    if (row.status === "deferred") deferred.push(row);
+    else active.push(row);
   }
-
-  if (candidates.length === 0) return json(null);
 
   // A property is "mid-flight" once at least one group has been posted or errored.
   const isMidFlight = (row: (typeof rows)[number]) =>
@@ -159,46 +164,105 @@ export async function handleNext(body: { groups?: string[] }): Promise<Response>
     (Array.isArray(row.errors) && row.errors.length > 0) ||
     (row.attempts ?? 0) > 0;
 
-  const target = candidates.find(isMidFlight) ?? candidates[0]!;
+  const ordered = [...active.filter(isMidFlight), ...active.filter((r) => !isMidFlight(r))];
 
-  // Respect the existing backoff / rate limiting: if the current property is not
-  // ready yet, wait instead of serving a different property.
-  if (target.next_attempt_at && target.next_attempt_at > nowIso) return json(null);
+  for (const target of ordered) {
+    const remaining = remainingFor(target)!;
 
-  const remaining = remainingFor(target)!;
-
-  if (target.status !== "posting") {
-    const { error: upErr } = await supabase
-      .from("fb_post_queue")
-      .update({ status: "posting" })
-      .eq("id", target.id);
-    if (upErr) throw upErr;
-  }
-
-  // Fetch up to 7 property images so the extension can attach real photos.
-  let image_urls: string[] = [];
-  if (target.offer_id) {
-    const { data: offer } = await supabase
-      .from("catalog_offers")
-      .select("images")
-      .eq("id", target.offer_id)
-      .maybeSingle();
-    if (offer && Array.isArray(offer.images)) {
-      image_urls = offer.images
-        .map((u: unknown) => String(u || "").trim())
-        .filter((u) => u.startsWith("http"))
-        .slice(0, 7);
+    // Stall guard: a mid-flight property that made no new progress for
+    // STALL_MINUTES is deferred so the rest of the queue can move on.
+    const progressTs = target.progress_at ? Date.parse(target.progress_at) : Date.parse(target.created_at);
+    if (isMidFlight(target) && now - progressTs > STALL_MINUTES * 60 * 1000) {
+      await supabase
+        .from("fb_post_queue")
+        .update({
+          status: "deferred",
+          deferred_at: nowIso,
+          defer_count: (target.defer_count ?? 0) + 1,
+          stall_reason: `Blocat peste ${STALL_MINUTES} minute pe grupul ${remaining}. Amânat, se reia după golirea cozii.`,
+        })
+        .eq("id", target.id);
+      continue;
     }
+
+    // Respect the existing backoff / rate limiting: if the current property is not
+    // ready yet, wait instead of serving a different property.
+    if (target.next_attempt_at && target.next_attempt_at > nowIso) return json(null);
+
+    if (target.status !== "posting") {
+      const { error: upErr } = await supabase
+        .from("fb_post_queue")
+        .update({ status: "posting" })
+        .eq("id", target.id);
+      if (upErr) throw upErr;
+    }
+
+    // Fetch up to 7 property images so the extension can attach real photos.
+    let image_urls: string[] = [];
+    if (target.offer_id) {
+      const { data: offer } = await supabase
+        .from("catalog_offers")
+        .select("images")
+        .eq("id", target.offer_id)
+        .maybeSingle();
+      if (offer && Array.isArray(offer.images)) {
+        image_urls = offer.images
+          .map((u: unknown) => String(u || "").trim())
+          .filter((u) => u.startsWith("http"))
+          .slice(0, 7);
+      }
+    }
+
+    return json({
+      id: target.id,
+      offer_ref: target.offer_id,
+      message: target.message,
+      group_url: remaining,
+      image_urls,
+    });
   }
 
-  return json({
-    id: target.id,
-    offer_ref: target.offer_id,
-    message: target.message,
-    group_url: remaining,
-    image_urls,
-  });
+  // Nothing active left — bring deferred jobs back, once per pass.
+  if (deferred.length === 0) return json(null);
+
+  const revivable = deferred.filter((r) => (r.defer_count ?? 0) < MAX_DEFERRALS);
+
+  if (revivable.length === 0) {
+    // Every remaining property stalled repeatedly: stop instead of spinning.
+    await supabase
+      .from("fb_post_queue")
+      .update({
+        status: "failed",
+        failed_at: nowIso,
+        last_error: `Amânat de ${MAX_DEFERRALS} ori fără progres.`,
+      })
+      .in(
+        "id",
+        deferred.map((r) => r.id),
+      );
+    const reason = `Coada a fost oprită: ${deferred.length} proprietăți s-au blocat de ${MAX_DEFERRALS} ori fără progres pe niciun grup.`;
+    await setQueueState({ stopped: true, stopped_at: nowIso, stop_reason: reason });
+    return json({ stopped: true, reason });
+  }
+
+  if (revived) return json(null); // guard against recursion loops
+
+  await supabase
+    .from("fb_post_queue")
+    .update({
+      status: "pending",
+      deferred_at: null,
+      progress_at: nowIso,
+      next_attempt_at: nowIso,
+    })
+    .in(
+      "id",
+      revivable.map((r) => r.id),
+    );
+
+  return handleNext(body, true);
 }
+
 
 
 export type PostDiagnostics = {
