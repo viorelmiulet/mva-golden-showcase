@@ -25,6 +25,10 @@ export const GROUP_FAIL_LIMIT = 3;
 export const GROUP_PAUSE_HOURS = 2;
 /** Consecutive failures across all groups before the whole queue stops. */
 export const GLOBAL_FAIL_LIMIT = 15;
+/** Minutes a property may stay mid-flight without completing a new group. */
+export const STALL_MINUTES = 3;
+/** How many times a property may be deferred before the queue stops. */
+export const MAX_DEFERRALS = 2;
 
 
 export const backoffMinutes = (attempts: number): number =>
