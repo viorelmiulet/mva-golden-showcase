@@ -138,69 +138,40 @@ export const resolveOfferUrl = (o: OfferLike): string => {
 };
 
 export const buildFacebookMessage = (o: OfferLike): string => {
-  const headerLines: string[] = [];
+  const blocks: string[] = [];
+
   const title = (o.title || "").trim();
-  if (title) headerLines.push(`🏠 ${title}`);
+  if (title) blocks.push(`🏠 ${title}`);
 
-  const detailLines: string[] = [];
+  const priceLine: string[] = [];
   const price = o.price_min ?? o.price_max;
-  const surface = o.surface_min ?? o.surface_max;
   if (price && Number(price) > 0) {
-    detailLines.push(`💶 ${formatRoLocaleNumber(Number(price))} EUR`);
+    priceLine.push(`💶 ${formatRoLocaleNumber(Number(price))} EUR`);
   }
-  if (o.rooms && Number(o.rooms) > 0) detailLines.push(`🛏️ Camere: ${o.rooms}`);
-  if (o.bathrooms && Number(o.bathrooms) > 0) detailLines.push(`🛁 Băi: ${o.bathrooms}`);
-  if (surface && Number(surface) > 0) detailLines.push(`📐 Suprafață utilă: ${surface} mp`);
-
-  const floor = formatFloor(o);
-  if (floor) detailLines.push(`🏢 Etaj: ${floor}`);
-
-  if (o.total_floors && Number(o.total_floors) > 0) {
-    detailLines.push(`🗂️ Nr. nivele: ${o.total_floors}`);
-  }
-  if (o.balconies && Number(o.balconies) > 0) detailLines.push(`🗂️ Balcoane: ${o.balconies}`);
-  if (o.year_built && Number(o.year_built) > 0) detailLines.push(`🏗️ An construcție: ${o.year_built}`);
-
-  const layout = cleanLabel(o.compartment);
-  if (layout) detailLines.push(`🗂️ Compartimentare: ${layout}`);
-
-  const comfort = cleanLabel(o.comfort);
-  if (comfort) detailLines.push(`🏠 Confort: ${comfort}`);
-
-  const structure = cleanLabel(o.build_materials);
-  if (structure) detailLines.push(`🧱 Structură: ${structure}`);
-
-  const furnished = mapFurnished(o.furnished);
-  if (furnished) detailLines.push(`🛋️ Mobilat: ${furnished}`);
-
   const zone = cleanLabel(o.zone);
-  if (zone) detailLines.push(`📍 Zonă: ${zone}`);
+  if (zone) priceLine.push(`📍 ${zone}`);
+  if (priceLine.length) blocks.push(priceLine.join(" · "));
 
+  const detailLine: string[] = [];
+  const isStudio = String(o.property_type || "").toLowerCase() === "garsoniera";
+  if (!isStudio && o.rooms && Number(o.rooms) > 0) {
+    detailLine.push(`${o.rooms} camere`);
+  }
+  const surface = o.surface_min ?? o.surface_max;
+  if (surface && Number(surface) > 0) {
+    detailLine.push(`${surface} mp`);
+  }
+  const floorLabel = cleanLabel(o.floor_label);
+  if (floorLabel) detailLine.push(floorLabel);
+  if (detailLine.length) blocks.push(detailLine.join(" · "));
 
-  if (o.transaction_type) {
-    const tt = String(o.transaction_type).toLowerCase();
-    if (tt === "rent" || /închiri|inchiri/.test(tt)) {
-      detailLines.push("🤝 Tip tranzacție: Închiriere");
-    } else if (tt === "sale" || /vânzare|vanzare/.test(tt)) {
-      detailLines.push("🏷️ Tip tranzacție: Vânzare");
-    }
+  const url = resolveOfferUrl(o);
+  if (url) {
+    blocks.push("👉 Detalii complete și galerie foto:");
+    blocks.push(url);
   }
 
-  const utilities = collectUtilities(o);
-  if (utilities.length) detailLines.push(`🔌 Utilități: ${utilities.join(" • ")}`);
-
-  const finishes = collectFinishes(o);
-  if (finishes.length) detailLines.push(`🎨 Finisaje: ${finishes.join(" • ")}`);
-
-  const contactLines = [PHONE_LINE, "🌐 mvaimobiliare.ro"];
-  const urlLines = [`🔗 Detalii: ${resolveOfferUrl(o)}`];
-
-  // Blocks separated by blank lines, matching generatePropertyContent from
-  // supabase/functions/social-auto-post/index.ts (MVA page publisher).
-  return [headerLines, detailLines, contactLines, urlLines]
-    .filter((block) => block.length > 0)
-    .map((block) => block.join("\n"))
-    .join("\n\n");
+  return blocks.join("\n\n");
 };
 
 export type EnqueueResult = {
