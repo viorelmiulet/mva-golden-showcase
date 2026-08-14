@@ -175,17 +175,25 @@ export async function handleNext(body: { groups?: string[] }, revived = false): 
   for (const target of ordered) {
     const remaining = remainingFor(target)!;
 
-    // Stall guard: a mid-flight property that made no new progress for
-    // STALL_MINUTES is deferred so the rest of the queue can move on.
+    // Stall guard, two rules — whichever triggers first wins:
+    //  a) no response: mid-flight, not waiting on a backoff window, no new progress for STALL_MINUTES.
+    //  b) total mid-flight time: no new group completed for MAX_MIDFLIGHT_MINUTES, backoff included.
     const progressTs = target.progress_at ? Date.parse(target.progress_at) : Date.parse(target.created_at);
-    if (isMidFlight(target) && now - progressTs > STALL_MINUTES * 60 * 1000) {
+    const idleMs = now - progressTs;
+    const inBackoff = !!target.next_attempt_at && target.next_attempt_at > nowIso;
+    const noResponseStall = !inBackoff && idleMs > STALL_MINUTES * 60 * 1000;
+    const totalStall = idleMs > MAX_MIDFLIGHT_MINUTES * 60 * 1000;
+    if (isMidFlight(target) && (noResponseStall || totalStall)) {
+      const reason = noResponseStall
+        ? `Fără răspuns peste ${STALL_MINUTES} minute pe grupul ${remaining}. Amânat, se reia după golirea cozii.`
+        : `Blocat peste ${MAX_MIDFLIGHT_MINUTES} minute (reîncercări/backoff) pe grupul ${remaining}. Amânat, se reia după golirea cozii.`;
       await supabase
         .from("fb_post_queue")
         .update({
           status: "deferred",
           deferred_at: nowIso,
           defer_count: (target.defer_count ?? 0) + 1,
-          stall_reason: `Blocat peste ${STALL_MINUTES} minute pe grupul ${remaining}. Amânat, se reia după golirea cozii.`,
+          stall_reason: reason,
         })
         .eq("id", target.id);
       continue;
