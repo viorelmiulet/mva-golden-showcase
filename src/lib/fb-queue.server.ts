@@ -403,6 +403,8 @@ export async function handleResult(body: {
       groups_done,
       errors,
       last_error: reason,
+      // An exhausted group counts as finished -> it is progress for the property.
+      ...(capped ? { progress_at: new Date().toISOString(), deferred_at: null, stall_reason: null } : {}),
       next_attempt_at: new Date(Date.now() + delayMin * 60 * 1000).toISOString(),
     })
     .eq("id", id);
