@@ -1,6 +1,7 @@
 import { useParams, Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
 import { useQuery } from "@tanstack/react-query";
+import { renderMarkdownText } from "@/lib/markdownText";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyDetailSkeleton, MapSkeleton, FooterSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
@@ -464,7 +465,7 @@ const ImmofluxPropertyDetail = () => {
               {descText && (
                 <section aria-labelledby="descriere">
                   <h2 id="descriere" className="text-title text-foreground mb-4">Descriere</h2>
-                  <p className="text-body text-muted-foreground leading-[1.6] whitespace-pre-line">{descText}</p>
+                  <p className="text-body text-muted-foreground leading-[1.6] whitespace-pre-line">{renderMarkdownText(descText)}</p>
                 </section>
               )}
 
