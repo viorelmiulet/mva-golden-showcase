@@ -7,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PropertyMortgageCalculator from "@/components/PropertyMortgageCalculator";
+import { renderMarkdownText } from "@/lib/markdownText";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import {
@@ -731,6 +733,13 @@ const PropertyDetail = () => {
                           Trimite pe email
                         </a>
                       </div>
+
+                      {property.transaction_type !== "rent" && property.price_min ? (
+                        <PropertyMortgageCalculator
+                          price={Number(property.price_min)}
+                          className="hidden lg:block mt-6 pt-6 border-t border-stone"
+                        />
+                      ) : null}
                     </div>
                   </aside>
                 </div>
@@ -743,7 +752,7 @@ const PropertyDetail = () => {
                         Descriere
                       </h2>
                       <p className="text-body text-muted-foreground leading-[1.6] whitespace-pre-line">
-                        {descText}
+                        {renderMarkdownText(descText)}
                       </p>
                     </section>
                   )}
@@ -784,6 +793,15 @@ const PropertyDetail = () => {
                       </dl>
                     </section>
                   )}
+
+                  {property.transaction_type !== "rent" && property.price_min ? (
+                    <section aria-labelledby="rata-credit" className="lg:hidden">
+                      <h2 id="rata-credit" className="text-title text-foreground mb-4">
+                        Rată credit
+                      </h2>
+                      <PropertyMortgageCalculator price={Number(property.price_min)} />
+                    </section>
+                  ) : null}
 
                   <section aria-labelledby="locatie">
                     <h2 id="locatie" className="text-title text-foreground mb-4">

@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import './CreditSimulator.css';
+import { DEFAULT_MORTGAGE_RATE, monthlyPayment as annuityMonthly } from '@/lib/mortgage';
 
 type CreditType = 'ipotecar' | 'personal';
 type Currency = 'RON' | 'EUR';
@@ -14,7 +15,7 @@ const CreditSimulator = () => {
   const [propertyValue, setPropertyValue] = useState(300000);
   const [downPaymentPct, setDownPaymentPct] = useState(15);
   const [years, setYears] = useState(25);
-  const [interestRate, setInterestRate] = useState(6.5);
+  const [interestRate, setInterestRate] = useState(DEFAULT_MORTGAGE_RATE);
   const [rateType, setRateType] = useState<RateType>('fixa');
   const [extraCosts, setExtraCosts] = useState(0);
   const [tableView, setTableView] = useState<TableView>('lunar');
@@ -67,12 +68,7 @@ const CreditSimulator = () => {
     const n = clampedYears * 12;
     const r = clampedRate / 100 / 12;
 
-    let monthly = 0;
-    if (r > 0 && n > 0) {
-      monthly = (loan * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    } else if (n > 0) {
-      monthly = loan / n;
-    }
+    const monthly = annuityMonthly(loan, clampedYears, clampedRate);
 
     const totalExtra = extraCosts * n;
     const totalPaid = monthly * n + totalExtra;

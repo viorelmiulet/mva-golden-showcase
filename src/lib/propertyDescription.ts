@@ -1,3 +1,4 @@
+import { stripMarkdown } from "@/lib/markdownText";
 /**
  * Shared property description composer.
  * Produces a rich, factual, varied Romanian description from listing fields.
@@ -74,7 +75,7 @@ const roundPpsqm = (n: number): number => Math.round(n / 50) * 50;
 // ── Composer ─────────────────────────────────────────────────────────────
 
 export const composePropertyDescription = (i: PropertyDescriptionInput): string => {
-  const stored = (i.storedDescription || '').trim();
+  const stored = stripMarkdown(i.storedDescription || '').trim();
   if (stored.length > 150) return stored;
 
   const rooms = i.rooms && i.rooms > 0 ? Number(i.rooms) : null;

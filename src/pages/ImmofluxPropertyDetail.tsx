@@ -1,6 +1,8 @@
 import { useParams, Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
 import { useQuery } from "@tanstack/react-query";
+import PropertyMortgageCalculator from "@/components/PropertyMortgageCalculator";
+import { renderMarkdownText } from "@/lib/markdownText";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyDetailSkeleton, MapSkeleton, FooterSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
@@ -455,6 +457,13 @@ const ImmofluxPropertyDetail = () => {
                       Trimite pe email
                     </a>
                   </div>
+
+                  {isSale && priceValue > 0 ? (
+                    <PropertyMortgageCalculator
+                      price={priceValue}
+                      className="hidden lg:block mt-6 pt-6 border-t border-stone"
+                    />
+                  ) : null}
                 </div>
               </aside>
             </div>
@@ -464,7 +473,7 @@ const ImmofluxPropertyDetail = () => {
               {descText && (
                 <section aria-labelledby="descriere">
                   <h2 id="descriere" className="text-title text-foreground mb-4">Descriere</h2>
-                  <p className="text-body text-muted-foreground leading-[1.6] whitespace-pre-line">{descText}</p>
+                  <p className="text-body text-muted-foreground leading-[1.6] whitespace-pre-line">{renderMarkdownText(descText)}</p>
                 </section>
               )}
 
@@ -516,6 +525,13 @@ const ImmofluxPropertyDetail = () => {
                   <p className="text-body text-muted-foreground leading-[1.6] whitespace-pre-line">{opinieagent}</p>
                 </section>
               )}
+
+              {isSale && priceValue > 0 ? (
+                <section aria-labelledby="rata-credit" className="lg:hidden">
+                  <h2 id="rata-credit" className="text-title text-foreground mb-4">Rată credit</h2>
+                  <PropertyMortgageCalculator price={priceValue} />
+                </section>
+              ) : null}
 
               <section aria-labelledby="locatie">
                 <h2 id="locatie" className="text-title text-foreground mb-4">Locație</h2>
