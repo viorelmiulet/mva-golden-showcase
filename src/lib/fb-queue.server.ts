@@ -15,8 +15,8 @@ export const json = (body: unknown, status = 200) =>
 
 /** Hard cap on retries per (queue row, group) pair. */
 export const MAX_ATTEMPTS = 3;
-/** Exponential backoff between retries, in minutes (attempt 1 → 5m, 2 → 15m, 3 → 45m). */
-export const BACKOFF_MINUTES = [5, 15, 45];
+/** Exponential backoff between retries, in minutes (attempt 1 → 1m, 2 → 3m, 3 → 5m). */
+export const BACKOFF_MINUTES = [1, 3, 5];
 /** Short pause before moving on to the next group after a failure. */
 export const SKIP_DELAY_MINUTES = 1;
 /** Consecutive failures on one group before that group is paused. */
