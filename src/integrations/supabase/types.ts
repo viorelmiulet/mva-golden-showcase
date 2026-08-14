@@ -1341,6 +1341,8 @@ export type Database = {
         Row: {
           attempts: number
           created_at: string
+          defer_count: number
+          deferred_at: string | null
           errors: string[]
           failed_at: string | null
           group_attempts: Json
@@ -1351,11 +1353,15 @@ export type Database = {
           next_attempt_at: string
           offer_id: string
           offer_url: string
+          progress_at: string
+          stall_reason: string | null
           status: string
         }
         Insert: {
           attempts?: number
           created_at?: string
+          defer_count?: number
+          deferred_at?: string | null
           errors?: string[]
           failed_at?: string | null
           group_attempts?: Json
@@ -1366,11 +1372,15 @@ export type Database = {
           next_attempt_at?: string
           offer_id: string
           offer_url: string
+          progress_at?: string
+          stall_reason?: string | null
           status?: string
         }
         Update: {
           attempts?: number
           created_at?: string
+          defer_count?: number
+          deferred_at?: string | null
           errors?: string[]
           failed_at?: string | null
           group_attempts?: Json
@@ -1381,6 +1391,8 @@ export type Database = {
           next_attempt_at?: string
           offer_id?: string
           offer_url?: string
+          progress_at?: string
+          stall_reason?: string | null
           status?: string
         }
         Relationships: [
