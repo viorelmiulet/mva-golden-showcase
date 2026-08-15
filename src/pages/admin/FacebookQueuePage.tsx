@@ -53,10 +53,8 @@ type QueueRow = {
   offer_id: string;
   message: string;
   offer_url: string;
-  status: "pending" | "posting" | "done" | "error" | "failed" | "deferred";
+  status: "pending" | "posting" | "done" | "error" | "failed";
   next_attempt_at?: string | null;
-  stall_reason?: string | null;
-  defer_count?: number | null;
   last_error?: string | null;
   groups_done: string[];
   errors: string[];
@@ -82,7 +80,6 @@ const statusStyles: Record<QueueRow["status"], string> = {
   done: "bg-green-500/20 text-green-500 border-green-500/30",
   error: "bg-red-500/20 text-red-500 border-red-500/30",
   failed: "bg-red-600/25 text-red-400 border-red-600/40",
-  deferred: "bg-orange-500/20 text-orange-400 border-orange-500/30",
 };
 
 const statusLabel: Record<QueueRow["status"], string> = {
@@ -91,7 +88,6 @@ const statusLabel: Record<QueueRow["status"], string> = {
   done: "Finalizat",
   error: "Eroare",
   failed: "Eșuat definitiv",
-  deferred: "Amânat (blocat)",
 };
 
 const publicOfferPath = (row: QueueRow): string => {
@@ -128,7 +124,7 @@ const FacebookQueuePage = () => {
       const { data, error } = await supabase
         .from("fb_post_queue")
         .select(
-          "id, offer_id, message, offer_url, status, groups_done, errors, attempts, next_attempt_at, last_error, stall_reason, defer_count, created_at, offer:catalog_offers(id, title, slug, rooms, project_name, zone, location, surface_min, floor, city)"
+          "id, offer_id, message, offer_url, status, groups_done, errors, attempts, next_attempt_at, last_error, created_at, offer:catalog_offers(id, title, slug, rooms, project_name, zone, location, surface_min, floor, city)"
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -265,11 +261,6 @@ const FacebookQueuePage = () => {
     });
   }, [rows, statusFilter, dateFrom, dateTo, search]);
 
-  const stalledRows = useMemo(
-    () => (rows || []).filter((r) => r.status === "deferred"),
-    [rows]
-  );
-
   const hasActiveFilters =
     statusFilter !== "all" || dateFrom !== "" || dateTo !== "" || search.trim() !== "";
 
@@ -347,25 +338,6 @@ const FacebookQueuePage = () => {
         </Card>
       )}
 
-      {stalledRows.length > 0 && (
-        <Card className="border-orange-500/40 bg-orange-500/10">
-          <CardContent className="pt-6 space-y-3">
-            <p className="font-semibold text-orange-500">
-              {stalledRows.length} proprietăți amânate pentru blocaj
-            </p>
-            {stalledRows.map((r) => (
-              <div key={r.id} className="text-sm">
-                <p className="font-medium truncate">
-                  {r.offer?.title || r.offer_url}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {r.stall_reason || "Blocat fără progres."} Se reia după golirea cozii.
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
 
       {pausedGroups && pausedGroups.length > 0 && (
         <Card className="border-yellow-500/40 bg-yellow-500/10">
@@ -419,7 +391,6 @@ const FacebookQueuePage = () => {
                   <SelectItem value="done">Finalizat</SelectItem>
                   <SelectItem value="error">Eroare</SelectItem>
                   <SelectItem value="failed">Eșuat definitiv</SelectItem>
-                  <SelectItem value="deferred">Amânat (blocat)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
