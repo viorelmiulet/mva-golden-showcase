@@ -226,7 +226,7 @@ async function registerGroupFailure(groupUrl: string, reason: string) {
         ? new Date(Date.now() + GROUP_PAUSE_HOURS * 3600 * 1000).toISOString()
         : null,
       pause_reason: paused
-        ? `Pauză automată ${GROUP_PAUSE_HOURS}h după ${failures} eșecuri consecutive. Ultima eroare: ${reason}`
+        ? `Pauză automată ${Math.round(GROUP_PAUSE_HOURS * 60)} min după ${failures} eșecuri consecutive. Ultima eroare: ${reason}`
         : null,
     })
     .eq("id", group.id);

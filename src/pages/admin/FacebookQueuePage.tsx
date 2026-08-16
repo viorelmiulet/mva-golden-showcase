@@ -321,17 +321,19 @@ const FacebookQueuePage = () => {
         </div>
       </div>
 
-      {queueState?.stopped && (
-        <Card className="border-red-500/40 bg-red-500/10">
+      {(queueState?.consecutive_failures ?? 0) >= GLOBAL_WARN_THRESHOLD && (
+        <Card className="border-amber-500/40 bg-amber-500/10">
           <CardContent className="pt-6 flex flex-wrap items-start gap-4">
-            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <div className="min-w-0 flex-1">
-              <p className="font-semibold text-red-500">Coada este oprită automat</p>
+              <p className="font-semibold text-amber-600">
+                {queueState?.consecutive_failures} eșecuri consecutive — coada rulează în continuare
+              </p>
               <p className="text-sm text-muted-foreground mt-1">
-                {queueState.stop_reason || "Prea multe eșecuri consecutive."}
+                Ultima eroare: {queueState?.stop_reason || "necunoscută"}
               </p>
             </div>
-            <Button size="sm" onClick={resumeQueue}>
+            <Button size="sm" variant="outline" onClick={resumeQueue}>
               Repornește coada
             </Button>
           </CardContent>
