@@ -74,6 +74,9 @@ type QueueRow = {
   } | null;
 };
 
+/** Mirrors GLOBAL_WARN_LIMIT in src/lib/fb-queue.server.ts — warning only, never stops the queue. */
+const GLOBAL_WARN_THRESHOLD = 10;
+
 const statusStyles: Record<QueueRow["status"], string> = {
   pending: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
   posting: "bg-blue-500/20 text-blue-400 border-blue-500/30",
