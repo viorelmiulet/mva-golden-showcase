@@ -32,7 +32,7 @@ const Index = () => {
     "email": "contact@mvaimobiliare.ro",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "Strada Principală",
+      "streetAddress": "Strada Tineretului nr. 17, bl. 2, parter, ap. 24",
       "addressLocality": "Chiajna",
       "addressRegion": "Ilfov",
       "postalCode": "077040",
