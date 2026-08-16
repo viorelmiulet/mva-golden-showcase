@@ -20,11 +20,11 @@ export const BACKOFF_MINUTES = [5, 15, 45];
 /** Short pause before moving on to the next group after a failure. */
 export const SKIP_DELAY_MINUTES = 1;
 /** Consecutive failures on one group before that group is paused. */
-export const GROUP_FAIL_LIMIT = 3;
+export const GROUP_FAIL_LIMIT = 8;
 /** Hours a group stays paused. */
-export const GROUP_PAUSE_HOURS = 2;
-/** Consecutive failures across all groups before the whole queue stops. */
-export const GLOBAL_FAIL_LIMIT = 15;
+export const GROUP_PAUSE_HOURS = 0.5;
+/** Consecutive failures across all groups before the admin shows a warning. The queue never stops. */
+export const GLOBAL_WARN_LIMIT = 10;
 
 
 export const backoffMinutes = (attempts: number): number =>
