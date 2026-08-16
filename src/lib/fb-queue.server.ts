@@ -20,11 +20,11 @@ export const BACKOFF_MINUTES = [5, 15, 45];
 /** Short pause before moving on to the next group after a failure. */
 export const SKIP_DELAY_MINUTES = 1;
 /** Consecutive failures on one group before that group is paused. */
-export const GROUP_FAIL_LIMIT = 3;
+export const GROUP_FAIL_LIMIT = 8;
 /** Hours a group stays paused. */
-export const GROUP_PAUSE_HOURS = 2;
-/** Consecutive failures across all groups before the whole queue stops. */
-export const GLOBAL_FAIL_LIMIT = 15;
+export const GROUP_PAUSE_HOURS = 0.5;
+/** Consecutive failures across all groups before the admin shows a warning. The queue never stops. */
+export const GLOBAL_WARN_LIMIT = 10;
 
 
 export const backoffMinutes = (attempts: number): number =>
@@ -110,10 +110,8 @@ async function getActiveGroups(fallbackGroups: unknown): Promise<string[]> {
 }
 
 export async function handleNext(body: { groups?: string[] }): Promise<Response> {
-  const state = await getQueueState();
-  if (state.stopped) {
-    return json({ stopped: true, reason: state.stop_reason });
-  }
+  // No global stop: intermittent failures must never take the whole queue out of service.
+
 
   const groups = await getActiveGroups(body?.groups);
   if (groups.length === 0) return json(null);
@@ -228,7 +226,7 @@ async function registerGroupFailure(groupUrl: string, reason: string) {
         ? new Date(Date.now() + GROUP_PAUSE_HOURS * 3600 * 1000).toISOString()
         : null,
       pause_reason: paused
-        ? `Pauză automată ${GROUP_PAUSE_HOURS}h după ${failures} eșecuri consecutive. Ultima eroare: ${reason}`
+        ? `Pauză automată ${Math.round(GROUP_PAUSE_HOURS * 60)} min după ${failures} eșecuri consecutive. Ultima eroare: ${reason}`
         : null,
     })
     .eq("id", group.id);
@@ -320,17 +318,13 @@ export async function handleResult(body: {
 
   await registerGroupFailure(group_url, reason);
 
+  // Counter is kept for the admin warning only — it never stops the queue.
   const globalFailures = state.consecutive_failures + 1;
-  const shouldStop = globalFailures >= GLOBAL_FAIL_LIMIT;
   await setQueueState({
     consecutive_failures: globalFailures,
-    ...(shouldStop
-      ? {
-          stopped: true,
-          stopped_at: new Date().toISOString(),
-          stop_reason: `Coada a fost oprită automat după ${globalFailures} eșecuri consecutive pe toate grupurile. Ultima eroare: ${reason}`,
-        }
-      : {}),
+    stopped: false,
+    stopped_at: null,
+    stop_reason: reason,
   });
 
   return json({
@@ -338,7 +332,8 @@ export async function handleResult(body: {
     attempts: groupTries,
     group_skipped: capped,
     retry_in_minutes: delayMin,
-    queue_stopped: shouldStop,
+    queue_stopped: false,
+    warning: globalFailures >= GLOBAL_WARN_LIMIT,
   });
 
 }
