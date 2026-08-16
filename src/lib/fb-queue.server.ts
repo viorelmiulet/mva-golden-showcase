@@ -110,10 +110,8 @@ async function getActiveGroups(fallbackGroups: unknown): Promise<string[]> {
 }
 
 export async function handleNext(body: { groups?: string[] }): Promise<Response> {
-  const state = await getQueueState();
-  if (state.stopped) {
-    return json({ stopped: true, reason: state.stop_reason });
-  }
+  // No global stop: intermittent failures must never take the whole queue out of service.
+
 
   const groups = await getActiveGroups(body?.groups);
   if (groups.length === 0) return json(null);
@@ -320,17 +318,13 @@ export async function handleResult(body: {
 
   await registerGroupFailure(group_url, reason);
 
+  // Counter is kept for the admin warning only — it never stops the queue.
   const globalFailures = state.consecutive_failures + 1;
-  const shouldStop = globalFailures >= GLOBAL_FAIL_LIMIT;
   await setQueueState({
     consecutive_failures: globalFailures,
-    ...(shouldStop
-      ? {
-          stopped: true,
-          stopped_at: new Date().toISOString(),
-          stop_reason: `Coada a fost oprită automat după ${globalFailures} eșecuri consecutive pe toate grupurile. Ultima eroare: ${reason}`,
-        }
-      : {}),
+    stopped: false,
+    stopped_at: null,
+    stop_reason: reason,
   });
 
   return json({
@@ -338,7 +332,8 @@ export async function handleResult(body: {
     attempts: groupTries,
     group_skipped: capped,
     retry_in_minutes: delayMin,
-    queue_stopped: shouldStop,
+    queue_stopped: false,
+    warning: globalFailures >= GLOBAL_WARN_LIMIT,
   });
 
 }
