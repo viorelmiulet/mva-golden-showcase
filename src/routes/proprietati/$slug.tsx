@@ -67,6 +67,14 @@ export const Route = createFileRoute("/proprietati/$slug")({
       throw notFound();
     }
 
+    // One precedence rule everywhere: immoflux_slug wins when present, else slug.
+    // Any other requested slug for the same row is a duplicate → 301 to the canonical URL.
+    const resolvedSlug: string | null = row.immoflux_slug || row.slug || null;
+    if (resolvedSlug && resolvedSlug !== params.slug) {
+      throw redirect({ to: "/proprietati/$slug", params: { slug: resolvedSlug }, statusCode: 301 });
+    }
+
+
     const images: string[] = Array.isArray(row.images)
       ? row.images.filter((s: unknown): s is string => typeof s === "string" && /^https?:\/\//.test(s))
       : [];
