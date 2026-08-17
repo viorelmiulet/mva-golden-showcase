@@ -326,11 +326,9 @@ export async function buildImagesSitemap(): Promise<string> {
     const images = Array.isArray(property.images) ? (property.images as unknown[]) : [];
     if (images.length === 0) continue;
     // Use the stored canonical slug; never recompute a slug on the fly.
-    const path = property.slug
-      ? `/proprietati/${property.slug}`
-      : property.immoflux_slug
-        ? `/proprietati/${property.immoflux_slug}`
-        : null;
+    const canonicalSlug = property.immoflux_slug || property.slug || null;
+    const path = canonicalSlug ? `/proprietati/${canonicalSlug}` : null;
+
     if (!path) continue;
 
     let entries = "";
