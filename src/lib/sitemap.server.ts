@@ -229,9 +229,11 @@ export async function buildProprietatiSitemap(): Promise<string> {
   let inner = "";
 
   for (const p of data ?? []) {
-    const slug = (p.slug ?? p.immoflux_slug ?? "").trim();
+    // Must mirror the canonical rule in routes/proprietati/$slug.tsx exactly.
+    const slug = (p.immoflux_slug ?? p.slug ?? "").trim();
     if (!slug || seen.has(slug)) continue;
     seen.add(slug);
+
 
     const images = Array.isArray(p.images) ? (p.images as unknown[]) : [];
     const first = typeof images[0] === "string" ? toAbsoluteUrl(images[0] as string) : "";
@@ -258,26 +260,7 @@ ${imageBlock}  </url>
 
 
 
-/* ------------------------------------------------------------- immoflux */
 
-export async function buildImmofluxSitemap(): Promise<string> {
-  const supabase = publicSupabase();
-  const { data } = await supabase
-    .from("catalog_offers")
-    .select("immoflux_slug, updated_at")
-    .eq("crm_source", "immoflux")
-    .eq("is_published", true)
-    .neq("availability_status", "sold")
-    .not("immoflux_slug", "is", null)
-    .order("updated_at", { ascending: false })
-    .limit(10000);
-
-  const inner = (data ?? [])
-    .filter((p) => typeof p.immoflux_slug === "string" && p.immoflux_slug.trim().length > 0)
-    .map((p) => urlEntry(`${SITE}/proprietati/${p.immoflux_slug}`, day(p.updated_at), "weekly", "0.8"))
-    .join("");
-  return urlset(inner);
-}
 
 /* ------------------------------------------------------------ complexes */
 
