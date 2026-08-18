@@ -188,15 +188,14 @@ const Complexe = () => {
           <Breadcrumbs items={[{ label: t.complexes?.title || 'Complexe Rezidențiale' }]} />
 
           {/* Hero Section */}
-          <div className="text-center space-y-3 sm:space-y-4 md:space-y-6 mb-8 sm:mb-12 md:mb-16">
-            <Badge className="glass px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium border-primary/20 mb-2 sm:mb-4">
-              <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-              {projects?.length || 0} {language === 'ro' ? 'Ansambluri Disponibile' : 'Available Complexes'}
-            </Badge>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-brass px-2">
+          <div className="mb-10 sm:mb-14 border-b border-stone pb-8">
+            <p className="text-spec text-brass mb-2">
+              {projects?.length || 0} {language === 'ro' ? 'ANSAMBLURI DISPONIBILE' : 'AVAILABLE COMPLEXES'}
+            </p>
+            <h1 className="text-display-lg text-foreground max-w-3xl">
               {t.complexes?.title || 'Complexe Rezidențiale'}
             </h1>
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4 sm:px-2">
+            <p className="text-body text-muted-foreground mt-4 max-w-2xl">
               {t.complexes?.subtitle || 'Explorează cele mai moderne ansambluri rezidențiale din București și împrejurimi'}
             </p>
           </div>
