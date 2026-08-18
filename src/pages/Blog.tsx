@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHero from "@/components/PageHero";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import OptimizedImage from "@/components/OptimizedImage";
 
@@ -108,34 +109,31 @@ const Blog = () => {
 
       <Header />
       
-      <main className="min-h-screen pt-20">
-        {/* Hero Section */}
-        <section className="py-12 sm:py-16 bg-ink/40 to-muted/30">
-          <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-            <Breadcrumbs items={[{ label: "Blog" }]} />
-            <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground px-2">
-                Blog Imobiliar MVA
-              </h1>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4 sm:px-2">
-                Articole utile, ghiduri și sfaturi pentru navigarea pieței imobiliare. 
-                Învață din experiența noastră și ia cele mai bune decizii!
-              </p>
-            </div>
+      <main className="min-h-screen pt-16 sm:pt-20">
+        <div className="container mx-auto px-4 lg:px-6 pt-4">
+          <Breadcrumbs items={[{ label: "Blog" }]} />
+        </div>
 
-            {/* Featured Articles */}
-            {featuredPosts.length > 0 && (
-              <div className="max-w-6xl mx-auto mb-12">
-                <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-brass" />
-                  Articole Recomandate
-                </h2>
-                <div className="grid gap-6 md:grid-cols-2">
+        <PageHero
+          eyebrow="BLOG IMOBILIAR"
+          title="Blog Imobiliar MVA"
+          subtitle="Articole utile, ghiduri și sfaturi pentru navigarea pieței imobiliare. Învață din experiența noastră și ia cele mai bune decizii."
+        />
+
+        {/* Featured Articles */}
+        {featuredPosts.length > 0 && (
+          <section className="border-b border-stone bg-background py-12 sm:py-16">
+            <div className="container mx-auto px-4 lg:px-6">
+              <p className="text-spec text-brass mb-2 flex items-center gap-2">
+                <TrendingUp className="h-3.5 w-3.5" />
+                ARTICOLE RECOMANDATE
+              </p>
+              <div className="mt-6 grid gap-6 md:grid-cols-2">
                   {featuredPosts.map((post) => {
                     const CategoryIcon = getCategoryIcon(post.category_id);
                     return (
                       <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
-                        <Card className="transition-colors cursor-pointer h-full border-2 border-brass/30 bg-brass">
+                        <Card className="transition-colors cursor-pointer h-full border border-stone bg-card hover:border-brass/60">
                           {post.cover_image && (
                             <OptimizedImage
                               src={post.cover_image}
@@ -148,7 +146,7 @@ const Blog = () => {
                           )}
                           <CardHeader className="space-y-2 sm:space-y-3 p-4 sm:p-6">
                             <div className="flex items-center justify-between gap-2">
-                              <Badge className="text-xs sm:text-sm font-medium bg-brass/20 text-brass border-brass/30 hover:bg-brass/30">
+                              <Badge className="text-xs sm:text-sm font-medium bg-brass/10 text-brass border-brass/30 hover:bg-brass/20">
                                 <CategoryIcon className="h-3 w-3 mr-1" />
                                 {post.category}
                               </Badge>
@@ -183,28 +181,27 @@ const Blog = () => {
                       </Link>
                     );
                   })}
-                </div>
               </div>
-            )}
-          </div>
-        </section>
+            </div>
+          </section>
+        )}
 
         {/* Category Filter & All Articles */}
         <section className="py-8 sm:py-12 bg-background">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <div className="max-w-6xl mx-auto">
               {/* Category Filter */}
-              <div className="flex flex-wrap gap-2 mb-8 justify-center">
+              <div className="flex flex-wrap gap-2 mb-8">
                 {categories.map((category) => {
                   const Icon = category.icon;
                   return (
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-sm text-sm font-medium border transition-colors ${
                         selectedCategory === category.id
-                          ? "bg-brass text-primary-foreground "
-                          : "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground"
+                          ? "bg-brass text-paper border-brass"
+                          : "bg-card border-stone text-muted-foreground hover:text-foreground hover:border-brass/50"
                       }`}
                     >
                       <Icon className="h-4 w-4" />

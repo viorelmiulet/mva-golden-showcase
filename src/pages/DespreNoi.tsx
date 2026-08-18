@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import About from "@/components/About";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHero from "@/components/PageHero";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -35,15 +36,14 @@ const DespreNoi = () => {
       <Header />
       
       <main className="min-h-screen pt-16 sm:pt-20">
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="container mx-auto px-4 lg:px-6 pt-4">
           <Breadcrumbs items={[{ label: t.about.title }]} />
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-4 mb-6">Despre MVA Imobiliare - Agenție Imobiliară din 2016</h1>
-          <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-3">Soluții imobiliare complete în București</h2>
-          <p className="text-muted-foreground max-w-3xl mb-6">
-            Agenție imobiliară activă în tot Bucureștiul, cu expertiză aprofundată în vestul Capitalei — Militari,
-            Chiajna și împrejurimi. Investiții sigure, finisaje premium și locații strategice.
-          </p>
         </div>
+        <PageHero
+          eyebrow="DESPRE NOI"
+          title="Despre MVA Imobiliare — agenție imobiliară din 2016"
+          subtitle="Agenție imobiliară activă în tot Bucureștiul, cu expertiză aprofundată în vestul Capitalei — Militari, Chiajna și împrejurimi. Investiții sigure, finisaje premium și locații strategice."
+        />
 
         <About />
       </main>

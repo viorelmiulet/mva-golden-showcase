@@ -2,6 +2,7 @@ import { Helmet } from "@/lib/helmet-compat";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHero from "@/components/PageHero";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import {
   Accordion,
@@ -60,20 +61,17 @@ const FAQ = () => {
 
       <Header />
       
-      <main className="min-h-screen pt-20">
+      <main className="min-h-screen pt-16 sm:pt-20">
+        <div className="container mx-auto px-4 lg:px-6 pt-4">
+          <Breadcrumbs items={[{ label: t.faq.title }]} />
+        </div>
+
+        <PageHero eyebrow="ÎNTREBĂRI FRECVENTE" title={t.faq.title} subtitle={t.faq.subtitle} />
+
         <section className="py-12 sm:py-16 bg-background">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-            {/* Breadcrumbs */}
-            <Breadcrumbs items={[{ label: t.faq.title }]} />
-
-            <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground px-2">
-                {t.faq.title}
-              </h1>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground px-4 sm:px-2 mb-6">
-                {t.faq.subtitle}
-              </p>
-              <div className="text-left max-w-3xl mx-auto text-sm sm:text-base text-muted-foreground space-y-3 px-4 sm:px-2">
+            <div className="max-w-4xl mx-auto mb-8 sm:mb-12">
+              <div className="text-left text-sm sm:text-base text-muted-foreground space-y-3">
                 <p>
                   MVA Imobiliare este o agenție imobiliară specializată în tranzacții cu proprietăți din zona Militari, Sector 6 București și Chiajna, Ilfov. 
                   De-a lungul activității noastre, am răspuns la sute de întrebări din partea clienților care doresc să cumpere, să vândă sau să închirieze un apartament în această zonă.
@@ -92,7 +90,7 @@ const FAQ = () => {
                   <AccordionItem
                     key={index}
                     value={`item-${index}`}
-                    className="border rounded-lg px-3 sm:px-4 lg:px-6 bg-card"
+                    className="border border-stone rounded-sm px-3 sm:px-4 lg:px-6 bg-card"
                   >
                     <AccordionTrigger className="text-left text-sm sm:text-base lg:text-lg font-semibold hover:no-underline py-4 touch-manipulation">
                       {item.question}
@@ -104,7 +102,7 @@ const FAQ = () => {
                 ))}
               </Accordion>
 
-              <div className="mt-8 sm:mt-12 p-4 sm:p-6 lg:p-8 rounded-lg bg-brass/5 border border-brass/20 text-center">
+              <div className="mt-8 sm:mt-12 p-4 sm:p-6 lg:p-8 rounded-sm bg-card border border-stone text-center">
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-foreground px-2">
                   {t.faq.stillQuestions}
                 </h2>
@@ -113,7 +111,7 @@ const FAQ = () => {
                 </p>
                 <a
                   href="tel:+40726555888"
-                  className="inline-block px-6 sm:px-8 py-3 bg-brass text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-brass/90 transition-colors touch-manipulation min-h-[44px]"
+                  className="inline-block px-6 sm:px-8 py-3 bg-brass text-paper rounded-sm text-sm sm:text-base font-semibold hover:bg-brass/90 transition-colors touch-manipulation min-h-[44px]"
                 >
                   {t.faq.contactUs}
                 </a>

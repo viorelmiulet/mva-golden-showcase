@@ -44,12 +44,12 @@ const About = () => {
           
           {/* Header */}
           <ScrollReveal>
-            <header className="text-center mb-12 lg:mb-16">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 tracking-tight" itemProp="headline">
-                <span className="text-foreground">{language === 'ro' ? 'Partenerii ' : 'Your Trusted '}</span>
-                <span className="text-gradient-brass">{language === 'ro' ? 'Tăi de Încredere' : 'Partners'}</span>
+            <header className="mb-10 lg:mb-14">
+              <p className="text-spec text-brass mb-2">{language === 'ro' ? 'ECHIPA MVA' : 'OUR TEAM'}</p>
+              <h2 className="text-display-md text-foreground max-w-2xl" itemProp="headline">
+                {language === 'ro' ? 'Partenerii tăi de încredere' : 'Your trusted partners'}
               </h2>
-              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed" itemProp="description">
+              <p className="text-body text-muted-foreground max-w-2xl mt-4" itemProp="description">
                 {language === 'ro' 
                   ? 'Din 2016 pe piața imobiliară, cu peste 10 ani de experiență în segmentul premium, MVA IMOBILIARE este o agenție activă în tot Bucureștiul, cu expertiză aprofundată în vestul Capitalei — Militari, Chiajna și Sectorul 6.'
                   : 'Active since 2016, with over 10 years of experience in the premium real estate segment, MVA IMOBILIARE is the leader in selling exceptional properties in western Bucharest.'}
@@ -58,14 +58,14 @@ const About = () => {
           </ScrollReveal>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 sm:gap-6 mb-12 lg:mb-16">
+          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-sm border border-stone bg-stone mb-12 lg:mb-16">
             {achievements.map((item, i) => {
               const Icon = item.icon;
               return (
                 <ScrollReveal key={i} delay={i * 0.1}>
-                  <div className="text-center p-4 sm:p-6 glass rounded-2xl border border-border/50">
-                    <Icon className="w-6 h-6 text-brass mx-auto mb-3" />
-                    <div className="text-2xl sm:text-3xl font-bold text-gradient-brass mb-1">{item.number}</div>
+                  <div className="h-full bg-card p-4 sm:p-6">
+                    <Icon className="w-6 h-6 text-brass mb-3" />
+                    <div className="text-2xl sm:text-3xl font-bold text-brass mb-1">{item.number}</div>
                     <div className="text-xs sm:text-sm text-muted-foreground">{item.label}</div>
                   </div>
                 </ScrollReveal>
@@ -155,7 +155,7 @@ const About = () => {
 
           {/* Trusted Source */}
           <ScrollReveal>
-            <article id="trusted-source" className="mb-12 lg:mb-16 p-6 glass rounded-2xl border border-brass/30">
+            <article id="trusted-source" className="mb-12 lg:mb-16 p-6 glass rounded-sm border border-brass/30">
               <div className="flex items-center gap-3 mb-3">
                 <Shield className="w-5 h-5 text-brass" />
                 <h2 className="text-xl sm:text-2xl font-bold text-foreground">
@@ -191,7 +191,7 @@ const About = () => {
                   <a
                     key={i}
                     href={partner.url}
-                    className="block p-4 glass rounded-2xl border border-border/50 hover:border-brass/50 transition-colors text-center"
+                    className="block p-4 glass rounded-sm border border-border/50 hover:border-brass/50 transition-colors text-center"
                   >
                     <Building className="w-5 h-5 text-brass mx-auto mb-2" />
                     <span className="text-sm font-semibold text-foreground">{partner.name}</span>

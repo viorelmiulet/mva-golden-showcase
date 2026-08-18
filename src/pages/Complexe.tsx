@@ -176,9 +176,9 @@ const Complexe = () => {
       <div className="min-h-screen bg-background relative overflow-hidden">
         {/* Background Decorations */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 -left-40 w-80 h-80 hidden rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-40 -right-40 w-96 h-96 hidden rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 hidden rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+          <div className="absolute top-20 -left-40 w-80 h-80 hidden rounded-sm blur-3xl animate-float" />
+          <div className="absolute bottom-40 -right-40 w-96 h-96 hidden rounded-sm blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/3 w-64 h-64 hidden rounded-sm blur-3xl animate-float" style={{ animationDelay: '4s' }} />
         </div>
 
         <Header />
@@ -188,15 +188,14 @@ const Complexe = () => {
           <Breadcrumbs items={[{ label: t.complexes?.title || 'Complexe Rezidențiale' }]} />
 
           {/* Hero Section */}
-          <div className="text-center space-y-3 sm:space-y-4 md:space-y-6 mb-8 sm:mb-12 md:mb-16">
-            <Badge className="glass px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium border-primary/20 mb-2 sm:mb-4">
-              <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-              {projects?.length || 0} {language === 'ro' ? 'Ansambluri Disponibile' : 'Available Complexes'}
-            </Badge>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-brass px-2">
+          <div className="mb-10 sm:mb-14 border-b border-stone pb-8">
+            <p className="text-spec text-brass mb-2">
+              {projects?.length || 0} {language === 'ro' ? 'ANSAMBLURI DISPONIBILE' : 'AVAILABLE COMPLEXES'}
+            </p>
+            <h1 className="text-display-lg text-foreground max-w-3xl">
               {t.complexes?.title || 'Complexe Rezidențiale'}
             </h1>
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4 sm:px-2">
+            <p className="text-body text-muted-foreground mt-4 max-w-2xl">
               {t.complexes?.subtitle || 'Explorează cele mai moderne ansambluri rezidențiale din București și împrejurimi'}
             </p>
           </div>
@@ -221,7 +220,7 @@ const Complexe = () => {
                   >
                     <Card className="card-modern overflow-hidden h-full border-glow">
                       {/* Project Image */}
-                      <div className="relative h-40 sm:h-48 md:h-64 bg-brass overflow-hidden">
+                      <div className="relative h-40 sm:h-48 md:h-64 bg-stone overflow-hidden">
                         {project.main_image ? (
                           <img
                             src={project.main_image}
@@ -244,7 +243,7 @@ const Complexe = () => {
                         {/* Recommended Badge */}
                         <div className="absolute top-2 left-2 sm:top-3 sm:left-3 right-2 flex items-center gap-1.5">
                           {project.is_recommended && (
-                            <Badge className="bg-brass text-black font-semibold border-0 text-[10px] sm:text-xs">
+                            <Badge className="bg-brass text-ink font-semibold border-0 rounded-sm text-[10px] sm:text-xs">
                               ⭐ Recomandat
                             </Badge>
                           )}
@@ -313,7 +312,7 @@ const Complexe = () => {
                               <span className="text-muted-foreground">{stats.available} {language === 'ro' ? 'din' : 'of'} {stats.total}</span>
                             </div>
                             {/* Dual bar chart */}
-                            <div className="flex gap-0.5 sm:gap-1 h-2.5 sm:h-3 md:h-4 rounded-full overflow-hidden glass">
+                            <div className="flex gap-0.5 sm:gap-1 h-2.5 sm:h-3 md:h-4 rounded-sm overflow-hidden glass">
                               <div 
                                 className="bg-stone transition-all duration-300" 
                                 style={{ width: `${stats.percentage}%` }}
@@ -325,11 +324,11 @@ const Complexe = () => {
                             </div>
                             <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 text-[9px] sm:text-[10px] md:text-xs">
                               <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full bg-stone flex-shrink-0"></div>
+                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-sm bg-stone flex-shrink-0"></div>
                                 <span>{stats.available} {t.properties?.available || 'disponibile'}</span>
                               </div>
                               <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full bg-stone flex-shrink-0"></div>
+                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-sm bg-stone flex-shrink-0"></div>
                                 <span>{stats.sold} {t.properties?.sold || 'vândute'}</span>
                               </div>
                             </div>
@@ -345,7 +344,7 @@ const Complexe = () => {
                                         <span className="text-muted-foreground ml-1">({corp.sold}/{corp.total})</span>
                                       </span>
                                     </div>
-                                    <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden glass">
+                                    <div className="flex gap-0.5 h-1.5 rounded-sm overflow-hidden glass">
                                       <div 
                                         className="bg-stone transition-all duration-300" 
                                         style={{ width: `${100 - corp.soldPercentage}%` }}

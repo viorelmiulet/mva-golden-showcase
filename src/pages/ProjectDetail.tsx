@@ -181,7 +181,7 @@ const ProjectDetail = () => {
             <div className="max-w-6xl mx-auto">
               <div className="grid lg:grid-cols-2 gap-8 items-start">
                 {/* Project Image */}
-                <div className="relative aspect-video lg:aspect-square rounded-2xl overflow-hidden">
+                <div className="relative aspect-video lg:aspect-square rounded-sm overflow-hidden">
                   <img
                     src={
                       project.main_image ||
@@ -384,7 +384,7 @@ const ProjectDetail = () => {
 
                                 {/* Type */}
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <div className="w-2 h-2 rounded-full bg-brass" />
+                                  <div className="w-2 h-2 rounded-sm bg-brass" />
                                   {apartment.rooms === 1 ? 'Garsonieră' : `${apartment.rooms} camere`}
                                 </div>
 

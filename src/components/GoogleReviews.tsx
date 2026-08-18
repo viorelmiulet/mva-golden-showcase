@@ -140,11 +140,11 @@ const GoogleReviews = () => {
                 <img
                   src={review.profile_photo_url}
                   alt={review.author_name}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="w-8 h-8 rounded-sm object-cover"
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-brass/20 flex items-center justify-center text-xs font-semibold text-brass">
+                <div className="w-8 h-8 rounded-sm bg-brass/20 flex items-center justify-center text-xs font-semibold text-brass">
                   {review.author_name.charAt(0)}
                 </div>
               )}

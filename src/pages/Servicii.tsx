@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Services from "@/components/Services";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHero from "@/components/PageHero";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -35,12 +36,14 @@ const Servicii = () => {
       <Header />
       
       <main className="min-h-screen pt-16 sm:pt-20">
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="container mx-auto px-4 lg:px-6 pt-4">
           <Breadcrumbs items={[{ label: t.services.title }]} />
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-4 mb-2">
-            Servicii Imobiliare MVA
-          </h1>
         </div>
+        <PageHero
+          eyebrow="SERVICII"
+          title="Servicii imobiliare MVA"
+          subtitle={t.services.subtitle}
+        />
         <Services />
       </main>
 

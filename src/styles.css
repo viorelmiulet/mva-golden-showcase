@@ -479,6 +479,14 @@
     letter-spacing: -0.02em;
   }
 
+  .text-display-lg {
+    font-family: "Playfair Display", Georgia, serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
   .text-display-md {
     font-family: "Playfair Display", Georgia, serif;
     

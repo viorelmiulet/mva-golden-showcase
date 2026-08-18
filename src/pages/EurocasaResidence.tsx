@@ -59,8 +59,8 @@ const EurocasaResidence = () => {
       <main className="min-h-screen">
         <section className="relative py-16 sm:py-20 lg:py-28 overflow-hidden">
           <div className="absolute inset-0 bg-ink/70">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-brass/5 rounded-full blur-3xl animate-float" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-brass/3 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+            <div className="absolute top-20 left-10 w-72 h-72 bg-brass/5 rounded-sm blur-3xl animate-float" />
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-brass/3 rounded-sm blur-3xl animate-float" style={{ animationDelay: "2s" }} />
           </div>
 
           <div className="container mx-auto px-4 lg:px-6 relative z-10 max-w-5xl">
@@ -129,7 +129,7 @@ const EurocasaResidence = () => {
                     <Loader2 className="w-8 h-8 animate-spin text-brass" />
                   </div>
                 ) : properties.length === 0 ? (
-                  <div className="text-center py-12 card-modern rounded-2xl p-8">
+                  <div className="text-center py-12 card-modern rounded-sm p-8">
                     <p className="text-muted-foreground mb-4">
                       Momentan nu avem proprietăți listate în Eurocasa Residence. Contactează-ne pentru oferte actualizate!
                     </p>
@@ -196,7 +196,7 @@ const EurocasaResidence = () => {
             </ScrollReveal>
 
             <ScrollReveal delay={0.3}>
-              <div className="text-center card-modern border-glow rounded-2xl p-8 max-w-3xl mx-auto">
+              <div className="text-center card-modern border-glow rounded-sm p-8 max-w-3xl mx-auto">
                 <h2 className="text-xl lg:text-2xl font-bold mb-4">
                   <span className="text-foreground">Cauți un apartament în </span>
                   <span className="text-gradient-brass">Eurocasa Residence?</span>

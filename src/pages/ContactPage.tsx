@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Contact from "@/components/Contact";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHero from "@/components/PageHero";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -35,10 +36,14 @@ const ContactPage = () => {
       <Header />
       
       <main className="min-h-screen pt-16 sm:pt-20">
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="container mx-auto px-4 lg:px-6 pt-4">
           <Breadcrumbs items={[{ label: t.contact.title }]} />
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-4 mb-6">Contact MVA Imobiliare - Agenție Imobiliară Chiajna Ilfov</h1>
         </div>
+        <PageHero
+          eyebrow="CONTACT"
+          title="Contact MVA Imobiliare — agenție imobiliară Chiajna, Ilfov"
+          subtitle={t.contact.subtitle}
+        />
         <Contact />
       </main>
 
