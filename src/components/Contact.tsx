@@ -115,39 +115,15 @@ const Contact = () => {
             </p>
           </div>
 
-          {/* Fallback form */}
+          {/* Universal enquiry form */}
           <div className="mt-12 border-t border-stone pt-10">
-            <p className="text-spec text-slate mb-2">SAU TRIMITE UN MESAJ</p>
+            <p className="text-spec text-slate mb-2">SAU TRIMITE O SOLICITARE</p>
             <h2 className="text-display-md mb-6">Îți răspundem în aceeași zi</h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="nume" className="text-spec text-slate mb-1.5 block">NUME</label>
-                <Input id="nume" name="nume" autoComplete="name" value={formData.nume} onChange={handleChange} className={inputClass} required />
-              </div>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="telefon" className="text-spec text-slate mb-1.5 block">TELEFON</label>
-                  <Input id="telefon" name="telefon" type="tel" autoComplete="tel" value={formData.telefon} onChange={handleChange} className={inputClass} required />
-                </div>
-                <div>
-                  <label htmlFor="email" className="text-spec text-slate mb-1.5 block">EMAIL</label>
-                  <Input id="email" name="email" type="email" autoComplete="email" value={formData.email} onChange={handleChange} className={inputClass} required />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="mesaj" className="text-spec text-slate mb-1.5 block">MESAJ</label>
-                <Textarea id="mesaj" name="mesaj" value={formData.mesaj} onChange={handleChange} rows={5} className="rounded-sm border-stone bg-paper text-base resize-none" required />
-              </div>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="h-12 px-8 rounded-sm bg-brass text-paper hover:bg-brass-dark font-semibold"
-              >
-                {isSubmitting ? "Se trimite…" : "Trimite mesajul"}
-              </Button>
-            </form>
+            <div className="rounded-sm border border-stone bg-card p-5 sm:p-7">
+              <UniversalContactForm />
+            </div>
           </div>
+
         </div>
       </div>
     </section>
