@@ -45,7 +45,7 @@ const About = () => {
           {/* Header */}
           <ScrollReveal>
             <header className="mb-10 lg:mb-14">
-              <p className="text-spec text-brass mb-2">{language === 'ro' ? 'DESPRE NOI' : 'ABOUT US'}</p>
+              <p className="text-spec text-brass mb-2">{language === 'ro' ? 'ECHIPA MVA' : 'OUR TEAM'}</p>
               <h2 className="text-display-md text-foreground max-w-2xl" itemProp="headline">
                 {language === 'ro' ? 'Partenerii tăi de încredere' : 'Your trusted partners'}
               </h2>
