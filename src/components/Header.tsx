@@ -69,7 +69,7 @@ const Header = () => {
           {/* Right — desktop */}
           <div className="hidden lg:flex items-center gap-2">
             <a href={PHONE_TEL} className="inline-flex">
-              <span className="inline-flex h-9 items-center gap-2 rounded-sm border border-brass px-3 text-small font-medium text-brass transition-colors hover:bg-brass hover:text-ink">
+              <span className="inline-flex h-9 items-center gap-2 rounded-sm border border-graphite px-3 text-small font-medium text-paper/85 transition-colors duration-200 hover:border-brass hover:text-brass">
                 <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                 {PHONE_DISPLAY}
               </span>
@@ -79,11 +79,19 @@ const Header = () => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Scrie-ne pe WhatsApp"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-graphite text-paper/80 transition-colors hover:border-brass hover:text-brass"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-graphite text-paper/80 transition-colors duration-200 hover:border-brass hover:text-brass"
             >
               <WhatsAppIcon className="h-4 w-4" />
             </a>
+            <button
+              type="button"
+              onClick={() => openContactForm()}
+              className="inline-flex h-9 items-center rounded-sm bg-brass px-4 text-small font-semibold text-ink transition-colors duration-200 hover:bg-brass-light"
+            >
+              Contactează-ne
+            </button>
           </div>
+
 
           {/* Right — mobile: phone + hamburger */}
           <div className="flex lg:hidden items-center gap-1">
