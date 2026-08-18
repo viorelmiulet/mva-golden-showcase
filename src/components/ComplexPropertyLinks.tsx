@@ -1,28 +1,39 @@
-import PropertyCard from "@/components/PropertyCard";
+import { Link } from "@/lib/router-compat";
+import { getPropertyUrl } from "@/lib/propertySlug";
 
 interface Props {
   properties: any[];
   complexName: string;
-  /** Parent development, used for video badge fallback. */
+  /** Kept for API compatibility with previous card-based rendering. */
   development?: any;
 }
 
 /**
- * Crawlable list of the development's units: real <a href="/proprietati/{slug}">
- * cards rendered server-side.
+ * Crawlable list of the development's units.
+ * Rendered as compact text links (no image cards) because complex units have
+ * no photos of their own — placeholder cards looked broken.
  */
-const ComplexPropertyLinks = ({ properties, complexName, development }: Props) => {
+const ComplexPropertyLinks = ({ properties, complexName }: Props) => {
   if (!properties.length) return null;
   return (
     <section className="mt-8 sm:mt-10" aria-label={`Apartamente disponibile în ${complexName}`}>
       <h2 className="text-xl sm:text-2xl font-bold mb-4">
         Apartamente disponibile în {complexName}
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {properties.map((p, i) => (
-          <PropertyCard key={p.id} property={p} priority={i < 2} development={development} />
+      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2">
+        {properties.map((p) => (
+          <li key={p.id}>
+            <Link
+              to={getPropertyUrl(p)}
+              className="text-sm text-muted-foreground hover:text-brass transition-colors underline-offset-4 hover:underline"
+            >
+              {p.rooms ? `${p.rooms} camere` : "Unitate"}
+              {p.surface_min ? ` · ${p.surface_min} mp` : ""}
+              {p.price_min ? ` · ${Number(p.price_min).toLocaleString("ro-RO")} €` : ""}
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 };
