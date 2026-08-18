@@ -11,6 +11,8 @@ import {
 import { HelmetProvider } from "@/lib/helmet-compat";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ContactDialogProvider } from "@/components/contact/ContactDialogProvider";
+
 import AppErrorBoundary from "@/components/AppErrorBoundary";
 import TrailingSlashRedirect from "@/components/TrailingSlashRedirect";
 import NotFound from "@/pages/NotFound";
