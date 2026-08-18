@@ -85,15 +85,15 @@
 
   /* Fonts (Fraunces display · Inter UI · IBM Plex Mono data) */
   --font-sans: "Inter", system-ui, sans-serif;
-  --font-serif: "Fraunces", Georgia, serif;
+  --font-serif: "Playfair Display", Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --font-inter: "Inter", system-ui, sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
+  --font-display: "Playfair Display", Georgia, serif;
   --font-spec: "IBM Plex Mono", ui-monospace, monospace;
   /* Legacy aliases -> display face */
-  --font-playfair: "Fraunces", Georgia, serif;
-  --font-cormorant: "Fraunces", Georgia, serif;
-  --font-cinzel: "Fraunces", Georgia, serif;
+  --font-playfair: "Playfair Display", Georgia, serif;
+  --font-cormorant: "Playfair Display", Georgia, serif;
+  --font-cinzel: "Playfair Display", Georgia, serif;
 }
 
 @theme {
@@ -256,20 +256,23 @@
 
 @layer base {
   :root {
-    /* Brand scale */
-    --ink: 220 17% 7%;
-    --graphite: 218 12% 19%;
-    --slate: 217 12% 30%;
-    --paper: 40 33% 98%;
-    --stone: 38 20% 89%;
-    --brass: 36 59% 42%;
-    --brass-light: 36 59% 52%;
-    --brass-dark: 36 59% 32%;
-    --pine: 162 52% 25%;
+    /* Brand scale — MVA palette
+       ink #07131F · graphite #0D1B2A · slate #66717C · paper #F7F5EF
+       stone #D9DDE2 · brass #D4A23A (hover #E3B64D) · text #18232E */
+    --ink: 210 63% 7%;
+    --graphite: 211 53% 11%;
+    --slate: 210 10% 44%;
+    --paper: 45 33% 95%;
+    --stone: 213 13% 87%;
+    --brass: 41 64% 53%;
+    --brass-light: 42 73% 60%;
+    --brass-dark: 40 70% 41%;
+    --pine: 211 53% 11%;
 
     /* shadcn mapping */
     --background: var(--paper);
-    --foreground: var(--ink);
+    --foreground: 210 31% 14%;
+
 
     --card: 0 0% 100%;
     --card-foreground: var(--ink);
@@ -278,7 +281,7 @@
     --popover-foreground: var(--ink);
 
     --primary: var(--brass);
-    --primary-foreground: var(--paper);
+    --primary-foreground: var(--ink);
 
     --secondary: var(--stone);
     --secondary-foreground: var(--ink);
@@ -312,7 +315,7 @@
     --surface-dark-foreground: var(--paper);
     --surface-dark-muted: var(--graphite);
 
-    --glass-border: 38 20% 89%;
+    --glass-border: 213 13% 87%;
 
     /* Flat system: no shadows */
     --shadow-glass: none;
@@ -413,8 +416,8 @@
   h1,
   h2,
   h3 {
-    font-family: "Fraunces", Georgia, serif;
-    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1;
+    font-family: "Playfair Display", Georgia, serif;
+    
   }
 
   @media (max-width: 768px) {
@@ -468,8 +471,8 @@
 @layer components {
   /* ---- Type scale ---- */
   .text-display-xl {
-    font-family: "Fraunces", Georgia, serif;
-    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1;
+    font-family: "Playfair Display", Georgia, serif;
+    
     font-weight: 700;
     font-size: 3.25rem;
     line-height: 1.05;
@@ -477,8 +480,8 @@
   }
 
   .text-display-md {
-    font-family: "Fraunces", Georgia, serif;
-    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1;
+    font-family: "Playfair Display", Georgia, serif;
+    
     font-weight: 600;
     font-size: 2rem;
     line-height: 1.15;

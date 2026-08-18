@@ -1,14 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { submitContactForm } from "@/lib/publicForms.functions";
-import { supabase } from "@/integrations/supabase/client";
+import UniversalContactForm from "@/components/contact/UniversalContactForm";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { usePlausible } from "@/hooks/usePlausible";
 import { useGA4 } from "@/hooks/useGA4";
-import { trackConversion, CONVERSION_EVENTS } from "@/lib/analytics/conversions";
 
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
@@ -17,9 +10,6 @@ const Contact = () => {
   const { data: settings } = useSiteSettings();
   const { trackContact } = usePlausible();
   const { trackContact: trackGA4Contact } = useGA4();
-  const [formData, setFormData] = useState({ nume: "", telefon: "", email: "", mesaj: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
 
   const phoneNumber = settings?.phone?.replace(/\s/g, "") || "0767941512";
   const phoneDisplay = settings?.phone || "0767 941 512";
@@ -27,36 +17,6 @@ const Contact = () => {
   const address = settings?.address || "jud. Ilfov, com. Chiajna, str. Tineretului nr. 17, bl. 2, parter, ap. 24";
   const waHref = `https://wa.me/${phoneNumber.replace(/^0/, "40")}?text=${encodeURIComponent("Salut! Sunt interesat de o proprietate.")}`;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      if (!formData.nume || !formData.telefon || !formData.email || !formData.mesaj) {
-        throw new Error("Completează toate câmpurile.");
-      }
-      await submitContactForm({ data: { ...formData, prenume: "" } });
-      trackContact("form", "contact_page");
-      trackGA4Contact("form");
-      trackConversion(CONVERSION_EVENTS.contactFormSubmit, { source: "contact_page" });
-
-      toast({ title: "Mesaj trimis", description: "Te contactăm în cel mai scurt timp." });
-      setFormData({ nume: "", telefon: "", email: "", mesaj: "" });
-    } catch (error: unknown) {
-      toast({
-        title: "Eroare",
-        description: error instanceof Error ? error.message : "Încearcă din nou.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const inputClass = "h-12 rounded-sm border-stone bg-paper text-base";
 
   return (
     <section id="contact" className="py-12 sm:py-16">
@@ -115,39 +75,15 @@ const Contact = () => {
             </p>
           </div>
 
-          {/* Fallback form */}
+          {/* Universal enquiry form */}
           <div className="mt-12 border-t border-stone pt-10">
-            <p className="text-spec text-slate mb-2">SAU TRIMITE UN MESAJ</p>
+            <p className="text-spec text-slate mb-2">SAU TRIMITE O SOLICITARE</p>
             <h2 className="text-display-md mb-6">Îți răspundem în aceeași zi</h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="nume" className="text-spec text-slate mb-1.5 block">NUME</label>
-                <Input id="nume" name="nume" autoComplete="name" value={formData.nume} onChange={handleChange} className={inputClass} required />
-              </div>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="telefon" className="text-spec text-slate mb-1.5 block">TELEFON</label>
-                  <Input id="telefon" name="telefon" type="tel" autoComplete="tel" value={formData.telefon} onChange={handleChange} className={inputClass} required />
-                </div>
-                <div>
-                  <label htmlFor="email" className="text-spec text-slate mb-1.5 block">EMAIL</label>
-                  <Input id="email" name="email" type="email" autoComplete="email" value={formData.email} onChange={handleChange} className={inputClass} required />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="mesaj" className="text-spec text-slate mb-1.5 block">MESAJ</label>
-                <Textarea id="mesaj" name="mesaj" value={formData.mesaj} onChange={handleChange} rows={5} className="rounded-sm border-stone bg-paper text-base resize-none" required />
-              </div>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="h-12 px-8 rounded-sm bg-brass text-paper hover:bg-brass-dark font-semibold"
-              >
-                {isSubmitting ? "Se trimite…" : "Trimite mesajul"}
-              </Button>
-            </form>
+            <div className="rounded-sm border border-stone bg-card p-5 sm:p-7">
+              <UniversalContactForm />
+            </div>
           </div>
+
         </div>
       </div>
     </section>

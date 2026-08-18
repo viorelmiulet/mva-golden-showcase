@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "@/lib/router-compat";
+import { useNavigate, Link } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { buildTypeOptions, normalizeType } from "@/lib/propertyType";
+import { useContactDialog } from "@/components/contact/ContactDialogProvider";
+import heroImage from "@/assets/hero-mva.jpg";
+
 
 export const HOME_ZONES = [
   "Militari",
@@ -27,6 +30,8 @@ const normalize = normalizeType;
 
 const HeroBand = () => {
   const navigate = useNavigate();
+  const { openContactForm } = useContactDialog();
+
   const [transaction, setTransaction] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [zone, setZone] = useState("");
@@ -97,22 +102,57 @@ const HeroBand = () => {
 
 
   return (
-    <section className="bg-background border-b border-stone">
-      <div className="container mx-auto px-4 lg:px-6">
-        <div className="max-w-5xl py-10 md:py-12 md:max-h-[320px]">
-          <p className="text-spec text-brass mb-3">
+    <section className="relative isolate overflow-hidden bg-ink">
+      <img
+        src={heroImage}
+        alt="Ansamblu rezidențial modern în București"
+        width={1920}
+        height={1088}
+        fetchPriority="high"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover opacity-45"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" aria-hidden="true" />
+
+      <div className="relative container mx-auto px-4 lg:px-6">
+        <div className="max-w-3xl py-16 md:py-24">
+          <p className="text-spec text-brass mb-4">
             {(activeCount ?? 0).toLocaleString("ro-RO")} PROPRIETĂȚI ACTIVE · ACTUALIZAT ZILNIC
           </p>
 
-          <h1 className="text-display-xl text-foreground">Apartamente noi în București</h1>
+          <h1 className="text-display-xl text-paper">
+            Găsim împreună locuința potrivită în București
+          </h1>
 
-          <p className="text-body text-muted-foreground mt-3 max-w-2xl">
-            Ansambluri rezidențiale în toată Capitala, cu expertiză aprofundată în Militari și Chiajna.
+          <p className="text-body text-paper/75 mt-4 max-w-xl">
+            Consultanță imobiliară completă pentru vânzare, cumpărare și închiriere — cu expertiză
+            aprofundată în Militari, Chiajna și vestul Capitalei.
           </p>
 
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              to="/proprietati"
+              className="inline-flex h-12 items-center rounded-sm bg-brass px-7 text-small font-semibold uppercase tracking-wide text-ink transition-colors duration-200 hover:bg-brass-light"
+            >
+              Vezi proprietățile
+            </Link>
+            <button
+              type="button"
+              onClick={() => openContactForm({ title: "Spune-ne ce cauți" })}
+              className="inline-flex h-12 items-center rounded-sm border border-paper/30 px-7 text-small font-semibold uppercase tracking-wide text-paper transition-colors duration-200 hover:border-brass hover:text-brass"
+            >
+              Contactează-ne
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Search band */}
+      <div className="relative border-t border-paper/10 bg-graphite/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 lg:px-6 py-5">
           <form
             onSubmit={handleSubmit}
-            className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:flex md:items-center"
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:flex md:items-center"
             aria-label="Caută proprietăți"
           >
             {showTransaction && (
@@ -182,10 +222,9 @@ const HeroBand = () => {
               ))}
             </select>
 
-
             <button
               type="submit"
-              className="h-11 rounded-sm bg-brass px-8 text-small font-semibold text-paper transition-colors hover:bg-brass-dark"
+              className="h-11 rounded-sm bg-brass px-8 text-small font-semibold uppercase tracking-wide text-ink transition-colors duration-200 hover:bg-brass-light"
             >
               Caută
             </button>
@@ -195,6 +234,7 @@ const HeroBand = () => {
     </section>
   );
 };
+
 
 
 export default HeroBand;

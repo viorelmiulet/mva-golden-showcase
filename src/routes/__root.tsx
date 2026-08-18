@@ -11,6 +11,8 @@ import {
 import { HelmetProvider } from "@/lib/helmet-compat";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ContactDialogProvider } from "@/components/contact/ContactDialogProvider";
+
 import AppErrorBoundary from "@/components/AppErrorBoundary";
 import TrailingSlashRedirect from "@/components/TrailingSlashRedirect";
 import NotFound from "@/pages/NotFound";
@@ -159,7 +161,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       /* Google Fonts */
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@144,400..700,0,1&family=IBM+Plex+Mono:wght@500&family=Inter:wght@400;500;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=IBM+Plex+Mono:wght@500&family=Inter:wght@400;500;600&display=swap",
         crossOrigin: "anonymous",
       },
       { rel: "alternate", type: "text/plain", href: "https://www.mvaimobiliare.ro/llms.txt", title: "LLM Context" },
@@ -199,8 +201,11 @@ function RootComponent() {
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
           <TooltipProvider>
-            <AppShell />
+            <ContactDialogProvider>
+              <AppShell />
+            </ContactDialogProvider>
           </TooltipProvider>
+
         </LanguageProvider>
       </QueryClientProvider>
     </HelmetProvider>
