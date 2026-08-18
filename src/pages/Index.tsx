@@ -195,8 +195,12 @@ const Index = () => {
           <HeroBand />
           <LatestProperties />
           <DevelopmentsRow />
+          <WhyUsBand />
           <ZoneNav />
+          <OwnersBand />
+          <HomeContactBand />
         </main>
+
         <Footer />
       </div>
 
