@@ -216,15 +216,6 @@ const CreditSimulator = () => {
 
   return (
     <div className="credit-sim">
-      {/* Header */}
-      <header className="text-center mb-10">
-        <div className="cs-badge">
-          <span>Instrument Financiar</span>
-        </div>
-        <h1>Simulator Credit</h1>
-        <p className="cs-subtitle">Calculați rata lunară, dobânda totală și planul de amortizare</p>
-      </header>
-
       {/* Selector Bar */}
       <div className="selector-bar">
         <div className="selector-group">
