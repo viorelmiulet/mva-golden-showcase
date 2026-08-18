@@ -4,6 +4,7 @@ import { Menu, Phone } from "lucide-react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import { Link, useLocation } from "@/lib/router-compat"
 import { usePrefetch } from "@/hooks/usePrefetch"
+import { useContactDialog } from "@/components/contact/ContactDialogProvider"
 
 const PHONE_DISPLAY = "0767 941 512"
 const PHONE_TEL = "tel:+40767941512"
@@ -30,6 +31,7 @@ const secondaryItems = [
 const Header = () => {
   const location = useLocation()
   const { prefetchOnHover } = usePrefetch()
+  const { openContactForm } = useContactDialog()
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-ink text-paper border-b border-graphite">
