@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Contact from "@/components/Contact";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHero from "@/components/PageHero";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 
