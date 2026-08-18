@@ -90,7 +90,7 @@ const FAQ = () => {
                   <AccordionItem
                     key={index}
                     value={`item-${index}`}
-                    className="border rounded-lg px-3 sm:px-4 lg:px-6 bg-card"
+                    className="border border-stone rounded-sm px-3 sm:px-4 lg:px-6 bg-card"
                   >
                     <AccordionTrigger className="text-left text-sm sm:text-base lg:text-lg font-semibold hover:no-underline py-4 touch-manipulation">
                       {item.question}
@@ -102,7 +102,7 @@ const FAQ = () => {
                 ))}
               </Accordion>
 
-              <div className="mt-8 sm:mt-12 p-4 sm:p-6 lg:p-8 rounded-lg bg-card border border-stone text-center">
+              <div className="mt-8 sm:mt-12 p-4 sm:p-6 lg:p-8 rounded-sm bg-card border border-stone text-center">
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-foreground px-2">
                   {t.faq.stillQuestions}
                 </h2>
