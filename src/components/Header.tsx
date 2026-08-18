@@ -132,6 +132,13 @@ const Header = () => {
                   ))}
                 </nav>
                 <div className="mt-6 flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openContactForm()}
+                    className="inline-flex h-11 items-center justify-center rounded-sm bg-brass text-small font-semibold text-ink"
+                  >
+                    Contactează-ne
+                  </button>
                   <a href={PHONE_TEL} className="inline-flex h-11 items-center justify-center gap-2 rounded-sm border border-brass text-small font-medium text-brass">
                     <Phone className="h-4 w-4" /> {PHONE_DISPLAY}
                   </a>
