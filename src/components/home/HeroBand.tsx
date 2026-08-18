@@ -30,6 +30,8 @@ const normalize = normalizeType;
 
 const HeroBand = () => {
   const navigate = useNavigate();
+  const { openContactForm } = useContactDialog();
+
   const [transaction, setTransaction] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [zone, setZone] = useState("");
