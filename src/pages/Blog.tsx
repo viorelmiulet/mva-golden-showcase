@@ -191,17 +191,17 @@ const Blog = () => {
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <div className="max-w-6xl mx-auto">
               {/* Category Filter */}
-              <div className="flex flex-wrap gap-2 mb-8 justify-center">
+              <div className="flex flex-wrap gap-2 mb-8">
                 {categories.map((category) => {
                   const Icon = category.icon;
                   return (
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-sm text-sm font-medium border transition-colors ${
                         selectedCategory === category.id
-                          ? "bg-brass text-primary-foreground "
-                          : "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground"
+                          ? "bg-brass text-paper border-brass"
+                          : "bg-card border-stone text-muted-foreground hover:text-foreground hover:border-brass/50"
                       }`}
                     >
                       <Icon className="h-4 w-4" />
