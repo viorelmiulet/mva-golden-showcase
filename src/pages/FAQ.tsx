@@ -60,20 +60,17 @@ const FAQ = () => {
 
       <Header />
       
-      <main className="min-h-screen pt-20">
+      <main className="min-h-screen pt-16 sm:pt-20">
+        <div className="container mx-auto px-4 lg:px-6 pt-4">
+          <Breadcrumbs items={[{ label: t.faq.title }]} />
+        </div>
+
+        <PageHero eyebrow="ÎNTREBĂRI FRECVENTE" title={t.faq.title} subtitle={t.faq.subtitle} />
+
         <section className="py-12 sm:py-16 bg-background">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-            {/* Breadcrumbs */}
-            <Breadcrumbs items={[{ label: t.faq.title }]} />
-
-            <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground px-2">
-                {t.faq.title}
-              </h1>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground px-4 sm:px-2 mb-6">
-                {t.faq.subtitle}
-              </p>
-              <div className="text-left max-w-3xl mx-auto text-sm sm:text-base text-muted-foreground space-y-3 px-4 sm:px-2">
+            <div className="max-w-4xl mx-auto mb-8 sm:mb-12">
+              <div className="text-left text-sm sm:text-base text-muted-foreground space-y-3">
                 <p>
                   MVA Imobiliare este o agenție imobiliară specializată în tranzacții cu proprietăți din zona Militari, Sector 6 București și Chiajna, Ilfov. 
                   De-a lungul activității noastre, am răspuns la sute de întrebări din partea clienților care doresc să cumpere, să vândă sau să închirieze un apartament în această zonă.
