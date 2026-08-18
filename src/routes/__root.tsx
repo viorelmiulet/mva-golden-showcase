@@ -199,8 +199,11 @@ function RootComponent() {
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
           <TooltipProvider>
-            <AppShell />
+            <ContactDialogProvider>
+              <AppShell />
+            </ContactDialogProvider>
           </TooltipProvider>
+
         </LanguageProvider>
       </QueryClientProvider>
     </HelmetProvider>
