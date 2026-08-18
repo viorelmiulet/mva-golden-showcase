@@ -10,12 +10,14 @@ const PHONE_TEL = "tel:+40767941512"
 const WHATSAPP_URL = "https://wa.me/40767941512"
 
 const navItems = [
-  { name: "Proprietăți", to: "/proprietati", prefetch: "properties" as const },
+  { name: "Vânzare", to: "/proprietati?tranzactie=vanzare", prefetch: "properties" as const },
+  { name: "Închiriere", to: "/proprietati?tranzactie=inchiriere", prefetch: "properties" as const },
   { name: "Ansambluri", to: "/complexe", prefetch: "complexe" as const },
   { name: "Despre noi", to: "/despre-noi", prefetch: undefined },
   { name: "Blog", to: "/blog", prefetch: undefined },
   { name: "Contact", to: "/contact", prefetch: undefined },
 ]
+
 
 const secondaryItems = [
   { name: "Calculator credit", to: "/calculator-credit" },
