@@ -85,15 +85,15 @@
 
   /* Fonts (Fraunces display · Inter UI · IBM Plex Mono data) */
   --font-sans: "Inter", system-ui, sans-serif;
-  --font-serif: "Fraunces", Georgia, serif;
+  --font-serif: "Playfair Display", Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --font-inter: "Inter", system-ui, sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
+  --font-display: "Playfair Display", Georgia, serif;
   --font-spec: "IBM Plex Mono", ui-monospace, monospace;
   /* Legacy aliases -> display face */
-  --font-playfair: "Fraunces", Georgia, serif;
-  --font-cormorant: "Fraunces", Georgia, serif;
-  --font-cinzel: "Fraunces", Georgia, serif;
+  --font-playfair: "Playfair Display", Georgia, serif;
+  --font-cormorant: "Playfair Display", Georgia, serif;
+  --font-cinzel: "Playfair Display", Georgia, serif;
 }
 
 @theme {
@@ -413,8 +413,8 @@
   h1,
   h2,
   h3 {
-    font-family: "Fraunces", Georgia, serif;
-    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1;
+    font-family: "Playfair Display", Georgia, serif;
+    
   }
 
   @media (max-width: 768px) {
@@ -468,8 +468,8 @@
 @layer components {
   /* ---- Type scale ---- */
   .text-display-xl {
-    font-family: "Fraunces", Georgia, serif;
-    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1;
+    font-family: "Playfair Display", Georgia, serif;
+    
     font-weight: 700;
     font-size: 3.25rem;
     line-height: 1.05;
@@ -477,8 +477,8 @@
   }
 
   .text-display-md {
-    font-family: "Fraunces", Georgia, serif;
-    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1;
+    font-family: "Playfair Display", Georgia, serif;
+    
     font-weight: 600;
     font-size: 2rem;
     line-height: 1.15;
