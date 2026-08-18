@@ -281,7 +281,7 @@
     --popover-foreground: var(--ink);
 
     --primary: var(--brass);
-    --primary-foreground: var(--paper);
+    --primary-foreground: var(--ink);
 
     --secondary: var(--stone);
     --secondary-foreground: var(--ink);
@@ -315,7 +315,7 @@
     --surface-dark-foreground: var(--paper);
     --surface-dark-muted: var(--graphite);
 
-    --glass-border: 38 20% 89%;
+    --glass-border: 213 13% 87%;
 
     /* Flat system: no shadows */
     --shadow-glass: none;
