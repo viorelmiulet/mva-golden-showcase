@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "@/lib/router-compat";
+import { useNavigate, Link } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { buildTypeOptions, normalizeType } from "@/lib/propertyType";
+import { useContactDialog } from "@/components/contact/ContactDialogProvider";
+import heroImage from "@/assets/hero-mva.jpg";
+
 
 export const HOME_ZONES = [
   "Militari",
