@@ -413,9 +413,9 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
       <div className="min-h-screen bg-background relative overflow-hidden">
         {/* Background Decorations */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 -left-40 w-80 h-80 hidden rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-40 -right-40 w-96 h-96 hidden rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 hidden rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+          <div className="absolute top-20 -left-40 w-80 h-80 hidden rounded-sm blur-3xl animate-float" />
+          <div className="absolute bottom-40 -right-40 w-96 h-96 hidden rounded-sm blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/3 w-64 h-64 hidden rounded-sm blur-3xl animate-float" style={{ animationDelay: '4s' }} />
         </div>
 
         <Header />
@@ -828,7 +828,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
                                         loading="lazy"
                                       />
                                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                                        <span className="text-[8px] sm:text-[10px] text-white bg-black/60 px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span className="text-[8px] sm:text-[10px] text-white bg-black/60 px-2 py-0.5 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity">
                                           Click pentru mărire
                                         </span>
                                       </div>

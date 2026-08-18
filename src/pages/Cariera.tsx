@@ -194,7 +194,7 @@ const Cariera = () => {
           <Breadcrumbs items={[{ label: t.career.heroTitle }]} />
           {/* Hero Section */}
           <header className="max-w-4xl mx-auto text-center mb-8 sm:mb-12 md:mb-16">
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass border border-brass/20 mb-4 sm:mb-6">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-sm glass border border-brass/20 mb-4 sm:mb-6">
               <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brass" />
               <span className="text-xs sm:text-sm text-brass">{t.career.badge}</span>
             </div>
@@ -243,7 +243,7 @@ const Cariera = () => {
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {t.career.benefitsList.map((benefit, index) => (
                 <div key={index} className="card-responsive text-center p-4 sm:p-6">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 rounded-full bg-brass/10 flex items-center justify-center">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 rounded-sm bg-brass/10 flex items-center justify-center">
                     <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-brass" />
                   </div>
                   <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-2">{benefit.title}</h3>

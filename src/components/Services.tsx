@@ -46,7 +46,7 @@ const Services = () => {
               const Icon = service.icon;
               return (
                 <ScrollReveal key={i} delay={i * 0.08}>
-                  <div className="glass rounded-2xl p-5 sm:p-6 border border-border/50 hover:border-brass/30 transition-colors h-full">
+                  <div className="glass rounded-sm p-5 sm:p-6 border border-border/50 hover:border-brass/30 transition-colors h-full">
                     <Icon className="w-6 h-6 text-brass mb-3" />
                     <h3 className="text-sm sm:text-base font-bold text-foreground mb-2">{service.title}</h3>
                     <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{service.description}</p>

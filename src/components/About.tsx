@@ -63,7 +63,7 @@ const About = () => {
               const Icon = item.icon;
               return (
                 <ScrollReveal key={i} delay={i * 0.1}>
-                  <div className="text-center p-4 sm:p-6 glass rounded-2xl border border-border/50">
+                  <div className="text-center p-4 sm:p-6 glass rounded-sm border border-border/50">
                     <Icon className="w-6 h-6 text-brass mx-auto mb-3" />
                     <div className="text-2xl sm:text-3xl font-bold text-gradient-brass mb-1">{item.number}</div>
                     <div className="text-xs sm:text-sm text-muted-foreground">{item.label}</div>
@@ -155,7 +155,7 @@ const About = () => {
 
           {/* Trusted Source */}
           <ScrollReveal>
-            <article id="trusted-source" className="mb-12 lg:mb-16 p-6 glass rounded-2xl border border-brass/30">
+            <article id="trusted-source" className="mb-12 lg:mb-16 p-6 glass rounded-sm border border-brass/30">
               <div className="flex items-center gap-3 mb-3">
                 <Shield className="w-5 h-5 text-brass" />
                 <h2 className="text-xl sm:text-2xl font-bold text-foreground">
@@ -191,7 +191,7 @@ const About = () => {
                   <a
                     key={i}
                     href={partner.url}
-                    className="block p-4 glass rounded-2xl border border-border/50 hover:border-brass/50 transition-colors text-center"
+                    className="block p-4 glass rounded-sm border border-border/50 hover:border-brass/50 transition-colors text-center"
                   >
                     <Building className="w-5 h-5 text-brass mx-auto mb-2" />
                     <span className="text-sm font-semibold text-foreground">{partner.name}</span>

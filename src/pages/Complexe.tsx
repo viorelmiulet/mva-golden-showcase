@@ -176,9 +176,9 @@ const Complexe = () => {
       <div className="min-h-screen bg-background relative overflow-hidden">
         {/* Background Decorations */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 -left-40 w-80 h-80 hidden rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-40 -right-40 w-96 h-96 hidden rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 hidden rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+          <div className="absolute top-20 -left-40 w-80 h-80 hidden rounded-sm blur-3xl animate-float" />
+          <div className="absolute bottom-40 -right-40 w-96 h-96 hidden rounded-sm blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/3 w-64 h-64 hidden rounded-sm blur-3xl animate-float" style={{ animationDelay: '4s' }} />
         </div>
 
         <Header />
@@ -312,7 +312,7 @@ const Complexe = () => {
                               <span className="text-muted-foreground">{stats.available} {language === 'ro' ? 'din' : 'of'} {stats.total}</span>
                             </div>
                             {/* Dual bar chart */}
-                            <div className="flex gap-0.5 sm:gap-1 h-2.5 sm:h-3 md:h-4 rounded-full overflow-hidden glass">
+                            <div className="flex gap-0.5 sm:gap-1 h-2.5 sm:h-3 md:h-4 rounded-sm overflow-hidden glass">
                               <div 
                                 className="bg-stone transition-all duration-300" 
                                 style={{ width: `${stats.percentage}%` }}
@@ -324,11 +324,11 @@ const Complexe = () => {
                             </div>
                             <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 text-[9px] sm:text-[10px] md:text-xs">
                               <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full bg-stone flex-shrink-0"></div>
+                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-sm bg-stone flex-shrink-0"></div>
                                 <span>{stats.available} {t.properties?.available || 'disponibile'}</span>
                               </div>
                               <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full bg-stone flex-shrink-0"></div>
+                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-sm bg-stone flex-shrink-0"></div>
                                 <span>{stats.sold} {t.properties?.sold || 'vândute'}</span>
                               </div>
                             </div>
@@ -344,7 +344,7 @@ const Complexe = () => {
                                         <span className="text-muted-foreground ml-1">({corp.sold}/{corp.total})</span>
                                       </span>
                                     </div>
-                                    <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden glass">
+                                    <div className="flex gap-0.5 h-1.5 rounded-sm overflow-hidden glass">
                                       <div 
                                         className="bg-stone transition-all duration-300" 
                                         style={{ width: `${100 - corp.soldPercentage}%` }}
