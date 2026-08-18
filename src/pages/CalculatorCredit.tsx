@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import BreadcrumbSchema from '@/components/BreadcrumbSchema';
+import PageHero from '@/components/PageHero';
 import CreditSimulator from '@/components/CreditSimulator';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -36,12 +37,19 @@ const CalculatorIpotecar = () => {
         <meta name="twitter:description" content="Calculează rata lunară pentru creditul tău imobiliar. Simulator complet cu plan de amortizare." />
       </Helmet>
 
-      <div className="min-h-screen" style={{ background: '#0A0C0F' }}>
+      <div className="min-h-screen bg-background">
         <Header />
 
-        <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16">
-          <div className="container mx-auto px-3 sm:px-4">
+        <main className="pt-16 sm:pt-20 pb-8 sm:pb-12 md:pb-16">
+          <div className="container mx-auto px-4 lg:px-6 pt-4">
             <Breadcrumbs items={[{ label: t.nav?.calculator || 'Calculator Credit' }]} />
+          </div>
+          <PageHero
+            eyebrow="INSTRUMENT FINANCIAR"
+            title="Simulator credit"
+            subtitle="Calculează rata lunară, dobânda totală și planul complet de amortizare."
+          />
+          <div className="container mx-auto px-4 lg:px-6 pt-10">
             <CreditSimulator />
           </div>
         </main>
