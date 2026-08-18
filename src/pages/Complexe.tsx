@@ -220,7 +220,7 @@ const Complexe = () => {
                   >
                     <Card className="card-modern overflow-hidden h-full border-glow">
                       {/* Project Image */}
-                      <div className="relative h-40 sm:h-48 md:h-64 bg-brass overflow-hidden">
+                      <div className="relative h-40 sm:h-48 md:h-64 bg-stone overflow-hidden">
                         {project.main_image ? (
                           <img
                             src={project.main_image}
@@ -243,7 +243,7 @@ const Complexe = () => {
                         {/* Recommended Badge */}
                         <div className="absolute top-2 left-2 sm:top-3 sm:left-3 right-2 flex items-center gap-1.5">
                           {project.is_recommended && (
-                            <Badge className="bg-brass text-black font-semibold border-0 text-[10px] sm:text-xs">
+                            <Badge className="bg-brass text-ink font-semibold border-0 rounded-sm text-[10px] sm:text-xs">
                               ⭐ Recomandat
                             </Badge>
                           )}
