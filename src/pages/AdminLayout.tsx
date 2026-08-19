@@ -153,9 +153,10 @@ const AdminHeader = ({
           </button>
         </div>
       ) : (
-        <div className="min-w-0">
-          <h1 className="font-display text-base md:text-lg text-foreground truncate">{pageTitle}</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="font-display text-[17px] leading-tight md:text-lg text-foreground truncate">{pageTitle}</h1>
         </div>
+
       )}
 
       <div className="relative ml-auto hidden lg:block w-full max-w-sm">
