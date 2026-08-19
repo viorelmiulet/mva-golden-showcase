@@ -319,7 +319,7 @@ const DashboardPage = () => {
             </div>
             <div>
               <h1 className="text-lg md:text-2xl font-bold">Dashboard</h1>
-              <p className="text-[11px] md:text-sm text-muted-foreground">Statistici în timp real</p>
+              <p className="text-[11px] md:text-sm text-muted-foreground">Prezentare generală a activității MVA Imobiliare</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -360,12 +360,8 @@ const DashboardPage = () => {
                 ${color === 'gold' ? 'bg-primary/5 border-primary/15 hover:border-primary/30' : ''}
               `}
             >
-              <div className={`p-2 rounded-xl shadow-lg
-                ${color === 'emerald' ? 'bg-gradient-to-br from-emerald-500 to-emerald-600' : ''}
-                ${color === 'blue' ? 'bg-gradient-to-br from-blue-500 to-blue-600' : ''}
-                ${color === 'gold' ? 'bg-gradient-to-br from-primary to-yellow-600' : ''}
-              `}>
-                <Icon className="h-4 w-4 text-white" />
+              <div className="p-2 rounded-xl bg-brass/12 border border-brass/20">
+                <Icon className="h-4 w-4 text-brass" />
               </div>
               <div className="text-center md:text-left flex-1">
                 <p className="text-[11px] md:text-sm font-semibold">{label}</p>
