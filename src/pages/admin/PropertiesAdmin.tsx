@@ -1251,12 +1251,13 @@ const PropertiesAdmin = () => {
       </Card>
 
       <Dialog open={!!editingProperty} onOpenChange={closeEditModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Editează Proprietatea</DialogTitle>
+        <DialogContent className="max-w-3xl w-[100vw] h-[100dvh] max-h-[100dvh] rounded-none p-0 gap-0 sm:w-auto sm:h-auto sm:max-h-[92vh] sm:rounded-lg">
+          <DialogHeader className="border-b border-border/60 px-4 py-3 sm:px-6">
+            <DialogTitle className="text-base sm:text-lg">Editează proprietatea</DialogTitle>
           </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
           {editingProperty && (
-            <div className="flex items-center gap-4 rounded-md border border-border/30 bg-muted/30 px-3 py-2 text-sm">
+            <div className="mb-4 flex items-center gap-4 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-sm">
               <span className="flex items-center gap-1.5 text-muted-foreground">
                 <Eye className="w-4 h-4" /> Vizualizări
               </span>
@@ -1268,39 +1269,13 @@ const PropertiesAdmin = () => {
               </span>
             </div>
           )}
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+          <div className="space-y-6">
+            <FormSection title="Informații generale">
+              <div className="sm:col-span-2">
                 <Label>Titlu</Label>
                 <Input
                   value={editForm.title || ""}
                   onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                />
-              </div>
-              <div className="col-span-2">
-                <Label>Descriere</Label>
-                <Textarea
-                  value={editForm.description || ""}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, description: e.target.value })
-                  }
-                  rows={3}
-                />
-              </div>
-              <div>
-                <Label>Locație</Label>
-                <Input
-                  value={editForm.location || ""}
-                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label>Nume Proiect</Label>
-                <Input
-                  value={editForm.project_name || ""}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, project_name: e.target.value })
-                  }
                 />
               </div>
               <div>
@@ -1309,6 +1284,26 @@ const PropertiesAdmin = () => {
                   type="number"
                   value={editForm.price_min || ""}
                   onChange={(e) => setEditForm({ ...editForm, price_min: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Nume proiect</Label>
+                <Input
+                  value={editForm.project_name || ""}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, project_name: e.target.value })
+                  }
+                />
+              </div>
+            </FormSection>
+
+            <FormSection title="Detalii">
+              <div>
+                <Label>Camere</Label>
+                <Input
+                  type="number"
+                  value={editForm.rooms || ""}
+                  onChange={(e) => setEditForm({ ...editForm, rooms: e.target.value })}
                 />
               </div>
               <div>
@@ -1321,248 +1316,307 @@ const PropertiesAdmin = () => {
                   }
                 />
               </div>
-              <div>
-                <Label>Camere</Label>
+            </FormSection>
+
+            <FormSection title="Locație">
+              <div className="sm:col-span-2">
+                <Label>Locație</Label>
                 <Input
-                  type="number"
-                  value={editForm.rooms || ""}
-                  onChange={(e) => setEditForm({ ...editForm, rooms: e.target.value })}
+                  value={editForm.location || ""}
+                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
                 />
               </div>
-              <div className="col-span-2">
-                <PropertyImageEditor
-                  images={editImages}
-                  onChange={setEditImages}
-                  label="Imagini Proprietate"
-                />
-              </div>
-              <div className="col-span-2">
+            </FormSection>
+
+            <FormSection title="Caracteristici">
+              <div className="sm:col-span-2">
                 <Label>Facilități (separate prin virgulă)</Label>
                 <Input
                   value={editForm.features || ""}
                   onChange={(e) => setEditForm({ ...editForm, features: e.target.value })}
                 />
               </div>
-              <div className="col-span-2">
+              <div className="sm:col-span-2">
                 <Label>Amenajări (separate prin virgulă)</Label>
                 <Input
                   value={editForm.amenities || ""}
                   onChange={(e) => setEditForm({ ...editForm, amenities: e.target.value })}
                 />
               </div>
-              <div className="col-span-2">
+            </FormSection>
+
+            <FormSection title="Descriere">
+              <div className="sm:col-span-2">
+                <Textarea
+                  value={editForm.description || ""}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, description: e.target.value })
+                  }
+                  rows={5}
+                />
+              </div>
+            </FormSection>
+
+            <FormSection title="Media">
+              <div className="sm:col-span-2">
+                <PropertyImageEditor
+                  images={editImages}
+                  onChange={setEditImages}
+                  label="Fotografii"
+                />
+              </div>
+              <div className="sm:col-span-2">
                 <YouTubeVideoField
                   value={editForm.video_manual || ""}
                   onChange={(v) => setEditForm({ ...editForm, video_manual: v })}
                   onClear={() => setEditForm({ ...editForm, video_manual: "" })}
                 />
               </div>
-            </div>
-            <div className="flex flex-wrap gap-2 justify-end">
-              <Button
-                variant="outline"
-                disabled={sendingToGBP}
-                onClick={async () => {
-                  if (!editingProperty) return;
-                  setSendingToGBP(true);
-                  try {
-                    // Read Google webhook URL from settings
-                    const { data: settingsData } = await supabase
-                      .from('site_settings')
-                      .select('value')
-                      .eq('key', 'social_webhooks')
-                      .single();
-                    const webhookSettings = settingsData?.value ? JSON.parse(settingsData.value) : {};
-                    const googleWebhookUrl = webhookSettings.google;
-                    if (!googleWebhookUrl) {
-                      toast({ title: "Eroare", description: "Configurează webhook-ul Google Business Profile din Marketing AI.", variant: "destructive" });
-                      setSendingToGBP(false);
-                      return;
-                    }
-                    const slug = generatePropertySlug({
-                      id: editingProperty.id,
-                      rooms: editingProperty.rooms,
-                      project_name: editingProperty.project_name,
-                      zone: editingProperty.zone,
-                      location: editingProperty.location,
-                    });
-                    const images = Array.isArray(editingProperty.images) ? editingProperty.images : [];
-                    const res = await fetch(googleWebhookUrl, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        title: editingProperty.title || "",
-                        price: editingProperty.price_min || 0,
-                        rooms: editingProperty.rooms || 0,
-                        surface: editingProperty.surface_min || 0,
-                        slug,
-                        url: `https://www.mvaimobiliare.ro/proprietati/${slug}`,
-                        image: images[0] || "",
-                        description: editingProperty.description || "",
-                      }),
-                    });
-                    if (!res.ok) throw new Error("Request failed");
-                    toast({ title: "Succes!", description: "Proprietatea a fost trimisă pe Google Business Profile!" });
-                  } catch {
-                    toast({ title: "Eroare", description: "Eroare la trimitere. Încearcă din nou.", variant: "destructive" });
-                  } finally {
-                    setSendingToGBP(false);
+            </FormSection>
+
+            <FormSection title="Publicare">
+              <div className="sm:col-span-2 flex flex-wrap items-center gap-3">
+                <Switch
+                  checked={editingProperty?.is_published !== false}
+                  onCheckedChange={() =>
+                    editingProperty &&
+                    toggleVisibility(editingProperty.id, editingProperty.is_published !== false)
                   }
-                }}
-                className="border-brass text-brass hover:bg-brass hover:text-black transition-all"
-              >
-                {sendingToGBP ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4 mr-2" />
-                )}
-                Postează pe Google Business Profile
-              </Button>
-              <Button variant="outline" onClick={closeEditModal}>
-                Anulează
-              </Button>
-              <Button onClick={updateProperty} disabled={isUpdating} variant="luxury">
-                {isUpdating ? (
-                  <>
+                  disabled={togglingVisibility === editingProperty?.id}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {editingProperty?.is_published !== false ? "Vizibilă pe site" : "Ascunsă de pe site"}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={sendingToGBP}
+                  onClick={async () => {
+                    if (!editingProperty) return;
+                    setSendingToGBP(true);
+                    try {
+                      // Read Google webhook URL from settings
+                      const { data: settingsData } = await supabase
+                        .from('site_settings')
+                        .select('value')
+                        .eq('key', 'social_webhooks')
+                        .single();
+                      const webhookSettings = settingsData?.value ? JSON.parse(settingsData.value) : {};
+                      const googleWebhookUrl = webhookSettings.google;
+                      if (!googleWebhookUrl) {
+                        toast({ title: "Eroare", description: "Configurează webhook-ul Google Business Profile din Marketing AI.", variant: "destructive" });
+                        setSendingToGBP(false);
+                        return;
+                      }
+                      const slug = generatePropertySlug({
+                        id: editingProperty.id,
+                        rooms: editingProperty.rooms,
+                        project_name: editingProperty.project_name,
+                        zone: editingProperty.zone,
+                        location: editingProperty.location,
+                      });
+                      const images = Array.isArray(editingProperty.images) ? editingProperty.images : [];
+                      const res = await fetch(googleWebhookUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          title: editingProperty.title || "",
+                          price: editingProperty.price_min || 0,
+                          rooms: editingProperty.rooms || 0,
+                          surface: editingProperty.surface_min || 0,
+                          slug,
+                          url: `https://www.mvaimobiliare.ro/proprietati/${slug}`,
+                          image: images[0] || "",
+                          description: editingProperty.description || "",
+                        }),
+                      });
+                      if (!res.ok) throw new Error("Request failed");
+                      toast({ title: "Succes!", description: "Proprietatea a fost trimisă pe Google Business Profile!" });
+                    } catch {
+                      toast({ title: "Eroare", description: "Eroare la trimitere. Încearcă din nou.", variant: "destructive" });
+                    } finally {
+                      setSendingToGBP(false);
+                    }
+                  }}
+                  className="ml-auto border-brass/40 text-brass hover:bg-brass/10"
+                >
+                  {sendingToGBP ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Se salvează...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Salvează
-                  </>
-                )}
-              </Button>
-            </div>
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  Google Business Profile
+                </Button>
+              </div>
+            </FormSection>
+          </div>
+          </div>
+          <div className="sticky bottom-0 flex gap-2 border-t border-border/60 bg-background px-4 py-3 sm:px-6">
+            <Button variant="outline" onClick={closeEditModal} className="flex-1 sm:flex-none h-11">
+              Anulează
+            </Button>
+            <Button
+              onClick={updateProperty}
+              disabled={isUpdating}
+              className="flex-1 sm:flex-none sm:ml-auto h-11 bg-brass text-black hover:bg-brass/90"
+            >
+              {isUpdating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Se salvează...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Salvează modificările
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Add Property Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Adaugă Proprietate Manual</DialogTitle>
+        <DialogContent className="max-w-3xl w-[100vw] h-[100dvh] max-h-[100dvh] rounded-none p-0 gap-0 sm:w-auto sm:h-auto sm:max-h-[92vh] sm:rounded-lg">
+          <DialogHeader className="border-b border-border/60 px-4 py-3 sm:px-6">
+            <DialogTitle className="text-base sm:text-lg">Adaugă proprietate</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <Label>Titlu *</Label>
-                <Input
-                  value={addForm.title}
-                  onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
-                  placeholder="Ex: Apartament 2 camere central"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label>Descriere</Label>
-                <Textarea
-                  value={addForm.description}
-                  onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
-                  rows={3}
-                  placeholder="Descriere detaliată a proprietății..."
-                />
-              </div>
-              <div>
-                <Label>Locație *</Label>
-                <Input
-                  value={addForm.location}
-                  onChange={(e) => setAddForm({ ...addForm, location: e.target.value })}
-                  placeholder="Ex: București, Sector 1"
-                />
-              </div>
-              <div>
-                <Label>Nume Proiect</Label>
-                <Input
-                  value={addForm.project_name}
-                  onChange={(e) => setAddForm({ ...addForm, project_name: e.target.value })}
-                  placeholder="Ex: Residence Park"
-                />
-              </div>
-              <div>
-                <Label>Preț (€) *</Label>
-                <Input
-                  type="number"
-                  value={addForm.price_min}
-                  onChange={(e) => setAddForm({ ...addForm, price_min: e.target.value })}
-                  placeholder="85000"
-                />
-              </div>
-              <div>
-                <Label>Suprafață (mp)</Label>
-                <Input
-                  type="number"
-                  value={addForm.surface_min}
-                  onChange={(e) => setAddForm({ ...addForm, surface_min: e.target.value })}
-                  placeholder="55"
-                />
-              </div>
-              <div>
-                <Label>Camere *</Label>
-                <Input
-                  type="number"
-                  value={addForm.rooms}
-                  onChange={(e) => setAddForm({ ...addForm, rooms: e.target.value })}
-                  placeholder="2"
-                />
-              </div>
-              <div className="col-span-2">
-                <PropertyImageEditor
-                  images={addImages}
-                  onChange={setAddImages}
-                  label="Imagini Proprietate"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label>Facilități (separate prin virgulă)</Label>
-                <Input
-                  value={addForm.features}
-                  onChange={(e) => setAddForm({ ...addForm, features: e.target.value })}
-                  placeholder="Balcon, Parcare, Centrală proprie"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label>Amenajări (separate prin virgulă)</Label>
-                <Input
-                  value={addForm.amenities}
-                  onChange={(e) => setAddForm({ ...addForm, amenities: e.target.value })}
-                  placeholder="Lift, Pază, Interfon"
-                />
-              </div>
-              <div className="col-span-2">
-                <YouTubeVideoField
-                  value={addForm.video_manual}
-                  onChange={(v) => setAddForm({ ...addForm, video_manual: v })}
-                  onClear={() => setAddForm({ ...addForm, video_manual: "" })}
-                />
-              </div>
+          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+            <div className="space-y-6">
+              <FormSection title="Informații generale">
+                <div className="sm:col-span-2">
+                  <Label>Titlu *</Label>
+                  <Input
+                    value={addForm.title}
+                    onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                    placeholder="Ex: Apartament 2 camere central"
+                  />
+                </div>
+                <div>
+                  <Label>Preț (€) *</Label>
+                  <Input
+                    type="number"
+                    value={addForm.price_min}
+                    onChange={(e) => setAddForm({ ...addForm, price_min: e.target.value })}
+                    placeholder="85000"
+                  />
+                </div>
+                <div>
+                  <Label>Nume proiect</Label>
+                  <Input
+                    value={addForm.project_name}
+                    onChange={(e) => setAddForm({ ...addForm, project_name: e.target.value })}
+                    placeholder="Ex: Residence Park"
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="Detalii">
+                <div>
+                  <Label>Camere *</Label>
+                  <Input
+                    type="number"
+                    value={addForm.rooms}
+                    onChange={(e) => setAddForm({ ...addForm, rooms: e.target.value })}
+                    placeholder="2"
+                  />
+                </div>
+                <div>
+                  <Label>Suprafață (mp)</Label>
+                  <Input
+                    type="number"
+                    value={addForm.surface_min}
+                    onChange={(e) => setAddForm({ ...addForm, surface_min: e.target.value })}
+                    placeholder="55"
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="Locație">
+                <div className="sm:col-span-2">
+                  <Label>Locație *</Label>
+                  <Input
+                    value={addForm.location}
+                    onChange={(e) => setAddForm({ ...addForm, location: e.target.value })}
+                    placeholder="Ex: București, Sector 1"
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="Caracteristici">
+                <div className="sm:col-span-2">
+                  <Label>Facilități (separate prin virgulă)</Label>
+                  <Input
+                    value={addForm.features}
+                    onChange={(e) => setAddForm({ ...addForm, features: e.target.value })}
+                    placeholder="Balcon, Parcare, Centrală proprie"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <Label>Amenajări (separate prin virgulă)</Label>
+                  <Input
+                    value={addForm.amenities}
+                    onChange={(e) => setAddForm({ ...addForm, amenities: e.target.value })}
+                    placeholder="Lift, Pază, Interfon"
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="Descriere">
+                <div className="sm:col-span-2">
+                  <Textarea
+                    value={addForm.description}
+                    onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                    rows={5}
+                    placeholder="Descriere detaliată a proprietății..."
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="Media">
+                <div className="sm:col-span-2">
+                  <PropertyImageEditor
+                    images={addImages}
+                    onChange={setAddImages}
+                    label="Fotografii"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <YouTubeVideoField
+                    value={addForm.video_manual}
+                    onChange={(v) => setAddForm({ ...addForm, video_manual: v })}
+                    onClear={() => setAddForm({ ...addForm, video_manual: "" })}
+                  />
+                </div>
+              </FormSection>
             </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-                Anulează
-              </Button>
-              <Button
-                onClick={addProperty}
-                disabled={isAdding}
-                className="bg-brass hover:bg-brass/90 text-black"
-              >
-                {isAdding ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Se adaugă...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Adaugă Proprietate
-                  </>
-                )}
-              </Button>
-            </div>
+          </div>
+          <div className="sticky bottom-0 flex gap-2 border-t border-border/60 bg-background px-4 py-3 sm:px-6">
+            <Button variant="outline" onClick={() => setShowAddDialog(false)} className="flex-1 sm:flex-none h-11">
+              Anulează
+            </Button>
+            <Button
+              onClick={addProperty}
+              disabled={isAdding}
+              className="flex-1 sm:flex-none sm:ml-auto h-11 bg-brass text-black hover:bg-brass/90"
+            >
+              {isAdding ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Se adaugă...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Salvează proprietatea
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
+
 
       {/* Platform Selection Dialog */}
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
