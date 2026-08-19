@@ -325,8 +325,8 @@ const DashboardPage = () => {
     queryFn: async () => {
       const [props, clients, viewings] = await Promise.all([
         supabase.from('catalog_offers').select('id, title, created_at').order('created_at', { ascending: false }).limit(5),
-        adminApi.select<{ id: string; name: string | null; created_at: string }>('clients', { orderBy: 'created_at', ascending: false, limit: 5 }),
-        adminApi.select<{ id: string; name: string | null; property_title: string | null; created_at: string }>('viewing_appointments', { orderBy: 'created_at', ascending: false, limit: 5 }),
+        adminApi.select<{ id: string; name: string | null; created_at: string }>('clients', { orderBy: 'created_at', ascending: false }),
+        adminApi.select<{ id: string; name: string | null; property_title: string | null; created_at: string }>('viewing_appointments', { orderBy: 'created_at', ascending: false }),
       ]);
       const items: { id: string; kind: 'property' | 'client' | 'viewing' | 'contract'; text: string; entity: string; at: string }[] = [];
       (props.data || []).forEach((p: any) => items.push({ id: `p-${p.id}`, kind: 'property', text: 'Proprietate adăugată', entity: p.title, at: p.created_at }));
