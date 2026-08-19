@@ -27,6 +27,10 @@ import {
    Inbox,
    Maximize2,
    Minimize2,
+   Menu,
+   MoreVertical,
+   MailOpen,
+   FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -61,6 +65,13 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { adminDb } from "@/lib/adminDb";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useEmailThreads } from "@/hooks/useEmailThreads";
 import { invokeEmailOpsFn } from "@/lib/emailOpsInvoke";
 
@@ -1175,7 +1186,7 @@ ${originalBody}`;
 
       {/* Reply Dialog */}
       <Dialog open={replyDialogOpen} onOpenChange={setReplyDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-background border-border max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent className="sm:max-w-[600px] bg-background border-border h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[90vh] rounded-none sm:rounded-lg flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Reply className="h-5 w-5 text-primary" />
@@ -1296,7 +1307,7 @@ ${originalBody}`;
 
       {/* Forward Dialog */}
       <Dialog open={forwardDialogOpen} onOpenChange={setForwardDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-background border-border max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent className="sm:max-w-[600px] bg-background border-border h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[90vh] rounded-none sm:rounded-lg flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Forward className="h-5 w-5 text-primary" />
