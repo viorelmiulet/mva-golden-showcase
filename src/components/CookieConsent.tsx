@@ -337,12 +337,12 @@ const CookieConsent = () => {
           rejectAll();
         }
       }}
-      className="fixed inset-x-0 bottom-0 z-[100] flex justify-center p-3 sm:p-4 pointer-events-none"
+      className="fixed inset-x-0 bottom-0 z-[100] flex justify-center p-0 sm:p-4 pointer-events-none"
     >
       <Card
         ref={panelRef}
         tabIndex={-1}
-        className="pointer-events-auto w-full max-w-2xl outline-none rounded-sm border border-stone bg-paper p-4 sm:p-5 shadow-none">
+        className="pointer-events-auto w-full max-w-2xl outline-none rounded-t-2xl sm:rounded-sm border border-b-0 sm:border-b border-stone bg-paper p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-5 shadow-lg sm:shadow-none max-h-[70dvh] overflow-y-auto">
         <div className="flex items-start gap-3">
           <Cookie className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
           <div className="flex-1 min-w-0">
@@ -386,15 +386,15 @@ const CookieConsent = () => {
               </div>
             )}
 
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <Button size="sm" onClick={acceptAll} className="text-xs">
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:flex sm:flex-wrap sm:items-center">
+              <Button size="sm" onClick={acceptAll} className="min-h-11 w-full text-xs sm:w-auto">
                 {t.acceptAll}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={rejectAll}
-                className="min-h-11 text-xs"
+                className="min-h-11 w-full text-xs sm:w-auto"
               >
                 {t.rejectAll}
               </Button>
@@ -403,7 +403,7 @@ const CookieConsent = () => {
                   size="sm"
                   variant="secondary"
                   onClick={saveCustom}
-                  className="min-h-11 text-xs"
+                  className="min-h-11 w-full text-xs sm:w-auto"
                 >
                   {t.save}
                 </Button>
@@ -414,7 +414,7 @@ const CookieConsent = () => {
                   onClick={() => setShowDetails(true)}
                   aria-expanded={false}
                   aria-controls={detailsId}
-                  className="min-h-11 text-xs"
+                  className="min-h-11 w-full text-xs sm:w-auto"
                 >
                   {t.customize}
                   <ChevronDown className="ml-1 h-3 w-3" />

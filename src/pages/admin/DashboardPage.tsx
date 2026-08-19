@@ -378,26 +378,29 @@ const DashboardPage = () => {
         </div>
 
         {/* Quick Actions - compact */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Link to="/admin/proprietati" className="min-w-0">
-            <Button className="h-10 gap-2 bg-brass text-ink hover:bg-brass/90">
+        <div className="space-y-2 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:space-y-0">
+          <Link to="/admin/proprietati" className="block">
+            <Button className="h-11 w-full gap-2 bg-brass text-ink hover:bg-brass/90 sm:w-auto sm:h-10">
               <Plus className="h-4 w-4" />
               Adaugă proprietate
             </Button>
           </Link>
-          <Link to="/admin/import-xml">
-            <Button variant="outline" className="h-10 gap-2">
-              <FileSpreadsheet className="h-4 w-4 text-brass" />
-              Import
-            </Button>
-          </Link>
-          <Link to="/admin/comisioane">
-            <Button variant="outline" className="h-10 gap-2">
-              <Coins className="h-4 w-4 text-brass" />
-              Comisioane
-            </Button>
-          </Link>
+          <div className="grid grid-cols-2 gap-2 sm:contents">
+            <Link to="/admin/import-xml" className="block">
+              <Button variant="outline" className="h-11 w-full gap-2 sm:w-auto sm:h-10">
+                <FileSpreadsheet className="h-4 w-4 text-brass" />
+                Import
+              </Button>
+            </Link>
+            <Link to="/admin/comisioane" className="block">
+              <Button variant="outline" className="h-11 w-full gap-2 sm:w-auto sm:h-10">
+                <Coins className="h-4 w-4 text-brass" />
+                Comisioane
+              </Button>
+            </Link>
+          </div>
         </div>
+
 
         {/* KPI principali */}
         <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-5">
