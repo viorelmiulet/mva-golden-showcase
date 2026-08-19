@@ -216,15 +216,108 @@ const PropertiesAdmin = () => {
     },
   });
 
-  // Sorting, including by view counts from `property_views`.
+  // Quick stats over the full (unfiltered) list.
+  const stats = useMemo(() => {
+    const base = { active: 0, hidden: 0, sold: 0, rented: 0 };
+    (rawProperties ?? []).forEach((p: any) => { base[statusOf(p)] += 1; });
+    return base;
+  }, [rawProperties]);
+
+  const typeOptions = useMemo(
+    () => [...new Set((rawProperties ?? []).map((p: any) => p.property_type).filter(Boolean))].sort(),
+    [rawProperties]
+  );
+  const zoneOptions = useMemo(
+    () => [...new Set((rawProperties ?? []).map((p: any) => p.zone || p.city).filter(Boolean))].sort(),
+    [rawProperties]
+  );
+  const roomOptions = useMemo(
+    () => [...new Set((rawProperties ?? []).map((p: any) => p.rooms).filter(Boolean))].sort((a: any, b: any) => a - b),
+    [rawProperties]
+  );
+
+  // Filtering + sorting, including by view counts from `property_views`.
   const properties = useMemo(() => {
     if (!rawProperties) return rawProperties;
-    const list = [...rawProperties];
+    const q = search.trim().toLowerCase();
+    let list = rawProperties.filter((p: any) => {
+      if (statusFilter !== "all" && statusOf(p) !== statusFilter) return false;
+      if (typeFilter !== "all" && p.property_type !== typeFilter) return false;
+      if (txFilter !== "all" && (p.transaction_type || "sale") !== txFilter) return false;
+      if (zoneFilter !== "all" && (p.zone || p.city) !== zoneFilter) return false;
+      if (roomsFilter !== "all" && String(p.rooms) !== roomsFilter) return false;
+      if (q) {
+        const hay = [p.title, p.location, p.zone, p.city, p.project_name, p.external_id, p.id]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    list = [...list];
     const v = (id: string) => viewCounts?.[id] ?? { total: 0, last7: 0 };
     if (sortBy === "views_total") list.sort((a, b) => v(b.id).total - v(a.id).total);
     else if (sortBy === "views_7d") list.sort((a, b) => v(b.id).last7 - v(a.id).last7);
+    else if (sortBy === "price_asc") list.sort((a: any, b: any) => (a.price_min ?? 0) - (b.price_min ?? 0));
+    else if (sortBy === "price_desc") list.sort((a: any, b: any) => (b.price_min ?? 0) - (a.price_min ?? 0));
+    else if (sortBy === "surface_desc") list.sort((a: any, b: any) => (b.surface_min ?? 0) - (a.surface_min ?? 0));
+    else if (sortBy === "oldest")
+      list.sort((a: any, b: any) => Date.parse(a.created_at) - Date.parse(b.created_at));
     return list;
-  }, [rawProperties, viewCounts, sortBy]);
+  }, [rawProperties, viewCounts, sortBy, search, statusFilter, typeFilter, txFilter, zoneFilter, roomsFilter]);
+
+  const activeFilters =
+    (statusFilter !== "all" ? 1 : 0) +
+    (typeFilter !== "all" ? 1 : 0) +
+    (txFilter !== "all" ? 1 : 0) +
+    (zoneFilter !== "all" ? 1 : 0) +
+    (roomsFilter !== "all" ? 1 : 0);
+
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setTypeFilter("all");
+    setTxFilter("all");
+    setZoneFilter("all");
+    setRoomsFilter("all");
+    setSearch("");
+  };
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter, typeFilter, txFilter, zoneFilter, roomsFilter, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil((properties?.length ?? 0) / PAGE_SIZE));
+  const pageItems = useMemo(
+    () => (properties ?? []).slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [properties, page]
+  );
+
+  const duplicateProperty = async (property: any) => {
+    setDuplicatingId(property.id);
+    try {
+      const {
+        id, created_at, updated_at, slug, legacy_slug, immoflux_slug, homedirect_id,
+        homedirect_short_id, homedirect_status, homedirect_synced_at, external_id,
+        date_added, ...rest
+      } = property;
+      const { data, error } = await invokeAdminFn("admin-offers", {
+        body: {
+          action: "insert_offer",
+          offer: { ...rest, title: `${property.title} (copie)`, is_published: false },
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Insert failed");
+      toast({ title: "Duplicat creat", description: "Copia a fost salvată ca ascunsă." });
+      queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+    } catch (e: any) {
+      toast({ title: "Eroare", description: e?.message || "Nu am putut duplica proprietatea", variant: "destructive" });
+    } finally {
+      setDuplicatingId(null);
+    }
+  };
+
 
   const deleteProperty = async (id: string) => {
     setDeletingId(id);
