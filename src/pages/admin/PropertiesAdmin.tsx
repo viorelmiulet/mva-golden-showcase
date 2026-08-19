@@ -1,6 +1,6 @@
 import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useAllPropertyViews } from "@/hooks/usePropertyViews";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { toast as sonnerToast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
