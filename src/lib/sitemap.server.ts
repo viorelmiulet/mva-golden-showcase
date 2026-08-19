@@ -200,6 +200,7 @@ export async function buildPropertiesSitemap(): Promise<string> {
     .from("catalog_offers")
     .select("id, slug, updated_at")
     .eq("is_published", true)
+    .is("project_id", null)
     .not("slug", "is", null)
     .order("updated_at", { ascending: false })
     .limit(5000);
@@ -221,6 +222,7 @@ export async function buildProprietatiSitemap(): Promise<string> {
     .from("catalog_offers")
     .select("id, title, slug, immoflux_slug, images, updated_at")
     .eq("is_published", true)
+    .is("project_id", null)
     .neq("availability_status", "sold")
     .order("updated_at", { ascending: false })
     .limit(10000);
