@@ -476,7 +476,7 @@ const DashboardPage = () => {
 
         {/* Secondary Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-          <MiniCard icon={DollarSign} label="Comision Mediu" value={`${(commissionsData?.avgEUR || 0).toLocaleString()} €`} color="bg-yellow-500" loading={loadingCommissions} />
+          <MiniCard icon={DollarSign} label="Comision Mediu" value={`${(commissionsData?.avgEUR || 0).toLocaleString()} €`} color="bg-brass" loading={loadingCommissions} />
           <MiniCard icon={BarChart3} label="YTD Comisioane" value={`${(commissionsData?.ytdEUR || 0).toLocaleString()} €`} color="bg-brass" loading={loadingCommissions} />
           <Link to="/admin/inbox">
             <MiniCard icon={Mail} label="Email-uri necitite" value={emailsData?.unread || 0} color="bg-red-500" loading={loadingEmails} highlight={!!emailsData?.unread && emailsData.unread > 0} />
@@ -782,7 +782,7 @@ const MiniCard = ({ icon: Icon, label, value, color, loading, badge, highlight, 
   <div className={`admin-glass-card hover:scale-[1.01] transition-all duration-200 ${highlight ? 'ring-1 ring-destructive/30' : ''}`}>
     <div className="p-3 md:p-4 flex items-center gap-2.5 md:gap-3">
       <div className={`p-1.5 md:p-2 rounded-lg ${color} shadow-lg shrink-0`}>
-        <Icon className="h-3.5 w-3.5 md:h-4 md:w-4 text-white" />
+        <Icon className="h-3.5 w-3.5 md:h-4 md:w-4 text-ink" />
       </div>
       <div className="min-w-0 flex-1">
         {loading ? (
