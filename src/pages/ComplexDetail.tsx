@@ -166,10 +166,6 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
   }
 
   const complexVideos = developmentVideos(project);
-  const linkableProperties = ((properties as any[]) || [])
-    .filter((p: any) => p.is_published !== false && p.availability_status !== "sold" && p.slug)
-    .slice(0, 12);
-
   // Helper function to extract apartment number numerically
   const getApartmentNumber = (title: string): number => {
     // Match "AP 21", "Apartament 21", "ap21", "- AP 48", etc.
@@ -893,8 +889,6 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
                   <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
                 </div>
               )}
-
-          {/* Crawlable links to the individual unit pages */}
 
           {/* Related Blog Posts */}
           <RelatedBlogPosts complexName={project.name} />
