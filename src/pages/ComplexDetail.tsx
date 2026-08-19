@@ -41,7 +41,6 @@ import { getComplexUrl, isUUID } from "@/lib/complexSlug";
 import NotFound from "@/pages/NotFound";
 import ComplexFAQ, { generateComplexFAQSchema } from "@/components/ComplexFAQ";
 import RelatedBlogPosts from "@/components/RelatedBlogPosts";
-import ComplexPropertyLinks from "@/components/ComplexPropertyLinks";
 import ComplexVideoSection from "@/components/ComplexVideoSection";
 import { developmentVideos } from "@/lib/videoEmbed";
 
@@ -896,7 +895,6 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
               )}
 
           {/* Crawlable links to the individual unit pages */}
-          <ComplexPropertyLinks properties={linkableProperties} complexName={project.name} development={project} />
 
           {/* Related Blog Posts */}
           <RelatedBlogPosts complexName={project.name} />
