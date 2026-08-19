@@ -330,8 +330,8 @@ const DashboardPage = () => {
       ]);
       const items: { id: string; kind: 'property' | 'client' | 'viewing' | 'contract'; text: string; entity: string; at: string }[] = [];
       (props.data || []).forEach((p: any) => items.push({ id: `p-${p.id}`, kind: 'property', text: 'Proprietate adăugată', entity: p.title, at: p.created_at }));
-      (clients.success ? clients.data || [] : []).forEach((c) => items.push({ id: `c-${c.id}`, kind: 'client', text: 'Lead nou înregistrat', entity: c.name || 'Client', at: c.created_at }));
-      (viewings.success ? viewings.data || [] : []).forEach((v) => items.push({ id: `v-${v.id}`, kind: 'viewing', text: 'Vizionare programată', entity: v.property_title || v.name || 'Vizionare', at: v.created_at }));
+      (clients.success ? (clients.data || []).slice(0, 5) : []).forEach((c) => items.push({ id: `c-${c.id}`, kind: 'client', text: 'Lead nou înregistrat', entity: c.name || 'Client', at: c.created_at }));
+      (viewings.success ? (viewings.data || []).slice(0, 5) : []).forEach((v) => items.push({ id: `v-${v.id}`, kind: 'viewing', text: 'Vizionare programată', entity: v.property_title || v.name || 'Vizionare', at: v.created_at }));
       return items.filter(i => !!i.at).sort((a, b) => +parseISO(b.at) - +parseISO(a.at)).slice(0, 8);
     }
   });
