@@ -291,7 +291,53 @@ const DashboardPage = () => {
     }
   });
 
+  // Fetch contracts (real data)
+  const { data: contractsData, isLoading: loadingContracts } = useQuery({
+    queryKey: ['dashboard', 'contracts'],
+    queryFn: async () => {
+      const result = await adminApi.select<{ id: string; created_at: string; contract_type: string; client_name: string; property_address: string }>('contracts', { orderBy: 'created_at', ascending: false });
+      if (!result.success) throw new Error(result.error);
+      const data = result.data || [];
+      const monthStart = startOfMonth(new Date());
+      const thisMonth = data.filter(c => c.created_at && parseISO(c.created_at) >= monthStart).length;
+      return { total: data.length, thisMonth, recent: data.slice(0, 5) };
+    }
+  });
+
+  // Recent properties (real data)
+  const { data: recentProperties, isLoading: loadingRecent } = useQuery({
+    queryKey: ['dashboard', 'recent-properties'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('catalog_offers')
+        .select('id, title, zone, city, price_min, currency, availability_status, images, slug, created_at, updated_at')
+        .is('project_id', null)
+        .order('updated_at', { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
+  // Recent activity (real data only)
+  const { data: activityData, isLoading: loadingActivity } = useQuery({
+    queryKey: ['dashboard', 'activity'],
+    queryFn: async () => {
+      const [props, clients, viewings] = await Promise.all([
+        supabase.from('catalog_offers').select('id, title, created_at').order('created_at', { ascending: false }).limit(5),
+        adminApi.select<{ id: string; name: string | null; created_at: string }>('clients', { orderBy: 'created_at', ascending: false, limit: 5 }),
+        adminApi.select<{ id: string; name: string | null; property_title: string | null; created_at: string }>('viewing_appointments', { orderBy: 'created_at', ascending: false, limit: 5 }),
+      ]);
+      const items: { id: string; kind: 'property' | 'client' | 'viewing' | 'contract'; text: string; entity: string; at: string }[] = [];
+      (props.data || []).forEach((p: any) => items.push({ id: `p-${p.id}`, kind: 'property', text: 'Proprietate adăugată', entity: p.title, at: p.created_at }));
+      (clients.success ? clients.data || [] : []).forEach((c) => items.push({ id: `c-${c.id}`, kind: 'client', text: 'Lead nou înregistrat', entity: c.name || 'Client', at: c.created_at }));
+      (viewings.success ? viewings.data || [] : []).forEach((v) => items.push({ id: `v-${v.id}`, kind: 'viewing', text: 'Vizionare programată', entity: v.property_title || v.name || 'Vizionare', at: v.created_at }));
+      return items.filter(i => !!i.at).sort((a, b) => +parseISO(b.at) - +parseISO(a.at)).slice(0, 8);
+    }
+  });
+
   const tooltipStyle = {
+
     backgroundColor: 'hsl(var(--card))',
     border: '1px solid hsl(var(--border))',
     borderRadius: '10px',
