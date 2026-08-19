@@ -34,6 +34,15 @@ import {
   Maximize,
   MapPin,
   RefreshCw,
+  Search,
+  SlidersHorizontal,
+  LayoutGrid,
+  List as ListIcon,
+  MoreVertical,
+  Copy,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, isPoleProperty, type ImmofluxProperty } from "@/hooks/useImmoflux";
@@ -48,6 +57,53 @@ import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicato
 import PropertyImageEditor from "@/components/admin/PropertyImageEditor";
 import { Checkbox } from "@/components/ui/checkbox";
 import { enqueueOfferToFacebook } from "@/lib/facebookQueue";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const PAGE_SIZE = 24;
+
+type PropStatus = "active" | "hidden" | "sold" | "rented";
+
+const statusOf = (p: any): PropStatus => {
+  if (p?.is_published === false) return "hidden";
+  if (p?.availability_status === "sold" || p?.availability_status === "rezervat")
+    return p?.transaction_type === "rent" ? "rented" : "sold";
+  return "active";
+};
+
+const STATUS_META: Record<PropStatus, { label: string; className: string }> = {
+  active: { label: "Activă", className: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30" },
+  hidden: { label: "Ascunsă", className: "bg-muted text-muted-foreground border-border" },
+  sold: { label: "Vândută", className: "bg-rose-500/15 text-rose-700 border-rose-500/30" },
+  rented: { label: "Închiriată", className: "bg-blue-500/15 text-blue-700 border-blue-500/30" },
+};
+
+const StatusPill = ({ status }: { status: PropStatus }) => (
+  <Badge variant="outline" className={`text-[10px] font-medium px-2 py-0.5 ${STATUS_META[status].className}`}>
+    {STATUS_META[status].label}
+  </Badge>
+);
+
+const FormSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <section className="rounded-xl border border-border/60 bg-card/50 p-4">
+    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</h4>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>
+  </section>
+);
+
+const StatCard = ({ label, value, tone }: { label: string; value: number; tone: string }) => (
+  <div className="rounded-xl border border-border/60 bg-card px-3 py-2.5 sm:px-4 sm:py-3">
+    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
+    <p className={`mt-0.5 text-xl font-bold sm:text-2xl ${tone}`}>{value}</p>
+  </div>
+);
 
 const PropertiesAdmin = () => {
   const { data: immofluxSlugMap } = useImmofluxSlugMap();
