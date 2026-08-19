@@ -109,7 +109,18 @@ const PropertiesAdmin = () => {
   const { data: immofluxSlugMap } = useImmofluxSlugMap();
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
-  const [sortBy, setSortBy] = useState<"recent" | "views_total" | "views_7d">("recent");
+  const [sortBy, setSortBy] = useState<
+    "recent" | "oldest" | "price_asc" | "price_desc" | "surface_desc" | "views_total" | "views_7d"
+  >("recent");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | PropStatus>("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [txFilter, setTxFilter] = useState("all");
+  const [zoneFilter, setZoneFilter] = useState("all");
+  const [roomsFilter, setRoomsFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [page, setPage] = useState(1);
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   // IMMOFLUX properties
   const [immofluxPage, setImmofluxPage] = useState(1);
