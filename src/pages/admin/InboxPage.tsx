@@ -1116,409 +1116,8 @@ ${originalBody}`;
     { key: 'trash' as const, label: 'Coș', icon: Trash2, count: trashCount },
   ];
 
-  // Mobile Layout
-  if (isMobile) {
-    return (
-      <div className="h-[calc(100vh-120px)] flex flex-col bg-background relative">
-        {mobileView === 'list' ? (
-          <>
-            {/* Compact mobile header */}
-            <div className="flex items-center gap-2 px-3 py-2 border-b border-border/10 bg-background/95 backdrop-blur-md sticky top-0 z-40">
-              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-brass to-brass-dark flex items-center justify-center shadow-sm shrink-0">
-                <span className="text-primary-foreground font-bold text-[10px]">M</span>
-              </div>
-              <div className={cn(
-                "flex-1 relative flex items-center rounded-lg h-9 transition-all",
-                "bg-muted/40 border border-transparent focus-within:bg-background focus-within:border-border/40 focus-within:shadow-md"
-              )}>
-                <Search className="h-3.5 w-3.5 text-muted-foreground ml-2.5 shrink-0" />
-                <Input
-                  type="text"
-                  placeholder="Caută..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-sm placeholder:text-muted-foreground/50 pl-1.5"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery("")} className="p-1.5 mr-1">
-                    <X className="h-3.5 w-3.5 text-muted-foreground" />
-                  </button>
-                )}
-              </div>
-              <Button variant="ghost" size="icon" onClick={() => refetch()} className="h-10 w-10 md:h-8 md:w-8 shrink-0">
-                <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
-              </Button>
-            </div>
-
-            {/* Filter chips */}
-            <div className="flex items-center gap-1.5 px-3 py-2 overflow-x-auto no-scrollbar border-b border-border/5 bg-background/90 shrink-0">
-              {mobileFilterItems.map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => setFilter(item.key)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all shrink-0",
-                    filter === item.key
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
-                  )}
-                >
-                  <item.icon className="h-3 w-3" />
-                  {item.label}
-                  {item.count > 0 && (
-                    <span className={cn(
-                      "text-[10px] px-1 py-0.5 rounded-full min-w-[16px] text-center leading-none",
-                      filter === item.key ? "bg-primary-foreground/20" : "bg-muted"
-                    )}>
-                      {item.count}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {/* Email list */}
-            <div 
-              ref={pullToRefresh.containerRef}
-              className="flex-1 overflow-y-auto"
-            >
-              <PullToRefreshIndicator 
-                pullDistance={pullToRefresh.pullDistance}
-                isRefreshing={pullToRefresh.isRefreshing}
-                progress={pullToRefresh.progress}
-              />
-              {isLoading ? (
-                <EmailListSkeleton count={6} />
-              ) : filteredEmails && filteredEmails.length > 0 ? (
-                filteredEmails.map((email) => (
-                  <SwipeableEmailItem
-                    key={email.id}
-                    email={email}
-                    isSelected={selectedEmail?.id === email.id}
-                    onSelect={() => handleSelectEmail(email)}
-                    onToggleStar={(e) => handleToggleStar(e, email)}
-                    onDelete={() => filter === 'sent' ? deleteSentEmailMutation.mutate(email.id) : filter === 'trash' ? deleteEmailMutation.mutate(email.id) : moveToTrashMutation.mutate(email.id)}
-                    onArchive={() => filter === 'trash' ? restoreFromTrashMutation.mutate(email.id) : archiveEmailMutation.mutate(email.id)}
-                    extractSenderName={extractSenderName}
-                    extractSenderInitials={extractSenderInitials}
-                    formatEmailDate={formatEmailDate}
-                  />
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                  <Archive className="h-12 w-12 text-muted-foreground/15 mb-3" />
-                  <p className="text-sm font-medium">Niciun email</p>
-                  <p className="text-xs text-muted-foreground/50 mt-0.5">
-                    {filter === 'all' ? 'Inbox-ul este gol' : `Nu sunt emailuri în ${mobileFilterItems.find(f => f.key === filter)?.label?.toLowerCase()}`}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* FAB Compose */}
-            <button
-              onClick={handleOpenCompose}
-              className="absolute bottom-4 right-4 z-30 h-14 w-14 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all"
-            >
-              <PenSquare className="h-5 w-5" />
-            </button>
-          </>
-        ) : (
-          <div className="flex flex-col h-full">
-            {/* Compact detail toolbar */}
-            <div className="flex items-center justify-between px-2 py-1.5 border-b border-border/10 bg-background/95 backdrop-blur-md sticky top-0 z-40 shrink-0">
-              <Button variant="ghost" size="icon" onClick={handleBackToList} className="h-9 w-9">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex items-center gap-0.5">
-                {filter === 'trash' && (
-                  <Button variant="ghost" size="icon" onClick={handleRestore} className="h-9 w-9">
-                    <RotateCcw className="h-4 w-4" />
-                  </Button>
-                )}
-                {filter !== 'trash' && (
-                  <Button variant="ghost" size="icon" onClick={handleArchive} className="h-9 w-9">
-                    <Archive className="h-4 w-4" />
-                  </Button>
-                )}
-                <Button variant="ghost" size="icon" onClick={handleDelete} className="h-9 w-9 hover:text-destructive">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => {
-                  if (selectedEmail) updateEmailMutation.mutate({ id: selectedEmail.id, updates: { is_starred: !selectedEmail.is_starred } });
-                }} className="h-9 w-9">
-                  <Star className={cn("h-4 w-4", selectedEmail?.is_starred ? "fill-brass text-brass" : "text-muted-foreground")} />
-                </Button>
-              </div>
-            </div>
-            
-            {/* Email content */}
-            <ScrollArea className="flex-1">
-              <div className="px-4 py-4">
-                {/* Subject */}
-                <h1 className="text-lg font-semibold text-foreground mb-4 leading-snug">
-                  {selectedEmail?.subject || '(Fără subiect)'}
-                </h1>
-
-                {/* Sender */}
-                <div className="flex items-start gap-2.5 mb-4">
-                  <Avatar className="h-9 w-9 shrink-0">
-                    <AvatarFallback className="bg-gradient-to-br from-primary/60 to-primary text-primary-foreground text-xs font-semibold">
-                      {selectedEmail ? extractSenderInitials(selectedEmail.sender) : '?'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-sm text-foreground truncate">
-                        {selectedEmail ? extractSenderName(selectedEmail.sender) : ''}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground/50 shrink-0 ml-2">
-                        {selectedEmail ? formatEmailDate(selectedEmail.received_at) : ''}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground/50 truncate">
-                      către {selectedEmail?.recipient ? selectedEmail.recipient.replace(/<|>/g, '') : 'mine'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Body */}
-                <div className="email-message-content mb-6 overflow-hidden rounded-xl bg-email-preview-background p-4 text-email-preview-foreground">
-                  {looksLikeHtml(selectedEmail?.body_html) ? (
-                    <EmailHtmlFrame html={selectedEmail!.body_html as string} attachments={selectedEmail!.attachments} />
-                  ) : looksLikeHtml(selectedEmail?.body_plain) ? (
-                    <EmailHtmlFrame html={selectedEmail!.body_plain as string} attachments={selectedEmail!.attachments} />
-                  ) : (
-                    <div className="whitespace-pre-wrap text-sm text-email-preview-foreground leading-relaxed">
-                      {selectedEmail?.body_plain || selectedEmail?.stripped_text || 'Nu există conținut'}
-                    </div>
-                  )}
-                </div>
-
-                {/* Attachments */}
-                {selectedEmail?.attachments && selectedEmail.attachments.length > 0 && (
-                  <div className="border-t border-border/10 pt-4 mb-4">
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <Paperclip className="h-3.5 w-3.5 text-muted-foreground/50" />
-                      <span className="text-xs text-muted-foreground/60">
-                        {selectedEmail.attachments.length} atașament{selectedEmail.attachments.length > 1 ? 'e' : ''}
-                      </span>
-                    </div>
-                    <div className="space-y-1.5">
-                      {selectedEmail.attachments.map((att: any, idx: number) => (
-                        <a
-                          key={idx}
-                          href={att.url}
-                          download={att.filename || att.name}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 p-2.5 bg-muted/10 border border-border/10 rounded-lg text-xs"
-                        >
-                          <Paperclip className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                          <span className="truncate flex-1">{att.filename || att.name}</span>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Action buttons */}
-                <div className="flex items-center gap-2 pt-2">
-                  <Button variant="outline" size="sm" onClick={handleOpenReply} className="flex-1 gap-1.5 h-10 rounded-xl border-border/20">
-                    <Reply className="h-3.5 w-3.5" /> Răspunde
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleOpenForward} className="flex-1 gap-1.5 h-10 rounded-xl border-border/20">
-                    <Forward className="h-3.5 w-3.5" /> Redirecționează
-                  </Button>
-                </div>
-              </div>
-            </ScrollArea>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // Desktop Layout - Outlook-style reading pane
-  return (
+  const dialogs = (
     <>
-    <div className="h-[calc(100vh-80px)] bg-muted/30 p-3">
-      <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-border/30 bg-background shadow-sm">
-        <GmailHeader
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
-          onRefresh={() => refetch()}
-          isRefreshing={isLoading}
-        />
-
-        <div className="flex min-h-0 flex-1">
-          {!isReadingFullscreen && (
-            <GmailSidebar
-              filter={filter}
-              setFilter={setFilter}
-              emailsCount={emails?.length || 0}
-              unreadCount={unreadCount}
-              starredCount={starredCount}
-              archivedCount={archivedCount}
-              sentCount={sentCount}
-              trashCount={trashCount}
-              draftsCount={drafts?.length || 0}
-              onCompose={handleOpenCompose}
-              onShowDrafts={() => setShowDrafts(true)}
-              collapsed={sidebarCollapsed}
-              onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-            />
-          )}
-
-          <div className="flex min-w-0 flex-1 bg-background">
-            {isLoading ? (
-              <div className={cn(
-                "transition-all duration-300",
-                emailListCollapsed || isReadingFullscreen ? "w-0 overflow-hidden" : "w-full max-w-[460px] border-r border-border/20 p-4"
-              )}>
-                {!emailListCollapsed && !isReadingFullscreen && <EmailListSkeleton count={10} />}
-              </div>
-            ) : (
-              <div className={cn(
-                "relative border-r border-border/20 transition-all duration-300",
-                emailListCollapsed || isReadingFullscreen ? "w-0 overflow-hidden border-r-0" : "w-full max-w-[460px]"
-              )}>
-                {!emailListCollapsed && !isReadingFullscreen && (
-                  <GmailEmailList
-                    emails={filteredEmails || []}
-                    selectedEmailId={selectedEmail?.id || null}
-                    onSelectEmail={(email) => handleSelectEmail(email as ReceivedEmail)}
-                    onToggleStar={(e, email) => handleToggleStar(e, email as ReceivedEmail)}
-                    onDelete={(email) => {
-                      if (filter === 'sent') {
-                        deleteSentEmailMutation.mutate(email.id);
-                      } else if (filter === 'trash') {
-                        deleteEmailMutation.mutate(email.id);
-                      } else {
-                        moveToTrashMutation.mutate(email.id);
-                      }
-                    }}
-                    onArchive={(email) => archiveEmailMutation.mutate(email.id)}
-                    onRestore={filter === 'trash' ? (email) => restoreFromTrashMutation.mutate(email.id) : undefined}
-                    extractSenderName={extractSenderName}
-                    formatEmailDate={formatEmailDate}
-                    isLoading={isLoading}
-                    isTrashView={filter === 'trash'}
-                    isArchivedView={filter === 'archived'}
-                    selectedIds={selectedEmailIds}
-                    onToggleSelect={toggleEmailSelection}
-                    onSelectAll={selectAllEmails}
-                    onDeselectAll={deselectAllEmails}
-                    totalCount={emails?.length || 0}
-                    onRefresh={() => refetch()}
-                    onBulkDelete={() => {
-                      if (filter === 'trash') {
-                        bulkPermanentDeleteMutation.mutate(Array.from(selectedEmailIds));
-                      } else {
-                        bulkDeleteMutation.mutate(Array.from(selectedEmailIds));
-                      }
-                    }}
-                    onBulkArchive={() => bulkArchiveMutation.mutate(Array.from(selectedEmailIds))}
-                    onBulkUnarchive={filter === 'archived' ? () => bulkUnarchiveMutation.mutate(Array.from(selectedEmailIds)) : undefined}
-                    onBulkMarkRead={() => bulkMarkAsReadMutation.mutate(Array.from(selectedEmailIds))}
-                    onBulkRestore={filter === 'trash' ? () => bulkRestoreMutation.mutate(Array.from(selectedEmailIds)) : undefined}
-                  />
-                )}
-              </div>
-            )}
-
-            <div className="relative min-w-0 flex-1 bg-muted/10">
-              {!isReadingFullscreen && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setEmailListCollapsed(!emailListCollapsed)}
-                  className="absolute left-3 top-3 z-10 h-9 w-9 rounded-xl border border-border/20 bg-background hover:bg-muted"
-                >
-                  {emailListCollapsed ? (
-                    <PanelLeftOpen className="h-4 w-4" />
-                  ) : (
-                    <PanelLeftClose className="h-4 w-4" />
-                  )}
-                </Button>
-              )}
-
-              {(selectedEmail || currentThread) && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsReadingFullscreen(!isReadingFullscreen)}
-                  className="absolute right-3 top-3 z-10 h-9 w-9 rounded-xl border border-border/20 bg-background hover:bg-muted"
-                >
-                  {isReadingFullscreen ? (
-                    <Minimize2 className="h-4 w-4" />
-                  ) : (
-                    <Maximize2 className="h-4 w-4" />
-                  )}
-                </Button>
-              )}
-
-              {currentThread && currentThread.emails.length > 1 ? (
-                <EmailThreadView
-                  thread={currentThread.emails}
-                  subject={currentThread.subject}
-                  onClose={handleBackToList}
-                  onReply={handleOpenReplyForEmail}
-                  onForward={handleOpenForwardForEmail}
-                  onToggleStar={(email) => {
-                    updateEmailMutation.mutate({ 
-                      id: email.id, 
-                      updates: { is_starred: !email.is_starred } 
-                    });
-                  }}
-                  onArchive={handleArchive}
-                  onUnarchive={() => {
-                    if (selectedEmail) {
-                      unarchiveEmailMutation.mutate(selectedEmail.id);
-                    }
-                  }}
-                  onDelete={handleDelete}
-                  onRestore={filter === 'trash' ? handleRestore : undefined}
-                  isArchived={filter === 'archived'}
-                  isTrashView={filter === 'trash'}
-                  extractSenderName={extractSenderName}
-                  extractSenderInitials={extractSenderInitials}
-                />
-              ) : (
-                <GmailEmailDetail
-                  email={selectedEmail}
-                  onClose={handleBackToList}
-                  onReply={handleOpenReply}
-                  onForward={handleOpenForward}
-                  onToggleStar={() => {
-                    if (selectedEmail) {
-                      updateEmailMutation.mutate({ 
-                        id: selectedEmail.id, 
-                        updates: { is_starred: !selectedEmail.is_starred } 
-                      });
-                    }
-                  }}
-                  onArchive={handleArchive}
-                  onUnarchive={() => {
-                    if (selectedEmail) {
-                      unarchiveEmailMutation.mutate(selectedEmail.id);
-                    }
-                  }}
-                  onDelete={handleDelete}
-                  onRestore={filter === 'trash' ? handleRestore : undefined}
-                  isArchived={filter === 'archived'}
-                  isTrashView={filter === 'trash'}
-                  extractSenderName={extractSenderName}
-                  extractSenderInitials={extractSenderInitials}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
       {/* Drafts Dialog */}
       <Dialog open={showDrafts} onOpenChange={setShowDrafts}>
         <DialogContent className="max-w-md bg-background border-border">
@@ -2041,6 +1640,413 @@ ${originalBody}`;
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </>
+  );
+
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="h-[calc(100vh-120px)] flex flex-col bg-background relative">
+        {mobileView === 'list' ? (
+          <>
+            {/* Compact mobile header */}
+            <div className="flex items-center gap-2 px-3 py-2 border-b border-border/10 bg-background/95 backdrop-blur-md sticky top-0 z-40">
+              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-brass to-brass-dark flex items-center justify-center shadow-sm shrink-0">
+                <span className="text-primary-foreground font-bold text-[10px]">M</span>
+              </div>
+              <div className={cn(
+                "flex-1 relative flex items-center rounded-lg h-9 transition-all",
+                "bg-muted/40 border border-transparent focus-within:bg-background focus-within:border-border/40 focus-within:shadow-md"
+              )}>
+                <Search className="h-3.5 w-3.5 text-muted-foreground ml-2.5 shrink-0" />
+                <Input
+                  type="text"
+                  placeholder="Caută..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-sm placeholder:text-muted-foreground/50 pl-1.5"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="p-1.5 mr-1">
+                    <X className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => refetch()} className="h-10 w-10 md:h-8 md:w-8 shrink-0">
+                <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
+              </Button>
+            </div>
+
+            {/* Filter chips */}
+            <div className="flex items-center gap-1.5 px-3 py-2 overflow-x-auto no-scrollbar border-b border-border/5 bg-background/90 shrink-0">
+              {mobileFilterItems.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => setFilter(item.key)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all shrink-0",
+                    filter === item.key
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+                  )}
+                >
+                  <item.icon className="h-3 w-3" />
+                  {item.label}
+                  {item.count > 0 && (
+                    <span className={cn(
+                      "text-[10px] px-1 py-0.5 rounded-full min-w-[16px] text-center leading-none",
+                      filter === item.key ? "bg-primary-foreground/20" : "bg-muted"
+                    )}>
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Email list */}
+            <div 
+              ref={pullToRefresh.containerRef}
+              className="flex-1 overflow-y-auto"
+            >
+              <PullToRefreshIndicator 
+                pullDistance={pullToRefresh.pullDistance}
+                isRefreshing={pullToRefresh.isRefreshing}
+                progress={pullToRefresh.progress}
+              />
+              {isLoading ? (
+                <EmailListSkeleton count={6} />
+              ) : filteredEmails && filteredEmails.length > 0 ? (
+                filteredEmails.map((email) => (
+                  <SwipeableEmailItem
+                    key={email.id}
+                    email={email}
+                    isSelected={selectedEmail?.id === email.id}
+                    onSelect={() => handleSelectEmail(email)}
+                    onToggleStar={(e) => handleToggleStar(e, email)}
+                    onDelete={() => filter === 'sent' ? deleteSentEmailMutation.mutate(email.id) : filter === 'trash' ? deleteEmailMutation.mutate(email.id) : moveToTrashMutation.mutate(email.id)}
+                    onArchive={() => filter === 'trash' ? restoreFromTrashMutation.mutate(email.id) : archiveEmailMutation.mutate(email.id)}
+                    extractSenderName={extractSenderName}
+                    extractSenderInitials={extractSenderInitials}
+                    formatEmailDate={formatEmailDate}
+                  />
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                  <Archive className="h-12 w-12 text-muted-foreground/15 mb-3" />
+                  <p className="text-sm font-medium">Niciun email</p>
+                  <p className="text-xs text-muted-foreground/50 mt-0.5">
+                    {filter === 'all' ? 'Inbox-ul este gol' : `Nu sunt emailuri în ${mobileFilterItems.find(f => f.key === filter)?.label?.toLowerCase()}`}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* FAB Compose */}
+            <button
+              onClick={handleOpenCompose}
+              className="absolute bottom-4 right-4 z-30 h-14 w-14 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all"
+            >
+              <PenSquare className="h-5 w-5" />
+            </button>
+          </>
+        ) : (
+          <div className="flex flex-col h-full">
+            {/* Compact detail toolbar */}
+            <div className="flex items-center justify-between px-2 py-1.5 border-b border-border/10 bg-background/95 backdrop-blur-md sticky top-0 z-40 shrink-0">
+              <Button variant="ghost" size="icon" onClick={handleBackToList} className="h-9 w-9">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <div className="flex items-center gap-0.5">
+                {filter === 'trash' && (
+                  <Button variant="ghost" size="icon" onClick={handleRestore} className="h-9 w-9">
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                )}
+                {filter !== 'trash' && (
+                  <Button variant="ghost" size="icon" onClick={handleArchive} className="h-9 w-9">
+                    <Archive className="h-4 w-4" />
+                  </Button>
+                )}
+                <Button variant="ghost" size="icon" onClick={handleDelete} className="h-9 w-9 hover:text-destructive">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => {
+                  if (selectedEmail) updateEmailMutation.mutate({ id: selectedEmail.id, updates: { is_starred: !selectedEmail.is_starred } });
+                }} className="h-9 w-9">
+                  <Star className={cn("h-4 w-4", selectedEmail?.is_starred ? "fill-brass text-brass" : "text-muted-foreground")} />
+                </Button>
+              </div>
+            </div>
+            
+            {/* Email content */}
+            <ScrollArea className="flex-1">
+              <div className="px-4 py-4">
+                {/* Subject */}
+                <h1 className="text-lg font-semibold text-foreground mb-4 leading-snug">
+                  {selectedEmail?.subject || '(Fără subiect)'}
+                </h1>
+
+                {/* Sender */}
+                <div className="flex items-start gap-2.5 mb-4">
+                  <Avatar className="h-9 w-9 shrink-0">
+                    <AvatarFallback className="bg-gradient-to-br from-primary/60 to-primary text-primary-foreground text-xs font-semibold">
+                      {selectedEmail ? extractSenderInitials(selectedEmail.sender) : '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-sm text-foreground truncate">
+                        {selectedEmail ? extractSenderName(selectedEmail.sender) : ''}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground/50 shrink-0 ml-2">
+                        {selectedEmail ? formatEmailDate(selectedEmail.received_at) : ''}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground/50 truncate">
+                      către {selectedEmail?.recipient ? selectedEmail.recipient.replace(/<|>/g, '') : 'mine'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="email-message-content mb-6 overflow-hidden rounded-xl bg-email-preview-background p-4 text-email-preview-foreground">
+                  {looksLikeHtml(selectedEmail?.body_html) ? (
+                    <EmailHtmlFrame html={selectedEmail!.body_html as string} attachments={selectedEmail!.attachments} />
+                  ) : looksLikeHtml(selectedEmail?.body_plain) ? (
+                    <EmailHtmlFrame html={selectedEmail!.body_plain as string} attachments={selectedEmail!.attachments} />
+                  ) : (
+                    <div className="whitespace-pre-wrap text-sm text-email-preview-foreground leading-relaxed">
+                      {selectedEmail?.body_plain || selectedEmail?.stripped_text || 'Nu există conținut'}
+                    </div>
+                  )}
+                </div>
+
+                {/* Attachments */}
+                {selectedEmail?.attachments && selectedEmail.attachments.length > 0 && (
+                  <div className="border-t border-border/10 pt-4 mb-4">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Paperclip className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      <span className="text-xs text-muted-foreground/60">
+                        {selectedEmail.attachments.length} atașament{selectedEmail.attachments.length > 1 ? 'e' : ''}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {selectedEmail.attachments.map((att: any, idx: number) => (
+                        <a
+                          key={idx}
+                          href={att.url}
+                          download={att.filename || att.name}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 p-2.5 bg-muted/10 border border-border/10 rounded-lg text-xs"
+                        >
+                          <Paperclip className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          <span className="truncate flex-1">{att.filename || att.name}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                <div className="flex items-center gap-2 pt-2">
+                  <Button variant="outline" size="sm" onClick={handleOpenReply} className="flex-1 gap-1.5 h-10 rounded-xl border-border/20">
+                    <Reply className="h-3.5 w-3.5" /> Răspunde
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleOpenForward} className="flex-1 gap-1.5 h-10 rounded-xl border-border/20">
+                    <Forward className="h-3.5 w-3.5" /> Redirecționează
+                  </Button>
+                </div>
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop Layout - Outlook-style reading pane
+  return (
+    <>
+    <div className="h-[calc(100vh-80px)] bg-muted/30 p-3">
+      <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-border/30 bg-background shadow-sm">
+        <GmailHeader
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onRefresh={() => refetch()}
+          isRefreshing={isLoading}
+        />
+
+        <div className="flex min-h-0 flex-1">
+          {!isReadingFullscreen && (
+            <GmailSidebar
+              filter={filter}
+              setFilter={setFilter}
+              emailsCount={emails?.length || 0}
+              unreadCount={unreadCount}
+              starredCount={starredCount}
+              archivedCount={archivedCount}
+              sentCount={sentCount}
+              trashCount={trashCount}
+              draftsCount={drafts?.length || 0}
+              onCompose={handleOpenCompose}
+              onShowDrafts={() => setShowDrafts(true)}
+              collapsed={sidebarCollapsed}
+              onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+            />
+          )}
+
+          <div className="flex min-w-0 flex-1 bg-background">
+            {isLoading ? (
+              <div className={cn(
+                "transition-all duration-300",
+                emailListCollapsed || isReadingFullscreen ? "w-0 overflow-hidden" : "w-full max-w-[460px] border-r border-border/20 p-4"
+              )}>
+                {!emailListCollapsed && !isReadingFullscreen && <EmailListSkeleton count={10} />}
+              </div>
+            ) : (
+              <div className={cn(
+                "relative border-r border-border/20 transition-all duration-300",
+                emailListCollapsed || isReadingFullscreen ? "w-0 overflow-hidden border-r-0" : "w-full max-w-[460px]"
+              )}>
+                {!emailListCollapsed && !isReadingFullscreen && (
+                  <GmailEmailList
+                    emails={filteredEmails || []}
+                    selectedEmailId={selectedEmail?.id || null}
+                    onSelectEmail={(email) => handleSelectEmail(email as ReceivedEmail)}
+                    onToggleStar={(e, email) => handleToggleStar(e, email as ReceivedEmail)}
+                    onDelete={(email) => {
+                      if (filter === 'sent') {
+                        deleteSentEmailMutation.mutate(email.id);
+                      } else if (filter === 'trash') {
+                        deleteEmailMutation.mutate(email.id);
+                      } else {
+                        moveToTrashMutation.mutate(email.id);
+                      }
+                    }}
+                    onArchive={(email) => archiveEmailMutation.mutate(email.id)}
+                    onRestore={filter === 'trash' ? (email) => restoreFromTrashMutation.mutate(email.id) : undefined}
+                    extractSenderName={extractSenderName}
+                    formatEmailDate={formatEmailDate}
+                    isLoading={isLoading}
+                    isTrashView={filter === 'trash'}
+                    isArchivedView={filter === 'archived'}
+                    selectedIds={selectedEmailIds}
+                    onToggleSelect={toggleEmailSelection}
+                    onSelectAll={selectAllEmails}
+                    onDeselectAll={deselectAllEmails}
+                    totalCount={emails?.length || 0}
+                    onRefresh={() => refetch()}
+                    onBulkDelete={() => {
+                      if (filter === 'trash') {
+                        bulkPermanentDeleteMutation.mutate(Array.from(selectedEmailIds));
+                      } else {
+                        bulkDeleteMutation.mutate(Array.from(selectedEmailIds));
+                      }
+                    }}
+                    onBulkArchive={() => bulkArchiveMutation.mutate(Array.from(selectedEmailIds))}
+                    onBulkUnarchive={filter === 'archived' ? () => bulkUnarchiveMutation.mutate(Array.from(selectedEmailIds)) : undefined}
+                    onBulkMarkRead={() => bulkMarkAsReadMutation.mutate(Array.from(selectedEmailIds))}
+                    onBulkRestore={filter === 'trash' ? () => bulkRestoreMutation.mutate(Array.from(selectedEmailIds)) : undefined}
+                  />
+                )}
+              </div>
+            )}
+
+            <div className="relative min-w-0 flex-1 bg-muted/10">
+              {!isReadingFullscreen && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setEmailListCollapsed(!emailListCollapsed)}
+                  className="absolute left-3 top-3 z-10 h-9 w-9 rounded-xl border border-border/20 bg-background hover:bg-muted"
+                >
+                  {emailListCollapsed ? (
+                    <PanelLeftOpen className="h-4 w-4" />
+                  ) : (
+                    <PanelLeftClose className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
+
+              {(selectedEmail || currentThread) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsReadingFullscreen(!isReadingFullscreen)}
+                  className="absolute right-3 top-3 z-10 h-9 w-9 rounded-xl border border-border/20 bg-background hover:bg-muted"
+                >
+                  {isReadingFullscreen ? (
+                    <Minimize2 className="h-4 w-4" />
+                  ) : (
+                    <Maximize2 className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
+
+              {currentThread && currentThread.emails.length > 1 ? (
+                <EmailThreadView
+                  thread={currentThread.emails}
+                  subject={currentThread.subject}
+                  onClose={handleBackToList}
+                  onReply={handleOpenReplyForEmail}
+                  onForward={handleOpenForwardForEmail}
+                  onToggleStar={(email) => {
+                    updateEmailMutation.mutate({ 
+                      id: email.id, 
+                      updates: { is_starred: !email.is_starred } 
+                    });
+                  }}
+                  onArchive={handleArchive}
+                  onUnarchive={() => {
+                    if (selectedEmail) {
+                      unarchiveEmailMutation.mutate(selectedEmail.id);
+                    }
+                  }}
+                  onDelete={handleDelete}
+                  onRestore={filter === 'trash' ? handleRestore : undefined}
+                  isArchived={filter === 'archived'}
+                  isTrashView={filter === 'trash'}
+                  extractSenderName={extractSenderName}
+                  extractSenderInitials={extractSenderInitials}
+                />
+              ) : (
+                <GmailEmailDetail
+                  email={selectedEmail}
+                  onClose={handleBackToList}
+                  onReply={handleOpenReply}
+                  onForward={handleOpenForward}
+                  onToggleStar={() => {
+                    if (selectedEmail) {
+                      updateEmailMutation.mutate({ 
+                        id: selectedEmail.id, 
+                        updates: { is_starred: !selectedEmail.is_starred } 
+                      });
+                    }
+                  }}
+                  onArchive={handleArchive}
+                  onUnarchive={() => {
+                    if (selectedEmail) {
+                      unarchiveEmailMutation.mutate(selectedEmail.id);
+                    }
+                  }}
+                  onDelete={handleDelete}
+                  onRestore={filter === 'trash' ? handleRestore : undefined}
+                  isArchived={filter === 'archived'}
+                  isTrashView={filter === 'trash'}
+                  extractSenderName={extractSenderName}
+                  extractSenderInitials={extractSenderInitials}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      {dialogs}
     </>
   );
 };
