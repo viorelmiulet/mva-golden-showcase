@@ -81,6 +81,8 @@ const AdminHeader = ({
   const location = useLocation();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
 
   const pageTitle = useMemo(() => {
     const path = location.pathname.replace(/\/$/, "");
@@ -130,9 +132,31 @@ const AdminHeader = ({
         </Sheet>
       )}
 
-      <div className="min-w-0">
-        <h1 className="font-display text-base md:text-lg text-foreground truncate">{pageTitle}</h1>
-      </div>
+      {mobileSearchOpen && isMobile ? (
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            autoFocus
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={onSearchSubmit}
+            placeholder="Caută..."
+            className="h-10 rounded-md border-border bg-card pl-9 pr-9 text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => setMobileSearchOpen(false)}
+            aria-label="Închide căutarea"
+            className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      ) : (
+        <div className="min-w-0">
+          <h1 className="font-display text-base md:text-lg text-foreground truncate">{pageTitle}</h1>
+        </div>
+      )}
 
       <div className="relative ml-auto hidden lg:block w-full max-w-sm">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -146,11 +170,23 @@ const AdminHeader = ({
       </div>
 
       <div className="ml-auto flex items-center gap-1 lg:ml-2">
+        {isMobile && !mobileSearchOpen && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMobileSearchOpen(true)}
+            className="h-10 w-10 rounded-md text-muted-foreground hover:text-foreground touch-manipulation active:scale-95"
+            aria-label="Caută"
+          >
+            <Search className="h-4 w-4" />
+          </Button>
+        )}
         <Link to="/admin/inbox">
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-md text-muted-foreground hover:text-foreground" title="Notificări" aria-label="Notificări">
+          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-md text-muted-foreground hover:text-foreground" title="Notificări" aria-label="Notificări">
             <Bell className="w-4 h-4" />
           </Button>
         </Link>
+
         <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
           <DialogTrigger asChild>
             <Button 

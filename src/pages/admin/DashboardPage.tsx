@@ -16,7 +16,7 @@ import {
   Home, Clock, CheckCircle, XCircle, Users, Target, DollarSign,
   BarChart3, Activity, ArrowUpRight, ArrowDownRight, Percent,
   Layers, Plus, FileSpreadsheet, Coins, ArrowRight, Mail,
-  MailOpen, Calendar, RefreshCw, Eye
+  MailOpen, Calendar, RefreshCw, Eye, FileSignature, ChevronDown
 } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { 
@@ -40,6 +40,7 @@ const DashboardPage = () => {
   const reduceMotion = shouldReduceMotion || isMobile;
   const queryClient = useQueryClient();
   const [period, setPeriod] = useState<PeriodFilter>('month');
+  const [showSecondary, setShowSecondary] = useState(false);
   const [selectedDayDetails, setSelectedDayDetails] = useState<{
     date: string;
     totalEUR: number;
@@ -291,7 +292,53 @@ const DashboardPage = () => {
     }
   });
 
+  // Fetch contracts (real data)
+  const { data: contractsData, isLoading: loadingContracts } = useQuery({
+    queryKey: ['dashboard', 'contracts'],
+    queryFn: async () => {
+      const result = await adminApi.select<{ id: string; created_at: string; contract_type: string; client_name: string; property_address: string }>('contracts', { orderBy: 'created_at', ascending: false });
+      if (!result.success) throw new Error(result.error);
+      const data = result.data || [];
+      const monthStart = startOfMonth(new Date());
+      const thisMonth = data.filter(c => c.created_at && parseISO(c.created_at) >= monthStart).length;
+      return { total: data.length, thisMonth, recent: data.slice(0, 5) };
+    }
+  });
+
+  // Recent properties (real data)
+  const { data: recentProperties, isLoading: loadingRecent } = useQuery({
+    queryKey: ['dashboard', 'recent-properties'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('catalog_offers')
+        .select('id, title, zone, city, price_min, currency, availability_status, images, slug, created_at, updated_at')
+        .is('project_id', null)
+        .order('updated_at', { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
+  // Recent activity (real data only)
+  const { data: activityData, isLoading: loadingActivity } = useQuery({
+    queryKey: ['dashboard', 'activity'],
+    queryFn: async () => {
+      const [props, clients, viewings] = await Promise.all([
+        supabase.from('catalog_offers').select('id, title, created_at').order('created_at', { ascending: false }).limit(5),
+        adminApi.select<{ id: string; name: string | null; created_at: string }>('clients', { orderBy: 'created_at', ascending: false }),
+        adminApi.select<{ id: string; name: string | null; property_title: string | null; created_at: string }>('viewing_appointments', { orderBy: 'created_at', ascending: false }),
+      ]);
+      const items: { id: string; kind: 'property' | 'client' | 'viewing' | 'contract'; text: string; entity: string; at: string }[] = [];
+      (props.data || []).forEach((p: any) => items.push({ id: `p-${p.id}`, kind: 'property', text: 'Proprietate adăugată', entity: p.title, at: p.created_at }));
+      (clients.success ? (clients.data || []).slice(0, 5) : []).forEach((c) => items.push({ id: `c-${c.id}`, kind: 'client', text: 'Lead nou înregistrat', entity: c.name || 'Client', at: c.created_at }));
+      (viewings.success ? (viewings.data || []).slice(0, 5) : []).forEach((v) => items.push({ id: `v-${v.id}`, kind: 'viewing', text: 'Vizionare programată', entity: v.property_title || v.name || 'Vizionare', at: v.created_at }));
+      return items.filter(i => !!i.at).sort((a, b) => +parseISO(b.at) - +parseISO(a.at)).slice(0, 8);
+    }
+  });
+
   const tooltipStyle = {
+
     backgroundColor: 'hsl(var(--card))',
     border: '1px solid hsl(var(--border))',
     borderRadius: '10px',
@@ -305,229 +352,88 @@ const DashboardPage = () => {
       {isMobile && (
         <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} progress={progress} />
       )}
-      <motion.div 
-        className="space-y-5 md:space-y-6"
+      <motion.div
+        className="space-y-6 md:space-y-8"
         initial={reduceMotion ? undefined : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
       >
         {/* Header */}
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
-              <BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-lg md:text-2xl font-bold">Dashboard</h1>
-              <p className="text-[11px] md:text-sm text-muted-foreground">Prezentare generală a activității MVA Imobiliare</p>
-            </div>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:flex sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-display text-xl md:text-2xl text-foreground truncate">Dashboard</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">Prezentare generală a activității MVA Imobiliare</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Select value={period} onValueChange={(v) => setPeriod(v as PeriodFilter)}>
-              <SelectTrigger className="h-8 text-xs w-[140px] bg-secondary/50 border-border/30">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7d">Ultimele 7 zile</SelectItem>
-                <SelectItem value="30d">Ultimele 30 zile</SelectItem>
-                <SelectItem value="month">Luna curentă</SelectItem>
-                <SelectItem value="year">Anul curent</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-brass/10 border border-brass/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-brass animate-pulse" />
-              <span className="text-[10px] text-brass font-medium">Live</span>
-            </div>
-            <Badge variant="secondary" className="text-[10px] md:text-xs px-2.5 py-1 rounded-full bg-secondary/50 border-border/20">
-              {format(new Date(), isMobile ? 'dd MMM' : 'dd MMMM yyyy', { locale: ro })}
-            </Badge>
-          </div>
+          <Select value={period} onValueChange={(v) => setPeriod(v as PeriodFilter)}>
+            <SelectTrigger className="h-10 w-[150px] shrink-0 text-xs md:text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">Ultimele 7 zile</SelectItem>
+              <SelectItem value="30d">Ultimele 30 zile</SelectItem>
+              <SelectItem value="month">Luna curentă</SelectItem>
+              <SelectItem value="year">Anul curent</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-3 gap-2 md:gap-3">
-          {[
-            { to: '/admin/proprietati', icon: Plus, label: 'Proprietate', desc: 'Adaugă proprietate nouă', color: 'emerald' },
-            { to: '/admin/import-xml', icon: FileSpreadsheet, label: 'Import', desc: 'Import din XML/Excel', color: 'blue' },
-            { to: '/admin/comisioane', icon: Coins, label: 'Comisioane', desc: 'Gestionare venituri', color: 'gold' },
-          ].map(({ to, icon: Icon, label, desc, color }) => (
-            <Link 
-              key={to}
-              to={to} 
-              className={`flex flex-col md:flex-row items-center gap-2 md:gap-3 p-3 md:p-4 rounded-xl border transition-all hover:shadow-lg group
-                ${color === 'emerald' ? 'bg-brass/5 border-brass/15 hover:border-brass/30' : ''}
-                ${color === 'blue' ? 'bg-brass/5 border-brass/15 hover:border-brass/30' : ''}
-                ${color === 'gold' ? 'bg-primary/5 border-primary/15 hover:border-primary/30' : ''}
-              `}
-            >
-              <div className="p-2 rounded-xl bg-brass/12 border border-brass/20">
-                <Icon className="h-4 w-4 text-brass" />
-              </div>
-              <div className="text-center md:text-left flex-1">
-                <p className="text-[11px] md:text-sm font-semibold">{label}</p>
-                <p className="hidden md:block text-xs text-muted-foreground">{desc}</p>
-              </div>
-              <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground/30 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          ))}
-        </div>
-
-        {/* Main Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
-          {/* Properties */}
-          <StatCard
-            title="Proprietăți"
-            value={propertiesData?.total || 0}
-            subtitle={`${propertiesData?.available || 0} disponibile`}
-            icon={Home}
-            loading={loadingProperties}
-            badge={propertiesData?.newThisMonth ? `+${propertiesData.newThisMonth}` : undefined}
-          />
-          {/* Complex Apartments */}
-          <StatCard
-            title="Apt. Complexe"
-            value={complexesData?.totalApartments || 0}
-            subtitle={`${complexesData?.totalProjects || 0} complexe`}
-            icon={Building2}
-            loading={loadingComplexes}
-            trend={complexesData?.overallSalesRate ? { value: complexesData.overallSalesRate, positive: true, label: 'vândute' } : undefined}
-          />
-          {/* Monthly Commission */}
-          <div className="admin-glass-card relative overflow-hidden group hover:scale-[1.01] transition-all duration-300">
-            <div className="p-3 md:p-5">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] md:text-xs font-medium text-muted-foreground">Comisioane Lună</span>
-                <div className="p-1.5 md:p-2 rounded-lg bg-primary/10 border border-primary/20">
-                  <Euro className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
-                </div>
-              </div>
-              {loadingCommissions ? (
-                <AnimatedSkeleton className="h-7 w-24" />
-              ) : (
-                <>
-                  <div className="text-lg md:text-2xl font-bold">{(commissionsData?.currentMonthEUR || 0).toLocaleString()} €</div>
-                  {commissionsData?.currentMonthRON && !isMobile ? (
-                    <p className="text-[10px] text-muted-foreground mt-1">+ {commissionsData.currentMonthRON.toLocaleString()} RON</p>
-                  ) : null}
-                  {commissionsData?.monthlyGrowth !== undefined && (
-                    <TrendBadge value={commissionsData.monthlyGrowth} />
-                  )}
-                  {!isMobile && commissionsData?.currentMonthDailyTrend && commissionsData.currentMonthDailyTrend.length > 0 && (
-                    <div className="mt-3 h-[40px] cursor-pointer rounded-lg overflow-hidden" title="Click pentru detalii">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={commissionsData.currentMonthDailyTrend} onClick={handleSparklineClick}>
-                          <defs>
-                            <linearGradient id="sparkMonth" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="hsl(var(--graphite))" stopOpacity={0.4} />
-                              <stop offset="95%" stopColor="hsl(var(--graphite))" stopOpacity={0} />
-                            </linearGradient>
-                          </defs>
-                          <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v.toLocaleString()} €`, '']} labelFormatter={(l) => `Ziua ${l}`} />
-                          <Area type="monotone" dataKey="value" stroke="hsl(var(--graphite))" strokeWidth={1.5} fill="url(#sparkMonth)" />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-          {/* Daily Average */}
-          <div className="admin-glass-card relative overflow-hidden group hover:scale-[1.01] transition-all duration-300">
-            <div className="p-3 md:p-5">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] md:text-xs font-medium text-muted-foreground">Medie/Zi</span>
-                <div className="p-1.5 md:p-2 rounded-lg bg-primary/10 border border-primary/20">
-                  <Target className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
-                </div>
-              </div>
-              {loadingCommissions ? (
-                <AnimatedSkeleton className="h-7 w-24" />
-              ) : (
-                <>
-                  <div className="text-lg md:text-2xl font-bold">{(commissionsData?.dailyAvgEUR || 0).toLocaleString()} €</div>
-                  {!isMobile && commissionsData?.lastYearDailyAvgEUR ? (
-                    <p className="text-[10px] text-muted-foreground mt-1">An trecut: {commissionsData.lastYearDailyAvgEUR.toLocaleString()} €</p>
-                  ) : null}
-                  {commissionsData?.dailyAvgGrowth !== undefined && (commissionsData?.lastYearDailyAvgEUR || 0) > 0 && (
-                    <TrendBadge value={commissionsData.dailyAvgGrowth} />
-                  )}
-                  {!isMobile && commissionsData?.dailyTrend30 && commissionsData.dailyTrend30.length > 0 && (
-                    <div className="mt-3 h-[40px] cursor-pointer rounded-lg overflow-hidden" title="Click pentru detalii">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={commissionsData.dailyTrend30} onClick={handleSparklineClick}>
-                          <defs>
-                            <linearGradient id="spark30" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="hsl(var(--brass))" stopOpacity={0.4} />
-                              <stop offset="95%" stopColor="hsl(var(--brass))" stopOpacity={0} />
-                            </linearGradient>
-                          </defs>
-                          <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v.toLocaleString()} €`, '']} labelFormatter={(l) => l as string} />
-                          <Area type="monotone" dataKey="value" stroke="hsl(var(--brass))" strokeWidth={1.5} fill="url(#spark30)" />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Secondary Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-          <MiniCard icon={DollarSign} label="Comision Mediu" value={`${(commissionsData?.avgEUR || 0).toLocaleString()} €`} color="bg-brass" loading={loadingCommissions} />
-          <MiniCard icon={BarChart3} label="YTD Comisioane" value={`${(commissionsData?.ytdEUR || 0).toLocaleString()} €`} color="bg-brass" loading={loadingCommissions} />
-          <Link to="/admin/inbox">
-            <MiniCard icon={Mail} label="Email-uri necitite" value={emailsData?.unread || 0} color="bg-red-500" loading={loadingEmails} highlight={!!emailsData?.unread && emailsData.unread > 0} />
+        {/* Quick Actions - compact */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/admin/proprietati" className="min-w-0">
+            <Button className="h-10 gap-2 bg-brass text-ink hover:bg-brass/90">
+              <Plus className="h-4 w-4" />
+              Adaugă proprietate
+            </Button>
           </Link>
-          <MiniCard icon={Users} label="Clienți" value={clientsData?.total || 0} color="bg-brass" loading={loadingClients} badge={clientsData?.newThisMonth ? `+${clientsData.newThisMonth}` : undefined} />
+          <Link to="/admin/import-xml">
+            <Button variant="outline" className="h-10 gap-2">
+              <FileSpreadsheet className="h-4 w-4 text-brass" />
+              Import
+            </Button>
+          </Link>
+          <Link to="/admin/comisioane">
+            <Button variant="outline" className="h-10 gap-2">
+              <Coins className="h-4 w-4 text-brass" />
+              Comisioane
+            </Button>
+          </Link>
         </div>
 
-        {/* Viewings Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-          <MiniCard icon={Calendar} label="Vizionări Total" value={viewingsData?.total || 0} color="bg-brass" loading={loadingViewings} />
-          <MiniCard icon={Clock} label="În Așteptare" value={viewingsData?.pending || 0} color="bg-brass" loading={loadingViewings} />
-          <MiniCard icon={CheckCircle} label="Confirmate" value={viewingsData?.confirmed || 0} color="bg-brass" loading={loadingViewings} />
-          <MiniCard icon={Eye} label="Luna Aceasta" value={viewingsData?.thisMonthCount || 0} color="bg-brass" loading={loadingViewings} trend={viewingsData?.monthlyGrowth} />
+        {/* KPI principali */}
+        <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-5">
+          <StatCard title="Proprietăți active" value={propertiesData?.available ?? 0} subtitle={`${propertiesData?.total ?? 0} în total`} icon={Home} loading={loadingProperties} badge={propertiesData?.newThisMonth ? `+${propertiesData.newThisMonth}` : undefined} />
+          <StatCard title="Lead-uri noi" value={clientsData?.newThisMonth ?? 0} subtitle={`${clientsData?.total ?? 0} clienți`} icon={Users} loading={loadingClients} />
+          <StatCard title="Vizionări" value={viewingsData?.thisMonthCount ?? 0} subtitle={`${viewingsData?.pending ?? 0} în așteptare`} icon={CalendarCheck} loading={loadingViewings} trend={viewingsData?.monthlyGrowth ? { value: viewingsData.monthlyGrowth, positive: viewingsData.monthlyGrowth >= 0 } : undefined} />
+          <StatCard title="Contracte" value={contractsData?.total ?? 0} subtitle={`${contractsData?.thisMonth ?? 0} luna aceasta`} icon={FileSignature} loading={loadingContracts} />
+          <StatCard title="Comisioane" value={`${(commissionsData?.currentMonthEUR || 0).toLocaleString()} €`} subtitle="luna curentă" icon={Euro} loading={loadingCommissions} trend={commissionsData?.monthlyGrowth !== undefined ? { value: commissionsData.monthlyGrowth, positive: commissionsData.monthlyGrowth >= 0 } : undefined} />
         </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
-          {/* Commission Trend */}
+        {/* Grafic principal + Proprietăți recente */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="admin-glass-card lg:col-span-2">
-            <div className="p-4 md:p-5 pb-2">
-              <div className="flex items-center gap-2.5 mb-0.5">
-                <div className="p-1.5 rounded-lg bg-primary/10 border border-primary/15">
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                </div>
-                <h3 className="text-sm md:text-base font-semibold">
-                  {isMobile ? "Comisioane" : "Evoluție Comisioane (12 luni)"}
-                </h3>
-              </div>
-              {!isMobile && <p className="text-xs text-muted-foreground ml-9">Trend lunar EUR și număr tranzacții</p>}
+            <div className="flex items-center gap-2.5 p-4 md:p-5 pb-2">
+              <TrendingUp className="h-4 w-4 text-brass shrink-0" />
+              <h3 className="text-sm md:text-base font-semibold truncate">{isMobile ? "Comisioane (6 luni)" : "Evoluție comisioane (12 luni)"}</h3>
             </div>
-            <div className="px-2 md:px-5 pb-4">
-              <div className="h-[180px] md:h-[300px] w-full">
+            <div className="px-1 md:px-5 pb-4">
+              <div className="h-[200px] md:h-[300px] w-full">
                 {loadingCommissions ? (
                   <ChartSkeleton />
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={isMobile ? commissionsData?.monthlyTrend?.slice(-6) || [] : commissionsData?.monthlyTrend || []} margin={isMobile ? { left: -20, right: 5 } : { left: 0, right: 10 }}>
+                    <ComposedChart data={isMobile ? commissionsData?.monthlyTrend?.slice(-6) || [] : commissionsData?.monthlyTrend || []} margin={isMobile ? { left: -18, right: 6 } : { left: 0, right: 10 }}>
                       <defs>
                         <linearGradient id="colorEUR" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--brass))" stopOpacity={0.7} />
-                          <stop offset="95%" stopColor="hsl(var(--brass))" stopOpacity={0.05} />
+                          <stop offset="5%" stopColor="hsl(var(--brass))" stopOpacity={0.6} />
+                          <stop offset="95%" stopColor="hsl(var(--brass))" stopOpacity={0.04} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
                       <XAxis dataKey="month" tick={{ fontSize: isMobile ? 9 : 11 }} interval={0} tickLine={false} axisLine={false} />
-                      <YAxis yAxisId="left" tick={{ fontSize: isMobile ? 9 : 11 }} width={isMobile ? 40 : 60} tickLine={false} axisLine={false} tickFormatter={(v) => isMobile ? `${(v/1000).toFixed(0)}k` : v.toLocaleString()} />
-                      {!isMobile && <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} width={40} />}
+                      <YAxis yAxisId="left" tick={{ fontSize: isMobile ? 9 : 11 }} width={isMobile ? 38 : 60} tickLine={false} axisLine={false} tickFormatter={(v) => isMobile ? `${(v / 1000).toFixed(0)}k` : v.toLocaleString()} />
                       <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v.toLocaleString()} €`, 'Comisioane']} />
-                      {!isMobile && <Legend wrapperStyle={{ fontSize: '11px' }} />}
                       <Area yAxisId="left" type="monotone" dataKey="EUR" stroke="hsl(var(--brass))" strokeWidth={2} fillOpacity={1} fill="url(#colorEUR)" name="Comisioane (€)" />
-                      {!isMobile && <Line yAxisId="right" type="monotone" dataKey="count" stroke="hsl(var(--slate))" strokeWidth={2} dot={{ fill: 'hsl(var(--slate))', r: 3 }} name="Nr. Tranzacții" />}
+                      {!isMobile && <Line yAxisId="left" type="monotone" dataKey="count" stroke="hsl(var(--slate))" strokeWidth={1.5} dot={false} name="Nr. tranzacții" />}
                     </ComposedChart>
                   </ResponsiveContainer>
                 )}
@@ -535,153 +441,230 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Distribution Pie */}
-          <div className="admin-glass-card">
-            <div className="p-4 md:p-5 pb-2">
-              <div className="flex items-center gap-2.5 mb-0.5">
-                <div className="p-1.5 rounded-lg bg-brass/10 border border-brass/15">
-                  <Layers className="h-4 w-4 text-brass" />
-                </div>
-                <h3 className="text-sm md:text-base font-semibold">Distribuție</h3>
-              </div>
-              {!isMobile && <p className="text-xs text-muted-foreground ml-9">Pe tip tranzacție</p>}
+          {/* Proprietăți recente */}
+          <div className="admin-glass-card flex flex-col">
+            <div className="flex flex-nowrap items-center justify-between gap-2 p-4 md:p-5 pb-2">
+              <h3 className="min-w-0 truncate text-sm md:text-base font-semibold">Proprietăți recente</h3>
+              <Link to="/admin/proprietati" className="shrink-0 text-xs font-medium text-brass hover:underline">Vezi toate →</Link>
             </div>
-            <div className="px-2 md:px-5 pb-4">
-              <div className="h-[180px] md:h-[300px] w-full">
+            <div className="flex-1 divide-y divide-border/60 px-2 pb-2 md:px-3">
+              {loadingRecent ? (
+                <div className="space-y-2 p-2">{[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-14 rounded-md" />)}</div>
+              ) : recentProperties && recentProperties.length > 0 ? (
+                recentProperties.map((p: any) => (
+                  <Link key={p.id} to="/admin/proprietati" className="flex items-center gap-3 rounded-md p-2.5 transition-colors hover:bg-muted/60">
+                    <div className="h-11 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
+                      {p.images?.[0] ? (
+                        <img src={p.images[0]} alt={p.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center"><Home className="h-4 w-4 text-muted-foreground" /></div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-medium text-foreground md:text-[13px]">{p.title}</p>
+                      <p className="truncate text-[11px] text-muted-foreground">{p.zone || p.city || '—'}</p>
+                      <div className="mt-0.5 flex items-center gap-2">
+                        <span className="text-[11px] font-semibold text-foreground">{p.price_min ? `${Number(p.price_min).toLocaleString()} €` : '—'}</span>
+                        <StatusBadge status={p.availability_status} />
+                      </div>
+                    </div>
+                    <span className="shrink-0 text-[10px] text-muted-foreground">{p.updated_at ? format(parseISO(p.updated_at), 'dd MMM', { locale: ro }) : ''}</span>
+                  </Link>
+                ))
+              ) : (
+                <EmptyState label="Nu există proprietăți recente" />
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Activitate recentă + grafic secundar */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="admin-glass-card lg:col-span-1">
+            <div className="p-4 md:p-5 pb-2">
+              <h3 className="text-sm md:text-base font-semibold">Activitate recentă</h3>
+            </div>
+            <div className="px-3 pb-4 md:px-4">
+              {loadingActivity ? (
+                <div className="space-y-2">{[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-10 rounded-md" />)}</div>
+              ) : activityData && activityData.length > 0 ? (
+                <ul className="space-y-1">
+                  {activityData.map(item => {
+                    const Icon = item.kind === 'property' ? Home : item.kind === 'client' ? Users : CalendarCheck;
+                    return (
+                      <li key={item.id} className="flex items-start gap-3 rounded-md p-2">
+                        <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brass/10">
+                          <Icon className="h-3.5 w-3.5 text-brass" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-foreground">{item.text}</p>
+                          <p className="truncate text-[11px] text-muted-foreground">{item.entity}</p>
+                        </div>
+                        <span className="shrink-0 text-[10px] text-muted-foreground">{format(parseISO(item.at), 'dd MMM', { locale: ro })}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <EmptyState label="Nicio activitate înregistrată" />
+              )}
+            </div>
+          </div>
+
+          <div className="admin-glass-card lg:col-span-2">
+            <div className="flex items-center gap-2.5 p-4 md:p-5 pb-2">
+              <Layers className="h-4 w-4 text-brass shrink-0" />
+              <h3 className="text-sm md:text-base font-semibold">Distribuție pe tip tranzacție</h3>
+            </div>
+            <div className="px-1 md:px-5 pb-4">
+              <div className="h-[200px] md:h-[260px] w-full">
                 {loadingCommissions ? (
-                  <div className="h-full flex items-center justify-center">
-                    <div className="w-16 h-16 md:w-28 md:h-28 rounded-full border-4 border-muted animate-pulse" />
-                  </div>
+                  <ChartSkeleton />
                 ) : commissionsData?.typeDistribution && commissionsData.typeDistribution.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={commissionsData.typeDistribution} cx="50%" cy="45%" innerRadius={isMobile ? 30 : 50} outerRadius={isMobile ? 55 : 80} paddingAngle={3} dataKey="value">
+                      <Pie data={commissionsData.typeDistribution} cx="50%" cy="45%" innerRadius={isMobile ? 34 : 55} outerRadius={isMobile ? 58 : 85} paddingAngle={3} dataKey="value">
                         {commissionsData.typeDistribution.map((_, i) => (
                           <Cell key={i} fill={COLORS[i % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${Math.round(v).toLocaleString()} €`, 'Valoare']} />
-                      <Legend verticalAlign="bottom" height={isMobile ? 30 : 36} wrapperStyle={{ fontSize: isMobile ? '10px' : '11px' }} />
+                      <Legend verticalAlign="bottom" height={isMobile ? 28 : 36} wrapperStyle={{ fontSize: isMobile ? '10px' : '11px' }} />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-full flex items-center justify-center text-muted-foreground text-xs">Nu există date</div>
+                  <EmptyState label="Nu există date" />
                 )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Complex Breakdown */}
-        <div className="admin-glass-card">
-          <div className="p-4 md:p-5 pb-2">
-            <div className="flex items-center gap-2.5 mb-0.5">
-              <div className="p-1.5 rounded-lg bg-brass/10 border border-brass/15">
-                <Building2 className="h-4 w-4 text-brass" />
+        {/* Indicatori secundari (collapsible) */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowSecondary(v => !v)}
+            className="flex h-11 w-full items-center justify-between rounded-md border border-border bg-card px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
+          >
+            <span>Indicatori secundari</span>
+            <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${showSecondary ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showSecondary && (
+            <div className="mt-4 space-y-4">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <MiniCard icon={DollarSign} label="Comision mediu" value={`${(commissionsData?.avgEUR || 0).toLocaleString()} €`} color="bg-brass" loading={loadingCommissions} />
+                <MiniCard icon={BarChart3} label="YTD comisioane" value={`${(commissionsData?.ytdEUR || 0).toLocaleString()} €`} color="bg-brass" loading={loadingCommissions} />
+                <Link to="/admin/inbox">
+                  <MiniCard icon={Mail} label="Email-uri necitite" value={emailsData?.unread || 0} color="bg-brass" loading={loadingEmails} highlight={!!emailsData?.unread && emailsData.unread > 0} />
+                </Link>
+                <MiniCard icon={Target} label="Medie/zi" value={`${(commissionsData?.dailyAvgEUR || 0).toLocaleString()} €`} color="bg-brass" loading={loadingCommissions} />
               </div>
-              <h3 className="text-sm md:text-base font-semibold">{isMobile ? "Complexe" : "Apartamente pe Complex"}</h3>
-            </div>
-            {!isMobile && <p className="text-xs text-muted-foreground ml-9">Distribuție și rată de vânzare</p>}
-          </div>
-          <div className="px-2 md:px-5 pb-4">
-            <div className="h-[200px] md:h-[260px] w-full">
-              {loadingComplexes ? (
-                <ChartSkeleton />
-              ) : complexesData?.complexBreakdown && complexesData.complexBreakdown.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={isMobile ? complexesData.complexBreakdown.slice(0, 4) : complexesData.complexBreakdown} margin={isMobile ? { left: -10, right: 5, bottom: 40 } : { left: 0, right: 10 }}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
-                    <XAxis dataKey="name" tick={{ fontSize: isMobile ? 9 : 11 }} angle={isMobile ? -45 : 0} textAnchor={isMobile ? "end" : "middle"} height={isMobile ? 60 : 30} interval={0} tickFormatter={(v) => isMobile && v.length > 12 ? v.substring(0, 12) + '...' : v} />
-                    <YAxis tick={{ fontSize: isMobile ? 9 : 11 }} width={isMobile ? 30 : 40} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={tooltipStyle} formatter={(v: number, key: string) => {
-                      const labels: Record<string, string> = { available: 'Disponibile', sold: 'Vândute', reserved: 'Rezervate' };
-                      return [v, labels[key] ?? key];
-                    }} />
-                    {!isMobile && <Legend wrapperStyle={{ fontSize: '11px' }} />}
-                    <Bar dataKey="available" stackId="a" fill="hsl(var(--graphite))" name="Disponibile" radius={[2, 2, 0, 0]} />
-                    <Bar dataKey="sold" stackId="a" fill="hsl(var(--brass))" name="Vândute" />
-                    <Bar dataKey="reserved" stackId="a" fill="hsl(var(--slate))" name="Rezervate" radius={[2, 2, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-full flex items-center justify-center text-muted-foreground text-xs">Nu există complexe</div>
-              )}
-            </div>
-          </div>
-        </div>
 
-        {/* Bottom Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-          {/* Price Stats */}
-          <div className="admin-glass-card">
-            <div className="p-4 md:p-5 pb-2">
-              <h3 className="text-sm font-semibold">Statistici Prețuri</h3>
-              <p className="text-[10px] md:text-xs text-muted-foreground">Proprietăți individuale</p>
-            </div>
-            <div className="p-4 pt-0 md:p-5 md:pt-0">
-              {loadingProperties ? (
-                <div className="grid grid-cols-3 gap-2">{[1,2,3].map(i => <Skeleton key={i} className="h-14 rounded-xl" />)}</div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="p-2 rounded-xl bg-secondary/50 border border-border/20">
-                      <p className="text-sm md:text-base font-bold">{(propertiesData?.minPrice || 0).toLocaleString()}</p>
-                      <p className="text-[9px] text-muted-foreground">Min €</p>
-                    </div>
-                    <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">
-                      <p className="text-sm md:text-base font-bold text-primary">{(propertiesData?.avgPrice || 0).toLocaleString()}</p>
-                      <p className="text-[9px] text-muted-foreground">Mediu €</p>
-                    </div>
-                    <div className="p-2 rounded-xl bg-secondary/50 border border-border/20">
-                      <p className="text-sm md:text-base font-bold">{(propertiesData?.maxPrice || 0).toLocaleString()}</p>
-                      <p className="text-[9px] text-muted-foreground">Max €</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Noi luna aceasta:</span>
-                    <Badge variant="secondary" className="text-[10px] bg-brass/10 text-brass border-brass/20">+{propertiesData?.newThisMonth || 0}</Badge>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <MiniCard icon={Building2} label="Apt. complexe" value={complexesData?.totalApartments || 0} color="bg-brass" loading={loadingComplexes} />
+                <MiniCard icon={Calendar} label="Vizionări total" value={viewingsData?.total || 0} color="bg-brass" loading={loadingViewings} />
+                <MiniCard icon={Clock} label="În așteptare" value={viewingsData?.pending || 0} color="bg-brass" loading={loadingViewings} />
+                <MiniCard icon={CheckCircle} label="Confirmate" value={viewingsData?.confirmed || 0} color="bg-brass" loading={loadingViewings} />
+              </div>
+
+              <div className="admin-glass-card">
+                <div className="p-4 md:p-5 pb-2">
+                  <h3 className="text-sm md:text-base font-semibold">{isMobile ? "Complexe" : "Apartamente pe complex"}</h3>
+                </div>
+                <div className="px-1 md:px-5 pb-4">
+                  <div className="h-[220px] md:h-[260px] w-full">
+                    {loadingComplexes ? (
+                      <ChartSkeleton />
+                    ) : complexesData?.complexBreakdown && complexesData.complexBreakdown.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={isMobile ? complexesData.complexBreakdown.slice(0, 4) : complexesData.complexBreakdown} margin={isMobile ? { left: -12, right: 6, bottom: 40 } : { left: 0, right: 10 }}>
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: isMobile ? 9 : 11 }} angle={isMobile ? -45 : 0} textAnchor={isMobile ? "end" : "middle"} height={isMobile ? 60 : 30} interval={0} tickFormatter={(v) => isMobile && v.length > 12 ? v.substring(0, 12) + '...' : v} />
+                          <YAxis tick={{ fontSize: isMobile ? 9 : 11 }} width={isMobile ? 28 : 40} tickLine={false} axisLine={false} />
+                          <Tooltip contentStyle={tooltipStyle} formatter={(v: number, key: string) => {
+                            const labels: Record<string, string> = { available: 'Disponibile', sold: 'Vândute', reserved: 'Rezervate' };
+                            return [v, labels[key] ?? key];
+                          }} />
+                          {!isMobile && <Legend wrapperStyle={{ fontSize: '11px' }} />}
+                          <Bar dataKey="available" stackId="a" fill="hsl(var(--graphite))" name="Disponibile" radius={[2, 2, 0, 0]} />
+                          <Bar dataKey="sold" stackId="a" fill="hsl(var(--brass))" name="Vândute" />
+                          <Bar dataKey="reserved" stackId="a" fill="hsl(var(--slate))" name="Rezervate" radius={[2, 2, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <EmptyState label="Nu există complexe" />
+                    )}
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
 
-          {/* Invoice Status */}
-          <div className="admin-glass-card">
-            <div className="p-4 md:p-5 pb-2">
-              <h3 className="text-sm font-semibold">Status Facturi</h3>
-              <p className="text-[10px] md:text-xs text-muted-foreground">Comisioane facturate</p>
-            </div>
-            <div className="p-4 pt-0 md:p-5 md:pt-0">
-              {loadingCommissions ? (
-                <div className="space-y-3">{[1,2].map(i => <Skeleton key={i} className="h-8 rounded-full" />)}</div>
-              ) : (
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between text-xs mb-1.5">
-                      <span>Cu factură</span>
-                      <span className="font-medium">{commissionsData?.withInvoice || 0}</span>
-                    </div>
-                    <Progress value={commissionsData?.count ? ((commissionsData.withInvoice || 0) / commissionsData.count) * 100 : 0} className="h-2" />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="admin-glass-card">
+                  <div className="p-4 md:p-5 pb-2">
+                    <h3 className="text-sm font-semibold">Statistici prețuri</h3>
+                    <p className="text-[11px] text-muted-foreground">Proprietăți individuale</p>
                   </div>
-                  <div>
-                    <div className="flex justify-between text-xs mb-1.5">
-                      <span>Fără factură</span>
-                      <span className="font-medium">{commissionsData?.withoutInvoice || 0}</span>
-                    </div>
-                    <Progress value={commissionsData?.count ? ((commissionsData.withoutInvoice || 0) / commissionsData.count) * 100 : 0} className="h-2 [&>div]:bg-destructive" />
-                  </div>
-                  <div className="pt-2 border-t border-border/20">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Total tranzacții:</span>
-                      <span className="font-bold">{commissionsData?.count || 0}</span>
-                    </div>
+                  <div className="p-4 pt-0 md:p-5 md:pt-0">
+                    {loadingProperties ? (
+                      <div className="grid grid-cols-3 gap-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-14 rounded-md" />)}</div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="rounded-md border border-border bg-muted/40 p-2">
+                          <p className="text-sm font-bold md:text-base">{(propertiesData?.minPrice || 0).toLocaleString()}</p>
+                          <p className="text-[10px] text-muted-foreground">Min €</p>
+                        </div>
+                        <div className="rounded-md border border-brass/25 bg-brass/10 p-2">
+                          <p className="text-sm font-bold text-brass md:text-base">{(propertiesData?.avgPrice || 0).toLocaleString()}</p>
+                          <p className="text-[10px] text-muted-foreground">Mediu €</p>
+                        </div>
+                        <div className="rounded-md border border-border bg-muted/40 p-2">
+                          <p className="text-sm font-bold md:text-base">{(propertiesData?.maxPrice || 0).toLocaleString()}</p>
+                          <p className="text-[10px] text-muted-foreground">Max €</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
+
+                <div className="admin-glass-card">
+                  <div className="p-4 md:p-5 pb-2">
+                    <h3 className="text-sm font-semibold">Status facturi</h3>
+                    <p className="text-[11px] text-muted-foreground">Comisioane facturate</p>
+                  </div>
+                  <div className="p-4 pt-0 md:p-5 md:pt-0">
+                    {loadingCommissions ? (
+                      <div className="space-y-3">{[1, 2].map(i => <Skeleton key={i} className="h-8 rounded-md" />)}</div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div>
+                          <div className="mb-1.5 flex justify-between text-xs">
+                            <span>Cu factură</span>
+                            <span className="font-medium">{commissionsData?.withInvoice || 0}</span>
+                          </div>
+                          <Progress value={commissionsData?.count ? ((commissionsData.withInvoice || 0) / commissionsData.count) * 100 : 0} className="h-2" />
+                        </div>
+                        <div>
+                          <div className="mb-1.5 flex justify-between text-xs">
+                            <span>Fără factură</span>
+                            <span className="font-medium">{commissionsData?.withoutInvoice || 0}</span>
+                          </div>
+                          <Progress value={commissionsData?.count ? ((commissionsData.withoutInvoice || 0) / commissionsData.count) * 100 : 0} className="h-2 [&>div]:bg-destructive" />
+                        </div>
+                        <div className="flex justify-between border-t border-border pt-2 text-xs">
+                          <span className="text-muted-foreground">Total tranzacții:</span>
+                          <span className="font-bold">{commissionsData?.count || 0}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
+
 
         {/* Day Details Dialog */}
         <Dialog open={!!selectedDayDetails} onOpenChange={() => setSelectedDayDetails(null)}>
@@ -797,6 +780,27 @@ const MiniCard = ({ icon: Icon, label, value, color, loading, badge, highlight, 
         {trend !== undefined && trend !== 0 && <TrendBadge value={trend} />}
       </div>
     </div>
+  </div>
+);
+
+const StatusBadge = ({ status }: { status: string | null }) => {
+  const map: Record<string, string> = {
+    available: 'Activă',
+    sold: 'Vândută',
+    reserved: 'Rezervată',
+    rented: 'Închiriată',
+  };
+  const label = map[status || ''] || 'Draft';
+  return (
+    <span className="rounded-sm border border-border bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+      {label}
+    </span>
+  );
+};
+
+const EmptyState = ({ label }: { label: string }) => (
+  <div className="flex h-full min-h-[120px] flex-col items-center justify-center gap-1 py-6 text-center">
+    <p className="text-xs text-muted-foreground">{label}</p>
   </div>
 );
 
