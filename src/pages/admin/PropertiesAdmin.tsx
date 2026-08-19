@@ -121,6 +121,7 @@ const PropertiesAdmin = () => {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [page, setPage] = useState(1);
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   // IMMOFLUX properties
   const [immofluxPage, setImmofluxPage] = useState(1);
