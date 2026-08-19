@@ -607,7 +607,7 @@ const ComplexesOverview = () => {
                   className="justify-start gap-3 h-12"
                   onClick={() => handleShareToSocial('instagram')}
                 >
-                  <Instagram className="h-5 w-5 text-pink-600" />
+                  <Instagram className="h-5 w-5 text-brass" />
                   <span>Instagram</span>
                 </Button>
                 <Button

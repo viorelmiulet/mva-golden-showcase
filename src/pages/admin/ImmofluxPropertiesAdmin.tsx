@@ -251,7 +251,7 @@ const ImmofluxPropertiesAdmin = () => {
                         <Badge className="bg-brass text-black font-bold text-[10px]">TOP</Badge>
                       )}
                       {isPoleProperty(property) && (
-                        <Badge className="bg-purple-600 text-white font-bold text-[10px]">POLE POSITION</Badge>
+                        <Badge className="bg-brass text-white font-bold text-[10px]">POLE POSITION</Badge>
                       )}
                     </div>
                   </div>

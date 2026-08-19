@@ -1,9 +1,38 @@
 // Admin Layout with authentication and sidebar navigation
-import { useState, useEffect, Suspense } from "react";
-import { Outlet, Link, useLocation } from "@/lib/router-compat";
+import { useState, useEffect, useMemo, Suspense } from "react";
+import { Outlet, Link, useLocation, useNavigate } from "@/lib/router-compat";
+
+const PAGE_TITLES: Record<string, string> = {
+  "/admin/inbox": "Inbox",
+  "/admin/proprietati": "Proprietăți",
+  "/admin/complexe": "Ansambluri Rezidențiale",
+  "/admin/vizionari": "Vizionări",
+  "/admin/vizualizari-proprietati": "Vizualizări Proprietăți",
+  "/admin/virtual-staging": "Virtual Staging",
+  "/admin/watermark": "Watermark",
+  "/admin/clienti": "Clienți / Lead-uri",
+  "/admin/comisioane": "Comisioane",
+  "/admin/contracte": "Contracte",
+  "/admin/gestiune-chirii": "Gestiune Chirii",
+  "/admin/blog": "Blog",
+  "/admin/news": "News",
+  "/admin/marketing-ai": "Marketing AI",
+  "/admin/facebook-queue": "Coadă Facebook",
+  "/admin/facebook-groups": "Grupuri Facebook",
+  "/admin/carti-vizita": "Cărți Vizită",
+  "/admin/agent-vocal": "Agent Vocal AI",
+  "/admin/rapoarte": "Rapoarte",
+  "/admin/immoflux-codes": "Coduri ImmoFlux",
+  "/admin/immoflux": "ImmoFlux Sync",
+  "/admin/monitorizare-email": "Monitorizare Email",
+  "/admin/setari": "Setări",
+  "/admin/istoric": "Istoric",
+  "/admin/instaleaza": "Instalează Aplicația",
+  "/admin/inventar-presetat": "Inventar Presetat",
+};
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, BarChart3, Lock, LogOut, Settings, Eye, EyeOff, Menu, X } from "lucide-react";
+import { ArrowLeft, BarChart3, Lock, LogOut, Settings, Eye, EyeOff, Menu, X, Search, Bell } from "lucide-react";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,57 +78,79 @@ const AdminHeader = ({
   isMobileMenuOpen,
   setIsMobileMenuOpen
 }: any) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState("");
+
+  const pageTitle = useMemo(() => {
+    const path = location.pathname.replace(/\/$/, "");
+    if (path === "/admin" || path === "") return "Dashboard";
+    const match = Object.keys(PAGE_TITLES)
+      .filter((key) => path.startsWith(key))
+      .sort((a, b) => b.length - a.length)[0];
+    return match ? PAGE_TITLES[match] : "Panou Admin";
+  }, [location.pathname]);
+
+  const onSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+    const q = searchValue.trim();
+    if (!q) return;
+    navigate(`/admin/proprietati?q=${encodeURIComponent(q)}`);
+  };
+
   return (
     <header className="admin-header-modern h-14 md:h-16 sticky top-0 z-30 flex items-center px-4 md:px-6 gap-3 md:gap-4 safe-area-inset-top">
       {/* Mobile Menu Button */}
       {isMobile && (
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="shrink-0 h-10 w-10 touch-manipulation active:scale-95 rounded-xl hover:bg-white/5"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0 h-10 w-10 rounded-md touch-manipulation active:scale-95"
               aria-label="Deschide meniul"
             >
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent 
-            side="left" 
-            className="w-[85vw] max-w-[320px] p-0 flex flex-col h-[100dvh] overflow-hidden bg-gradient-to-b from-background to-background/95 border-r border-white/10"
+          <SheetContent
+            side="left"
+            className="w-[86vw] max-w-[300px] p-0 flex flex-col h-[100dvh] overflow-hidden border-r-0 bg-ink"
           >
-            <div className="flex items-center gap-3 p-4 border-b border-white/5 shrink-0">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brass/20 to-brass/5 flex items-center justify-center">
-                <BarChart3 className="w-4 h-4 text-brass" />
-              </div>
+            <div className="flex h-16 items-center gap-3 border-b border-paper/10 px-4 shrink-0">
               <div>
-                <span className="font-semibold text-sm">MVA Admin</span>
-                <p className="text-[10px] text-muted-foreground">Panou de control</p>
+                <p className="font-display text-[15px] leading-tight text-paper">MVA</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-brass">Imobiliare</p>
               </div>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y bg-ink">
               <AdminSidebar isMobileSheet onNavigate={() => setIsMobileMenuOpen(false)} />
             </div>
           </SheetContent>
         </Sheet>
       )}
 
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="hidden md:flex w-9 h-9 rounded-xl bg-gradient-to-br from-brass/15 to-brass/5 items-center justify-center">
-          <BarChart3 className="w-4 h-4 text-brass" />
-        </div>
-        <div>
-          <h1 className="text-sm md:text-base font-semibold truncate">
-            <span className="text-foreground">Panou </span>
-            <span className="bg-gradient-to-r from-brass to-brass-light bg-clip-text text-transparent">
-              Admin
-            </span>
-          </h1>
-          <p className="text-[10px] text-muted-foreground hidden md:block">Administrare & Statistici</p>
-        </div>
+      <div className="min-w-0">
+        <h1 className="font-display text-base md:text-lg text-foreground truncate">{pageTitle}</h1>
       </div>
 
-      <div className="ml-auto flex items-center gap-1">
+      <div className="relative ml-auto hidden lg:block w-full max-w-sm">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          onKeyDown={onSearchSubmit}
+          placeholder="Caută în sistem..."
+          className="h-9 rounded-md border-border bg-card pl-9 text-sm"
+        />
+      </div>
+
+      <div className="ml-auto flex items-center gap-1 lg:ml-2">
+        <Link to="/admin/inbox">
+          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-md text-muted-foreground hover:text-foreground" title="Notificări" aria-label="Notificări">
+            <Bell className="w-4 h-4" />
+          </Button>
+        </Link>
         <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
           <DialogTrigger asChild>
             <Button 
@@ -363,7 +414,7 @@ const AdminLayout = () => {
           />
 
           {/* Main Content - fully responsive with safe area support */}
-          <main className="flex-1 p-4 md:p-8 overflow-auto bg-gradient-to-br from-transparent to-black/5">
+          <main className="flex-1 p-4 md:p-8 overflow-auto bg-background">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}

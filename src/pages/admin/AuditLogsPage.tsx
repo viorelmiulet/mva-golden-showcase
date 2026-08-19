@@ -82,12 +82,12 @@ const actionTypeLabels: Record<string, { label: string; color: string; icon: Rea
   update: { label: "Modificare", color: "bg-blue-500/20 text-blue-400 border-blue-500/30", icon: <Pencil className="h-3 w-3" /> },
   delete: { label: "Ștergere", color: "bg-red-500/20 text-red-400 border-red-500/30", icon: <Trash2 className="h-3 w-3" /> },
   view: { label: "Vizualizare", color: "bg-gray-500/20 text-gray-400 border-gray-500/30", icon: <Eye className="h-3 w-3" /> },
-  export: { label: "Export", color: "bg-purple-500/20 text-purple-400 border-purple-500/30", icon: <Download className="h-3 w-3" /> },
+  export: { label: "Export", color: "bg-brass/20 text-brass border-brass/30", icon: <Download className="h-3 w-3" /> },
   import: { label: "Import", color: "bg-orange-500/20 text-orange-400 border-orange-500/30", icon: <Upload className="h-3 w-3" /> },
   login: { label: "Autentificare", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", icon: <LogIn className="h-3 w-3" /> },
   logout: { label: "Deconectare", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", icon: <LogOut className="h-3 w-3" /> },
-  generate_pdf: { label: "Generare PDF", color: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30", icon: <FileText className="h-3 w-3" /> },
-  send_email: { label: "Trimitere Email", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30", icon: <Mail className="h-3 w-3" /> },
+  generate_pdf: { label: "Generare PDF", color: "bg-brass/20 text-brass border-brass/30", icon: <FileText className="h-3 w-3" /> },
+  send_email: { label: "Trimitere Email", color: "bg-brass/20 text-brass border-brass/30", icon: <Mail className="h-3 w-3" /> },
   sign_contract: { label: "Semnare Contract", color: "bg-brass/20 text-brass border-brass/30", icon: <FileText className="h-3 w-3" /> },
 };
 

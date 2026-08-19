@@ -26,8 +26,8 @@ const sectionTypes = [
       "Gestionare imagini",
       "Ștergere în masă",
     ],
-    iconBg: "bg-cyan-500/20",
-    iconColor: "text-cyan-400",
+    iconBg: "bg-brass/12",
+    iconColor: "text-brass",
   },
   {
     id: "import-xml" as const,
@@ -41,8 +41,8 @@ const sectionTypes = [
       "Import automat",
       "Surse multiple",
     ],
-    iconBg: "bg-emerald-500/20",
-    iconColor: "text-emerald-400",
+    iconBg: "bg-brass/12",
+    iconColor: "text-brass",
   },
   {
     id: "immoflux" as const,
@@ -56,8 +56,8 @@ const sectionTypes = [
       "Paginare automată",
       "Link-uri directe",
     ],
-    iconBg: "bg-purple-500/20",
-    iconColor: "text-purple-400",
+    iconBg: "bg-brass/12",
+    iconColor: "text-brass",
   },
 ];
 

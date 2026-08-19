@@ -1,29 +1,31 @@
 import { NavLink, useLocation } from "@/lib/router-compat";
 import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import {
-  Home,
-  Upload,
+  LayoutDashboard,
+  Inbox,
+  Building2,
+  Building,
+  CalendarCheck,
+  Sofa,
+  Stamp,
+  Eye,
+  Users,
+  Euro,
+  FileSignature,
+  Package,
+  FileText,
+  Newspaper,
+  Sparkles,
+  Facebook,
   CreditCard,
-  Share2,
+  PhoneCall,
+  ChartNoAxesCombined,
+  RefreshCw,
+  Database,
+  MailWarning,
+  Settings,
   ChevronLeft,
   ChevronRight,
-  Layers,
-  Euro,
-  LayoutDashboard,
-  FileText,
-  Settings,
-  Sparkles,
-  ScrollText,
-  Package,
-  Stamp,
-  Inbox,
-  Mic,
-  CalendarCheck,
-  Eye,
-  Database,
-  Facebook,
-  MailWarning,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,81 +35,80 @@ import { useBrowserNotifications } from "@/hooks/useBrowserNotifications";
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-const menuItems = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
-  { title: "Inbox", url: "/admin/inbox", icon: Inbox },
-  { title: "Gestiune Chirii", url: "/admin/gestiune-chirii", icon: Package },
-  { title: "Vizualizări Proprietăți", url: "/admin/vizualizari-proprietati", icon: Eye },
-  { title: "Proprietăți", url: "/admin/proprietati", icon: Home },
-  { title: "Ansambluri Rezidențiale", url: "/admin/complexe", icon: Layers },
-  { title: "Vizionări", url: "/admin/vizionari", icon: CalendarCheck },
-  { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
-  { title: "Contracte", url: "/admin/contracte", icon: ScrollText },
-  { title: "Virtual Staging", url: "/admin/virtual-staging", icon: Sparkles },
-  { title: "Watermark", url: "/admin/watermark", icon: Stamp },
-  { title: "Agent Vocal AI", url: "/admin/agent-vocal", icon: Mic },
-  { title: "Rapoarte", url: "/admin/rapoarte", icon: FileText },
-  { title: "Cărți Vizită", url: "/admin/carti-vizita", icon: CreditCard },
-  { title: "Blog", url: "/admin/blog", icon: FileText },
-  { title: "News", url: "/admin/news", icon: FileText },
-  { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
-  { title: "Immoflux Sync", url: "/admin/immoflux", icon: Database },
-  { title: "Coduri Immoflux", url: "/admin/immoflux-codes", icon: Database },
+type Item = {
+  title: string;
+  url: string;
+  icon: typeof LayoutDashboard;
+  exact?: boolean;
+};
 
-  { title: "Coadă Facebook", url: "/admin/facebook-queue", icon: Facebook },
-  { title: "Grupuri Facebook", url: "/admin/facebook-groups", icon: Facebook },
-  { title: "Monitorizare email", url: "/admin/monitorizare-email", icon: MailWarning },
-  { title: "Setări", url: "/admin/setari", icon: Settings },
+type Section = { label: string; items: Item[] };
 
+const sections: Section[] = [
+  {
+    label: "Panou",
+    items: [
+      { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
+      { title: "Inbox", url: "/admin/inbox", icon: Inbox },
+    ],
+  },
+  {
+    label: "Proprietăți",
+    items: [
+      { title: "Proprietăți", url: "/admin/proprietati", icon: Building2 },
+      { title: "Ansambluri Rezidențiale", url: "/admin/complexe", icon: Building },
+      { title: "Vizionări", url: "/admin/vizionari", icon: CalendarCheck },
+      { title: "Vizualizări Proprietăți", url: "/admin/vizualizari-proprietati", icon: Eye },
+      { title: "Virtual Staging", url: "/admin/virtual-staging", icon: Sofa },
+      { title: "Watermark", url: "/admin/watermark", icon: Stamp },
+    ],
+  },
+  {
+    label: "Clienți & Vânzări",
+    items: [
+      { title: "Clienți / Lead-uri", url: "/admin/clienti", icon: Users },
+      { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
+      { title: "Contracte", url: "/admin/contracte", icon: FileSignature },
+      { title: "Gestiune Chirii", url: "/admin/gestiune-chirii", icon: Package },
+    ],
+  },
+  {
+    label: "Marketing",
+    items: [
+      { title: "Blog", url: "/admin/blog", icon: FileText },
+      { title: "News", url: "/admin/news", icon: Newspaper },
+      { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
+      { title: "Coadă Facebook", url: "/admin/facebook-queue", icon: Facebook },
+      { title: "Grupuri Facebook", url: "/admin/facebook-groups", icon: Facebook },
+      { title: "Cărți Vizită", url: "/admin/carti-vizita", icon: CreditCard },
+    ],
+  },
+  {
+    label: "Instrumente",
+    items: [
+      { title: "Agent Vocal AI", url: "/admin/agent-vocal", icon: PhoneCall },
+      { title: "Rapoarte", url: "/admin/rapoarte", icon: ChartNoAxesCombined },
+      { title: "ImmoFlux Sync", url: "/admin/immoflux", icon: RefreshCw },
+      { title: "Coduri ImmoFlux", url: "/admin/immoflux-codes", icon: Database },
+      { title: "Monitorizare Email", url: "/admin/monitorizare-email", icon: MailWarning },
+    ],
+  },
+  {
+    label: "Administrare",
+    items: [{ title: "Setări", url: "/admin/setari", icon: Settings }],
+  },
 ];
-
-// Animation variants
-const sidebarVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.03,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const menuItemVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 24,
-    },
-  },
-};
-
-const iconHoverVariants = {
-  rest: { scale: 1, rotate: 0 },
-  hover: { 
-    scale: 1.15, 
-    rotate: [0, -5, 5, 0],
-    transition: { 
-      rotate: { duration: 0.4 },
-      scale: { type: "spring" as const, stiffness: 400, damping: 17 }
-    }
-  },
-};
 
 interface AdminSidebarProps {
   isMobileSheet?: boolean;
@@ -125,293 +126,172 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   const isInitialLoadRef = useRef(true);
   const hasRequestedPermissionRef = useRef(false);
 
-  // Fetch unread emails with IDs to track which ones we've notified about
   const { data: unreadEmails = [] } = useQuery({
-    queryKey: ['unread-emails-for-notifications'],
+    queryKey: ["unread-emails-for-notifications"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('received_emails')
-        .select('id, sender, subject')
-        .eq('is_read', false)
-        .eq('is_archived', false)
-        .order('received_at', { ascending: false });
-      
+        .from("received_emails")
+        .select("id, sender, subject")
+        .eq("is_read", false)
+        .eq("is_archived", false)
+        .order("received_at", { ascending: false });
+
       if (error) throw error;
       return data || [];
     },
     refetchInterval: 30000,
     refetchOnWindowFocus: true,
-    staleTime: 0, // Always consider data stale to ensure refetch on invalidation
+    staleTime: 0,
   });
 
-  // Request notification permission on first user interaction
   useEffect(() => {
-    if (permission === 'default' && !hasRequestedPermissionRef.current) {
+    if (permission === "default" && !hasRequestedPermissionRef.current) {
       const handleInteraction = () => {
         hasRequestedPermissionRef.current = true;
         requestPermission();
-        document.removeEventListener('click', handleInteraction);
+        document.removeEventListener("click", handleInteraction);
       };
-      document.addEventListener('click', handleInteraction);
-      return () => document.removeEventListener('click', handleInteraction);
+      document.addEventListener("click", handleInteraction);
+      return () => document.removeEventListener("click", handleInteraction);
     }
   }, [permission, requestPermission]);
 
-  // Play notification sound and show browser notification only for truly new emails
   useEffect(() => {
-    // Skip the first render (initial load) - just record existing emails
     if (isInitialLoadRef.current) {
-      unreadEmails.forEach(email => notifiedEmailIdsRef.current.add(email.id));
+      unreadEmails.forEach((email) => notifiedEmailIdsRef.current.add(email.id));
       isInitialLoadRef.current = false;
       return;
     }
 
-    // Find emails we haven't notified about yet
-    const newEmails = unreadEmails.filter(email => !notifiedEmailIdsRef.current.has(email.id));
-    
+    const newEmails = unreadEmails.filter((email) => !notifiedEmailIdsRef.current.has(email.id));
+
     if (newEmails.length > 0) {
-      // Mark these as notified
-      newEmails.forEach(email => notifiedEmailIdsRef.current.add(email.id));
-      
-      // Play sound and show notification
+      newEmails.forEach((email) => notifiedEmailIdsRef.current.add(email.id));
       playNotificationSound();
-      showNewEmailNotification(newEmails.map(e => ({ sender: e.sender, subject: e.subject })));
+      showNewEmailNotification(newEmails.map((e) => ({ sender: e.sender, subject: e.subject })));
     }
 
-    // Clean up notified IDs that are no longer in unread list (they were read/archived)
-    const currentUnreadIds = new Set(unreadEmails.map(e => e.id));
-    notifiedEmailIdsRef.current.forEach(id => {
+    const currentUnreadIds = new Set(unreadEmails.map((e) => e.id));
+    notifiedEmailIdsRef.current.forEach((id) => {
       if (!currentUnreadIds.has(id)) {
         notifiedEmailIdsRef.current.delete(id);
       }
     });
   }, [unreadEmails, playNotificationSound, showNewEmailNotification]);
 
-  // Derive unread count from the emails data
   const unreadCount = unreadEmails.length;
 
-  const getNavCls = (isActive: boolean) =>
-    isActive
-      ? "bg-gradient-to-r from-brass/15 to-brass/5 text-brass border-l-2 border-brass pl-[10px]"
-      : "text-muted-foreground hover:text-foreground hover:bg-white/5 border-l-2 border-transparent pl-[10px]";
+  const isItemActive = (item: Item) =>
+    item.exact ? currentPath === item.url : currentPath.startsWith(item.url);
 
-  const handleNavClick = () => {
-    if (onNavigate) {
-      onNavigate();
-    }
+  const renderItem = (item: Item) => {
+    const active = isItemActive(item);
+    const showBadge = item.title === "Inbox" && unreadCount > 0;
+
+    const link = (
+      <NavLink
+        to={item.url}
+        end={item.exact}
+        onClick={onNavigate}
+        title={collapsed ? item.title : undefined}
+        className={[
+          "group relative flex items-center rounded-md text-[13px] font-medium transition-colors duration-200",
+          collapsed ? "justify-center h-10 w-10 mx-auto" : "gap-3 px-3 py-2",
+          active
+            ? "bg-graphite text-paper"
+            : "text-paper/65 hover:text-paper hover:bg-graphite/70",
+        ].join(" ")}
+      >
+        {active && (
+          <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-brass" />
+        )}
+        <span className="relative flex items-center justify-center">
+          <item.icon
+            className={`h-[18px] w-[18px] shrink-0 ${active ? "text-brass" : "text-paper/60 group-hover:text-paper"}`}
+          />
+          {showBadge && collapsed && (
+            <span className="absolute -top-1.5 -right-1.5 h-2 w-2 rounded-full bg-brass" />
+          )}
+        </span>
+        {!collapsed && <span className="truncate">{item.title}</span>}
+        {!collapsed && showBadge && (
+          <Badge className="ml-auto h-5 min-w-5 justify-center border-0 bg-brass px-1.5 text-[10px] font-semibold text-ink">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </Badge>
+        )}
+      </NavLink>
+    );
+
+    if (!collapsed) return <div key={item.title}>{link}</div>;
+
+    return (
+      <Tooltip key={item.title} delayDuration={80}>
+        <TooltipTrigger asChild>{link}</TooltipTrigger>
+        <TooltipContent side="right" className="text-xs">
+          {item.title}
+        </TooltipContent>
+      </Tooltip>
+    );
   };
 
-  // For mobile sheet, render a simpler version with better scrolling
+  const nav = (
+    <TooltipProvider>
+      <div className={`space-y-6 ${collapsed ? "px-2" : "px-3"} py-4`}>
+        {sections.map((section) => (
+          <div key={section.label} className="space-y-1">
+            {collapsed ? (
+              <div className="mx-auto mb-2 h-px w-6 bg-paper/10" />
+            ) : (
+              <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-paper/35">
+                {section.label}
+              </p>
+            )}
+            {section.items.map(renderItem)}
+          </div>
+        ))}
+      </div>
+    </TooltipProvider>
+  );
+
   if (isMobileSheet) {
     return (
-      <nav className="flex-1 overflow-y-auto overscroll-contain p-3 pb-8 admin-sidebar-modern">
-        <motion.div 
-          className="space-y-1"
-          variants={sidebarVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {menuItems.map((item, index) => {
-            const isActive = item.exact
-              ? currentPath === item.url
-              : currentPath.startsWith(item.url);
-            const showBadge = item.title === "Inbox" && unreadCount > 0;
-            return (
-              <motion.div
-                key={item.title}
-                variants={menuItemVariants}
-                whileHover={{ x: 4 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <NavLink
-                  to={item.url}
-                  end={item.exact}
-                  onClick={handleNavClick}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 touch-manipulation ${getNavCls(isActive)}`}
-                >
-                  <div className="relative">
-                    <motion.div 
-                      className={`p-1.5 rounded-md ${isActive ? 'bg-brass/20' : 'bg-white/5'}`}
-                      variants={iconHoverVariants}
-                      initial="rest"
-                      whileHover="hover"
-                    >
-                      <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-brass' : ''}`} />
-                    </motion.div>
-                    {showBadge && (
-                      <Badge 
-                        className="absolute -top-2 -right-2 h-4 min-w-4 px-1 text-[10px] bg-brass text-black border-0 flex items-center justify-center"
-                      >
-                        {unreadCount > 99 ? '99+' : unreadCount}
-                      </Badge>
-                    )}
-                  </div>
-                  <span>{item.title}</span>
-                </NavLink>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-        {/* Safe area padding for iOS */}
+      <nav className="admin-sidebar-modern flex-1 overflow-y-auto overscroll-contain pb-8">
+        {nav}
         <div className="h-safe-area-inset-bottom" />
       </nav>
     );
   }
 
   return (
-    <Sidebar 
-      className={`
-        ${collapsed ? "w-16" : "w-64"} 
-        admin-sidebar-modern
-        transition-all duration-300 ease-out shrink-0
-        hidden md:flex flex-col
-      `} 
+    <Sidebar
+      className={`${collapsed ? "w-[72px]" : "w-[252px]"} admin-sidebar-modern hidden shrink-0 flex-col transition-[width] duration-300 ease-out md:flex`}
       collapsible="icon"
     >
       <SidebarContent className="h-full bg-transparent">
-        {/* Logo/Toggle Area */}
-        <div className={`p-3 border-b border-white/5 flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}>
+        <div
+          className={`flex h-16 shrink-0 items-center border-b border-paper/10 ${collapsed ? "justify-center px-2" : "justify-between px-4"}`}
+        >
           {!collapsed && (
-            <motion.div 
-              className="flex items-center gap-2"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <motion.div 
-                className="w-8 h-8 rounded-lg bg-gradient-to-br from-brass/20 to-brass/5 flex items-center justify-center"
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              >
-                <Layers className="h-4 w-4 text-brass" />
-              </motion.div>
-              <span className="font-semibold text-sm bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                MVA Admin
-              </span>
-            </motion.div>
+            <div className="min-w-0">
+              <p className="font-display text-[15px] leading-tight text-paper">MVA</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-brass">Imobiliare</p>
+            </div>
           )}
-          <motion.div
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="h-8 w-8 rounded-md text-paper/60 hover:bg-graphite hover:text-brass"
+            title={collapsed ? "Extinde meniul" : "Restrânge meniul"}
+            aria-label={collapsed ? "Extinde meniul" : "Restrânge meniul"}
           >
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="h-8 w-8 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-brass transition-colors"
-              title={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
-              aria-label={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
-            >
-              <motion.div
-                animate={{ rotate: collapsed ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                {collapsed ? (
-                  <ChevronRight className="h-4 w-4" />
-                ) : (
-                  <ChevronLeft className="h-4 w-4" />
-                )}
-              </motion.div>
-            </Button>
-          </motion.div>
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </Button>
         </div>
 
-        <SidebarGroup className={`flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] py-4 ${collapsed ? 'px-1' : 'px-2'}`}>
-          {!collapsed && (
-            <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mb-2 px-3">
-              Meniu Principal
-            </SidebarGroupLabel>
-          )}
-
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              <motion.div
-                variants={sidebarVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                {menuItems.map((item, index) => {
-                  const isActive = item.exact
-                    ? currentPath === item.url
-                    : currentPath.startsWith(item.url);
-                  const showBadge = item.title === "Inbox" && unreadCount > 0;
-                  return (
-                    <motion.div
-                      key={item.title}
-                      variants={menuItemVariants}
-                    >
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                          <motion.div
-                            whileHover={{ x: collapsed ? 0 : 4 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <NavLink
-                              to={item.url}
-                              end={item.exact}
-                              className={`
-                                flex items-center rounded-lg text-sm font-medium
-                                transition-all duration-200 group
-                                ${collapsed 
-                                  ? 'justify-center p-2 mx-auto w-10 h-10' 
-                                  : 'gap-3 px-3 py-2'
-                                }
-                                ${isActive 
-                                  ? collapsed 
-                                    ? 'bg-brass/20 text-brass' 
-                                    : 'bg-gradient-to-r from-brass/15 to-transparent text-brass border-l-2 border-brass' 
-                                  : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border-l-2 border-transparent'
-                                }
-                                ${collapsed ? '' : 'ml-0'}
-                              `}
-                              title={collapsed ? item.title : undefined}
-                            >
-                              <div className="relative">
-                                <motion.div 
-                                  className={`
-                                    ${collapsed ? '' : 'p-1.5'} rounded-md transition-colors
-                                    ${isActive && !collapsed ? 'bg-brass/20' : !collapsed ? 'bg-white/5 group-hover:bg-white/10' : ''}
-                                  `}
-                                  variants={iconHoverVariants}
-                                  initial="rest"
-                                  whileHover="hover"
-                                >
-                                  <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-brass' : 'group-hover:text-foreground'}`} />
-                                </motion.div>
-                                {showBadge && (
-                                  <Badge 
-                                    className={`absolute -top-2 -right-2 h-4 min-w-4 px-1 text-[10px] bg-brass text-black border-0 flex items-center justify-center ${collapsed ? '-top-1 -right-1 h-3.5 min-w-3.5 text-[9px]' : ''}`}
-                                  >
-                                    {unreadCount > 99 ? '99+' : unreadCount}
-                                  </Badge>
-                                )}
-                              </div>
-                              {!collapsed && <span>{item.title}</span>}
-                            </NavLink>
-                          </motion.div>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Footer */}
-        {!collapsed && (
-          <motion.div 
-            className="p-3 border-t border-white/5"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div className="text-[10px] text-muted-foreground/50 text-center">
-              © 2024 MVA Imobiliare
-            </div>
-          </motion.div>
-        )}
+        <div className="flex-1 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          {nav}
+        </div>
       </SidebarContent>
     </Sidebar>
   );

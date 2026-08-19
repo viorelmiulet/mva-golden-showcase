@@ -418,9 +418,9 @@ export default function VirtualStagingPage() {
         className="flex items-center gap-4"
       >
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/40 to-pink-600/10 rounded-2xl blur-xl" />
-          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-600/5 border border-purple-500/20">
-            <Sparkles className="h-6 w-6 text-purple-400" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brass/40 to-brass/10 rounded-2xl blur-xl" />
+          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-brass/5 border border-brass/20">
+            <Sparkles className="h-6 w-6 text-brass" />
           </div>
         </div>
         <div>

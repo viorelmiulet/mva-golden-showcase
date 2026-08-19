@@ -255,7 +255,7 @@ const ViewingAppointmentsPage = () => {
           </div>
         </div>
         <div className="relative group">
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/20 to-brass/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
           <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-5 hover:border-blue-500/30 transition-all">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
