@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "@/lib/router-compat";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
   Inbox,
@@ -26,6 +26,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,7 +54,7 @@ type Item = {
   exact?: boolean;
 };
 
-type Section = { label: string; items: Item[] };
+type Section = { label: string; items: Item[]; collapsible?: boolean };
 
 const sections: Section[] = [
   {
@@ -85,6 +86,7 @@ const sections: Section[] = [
   },
   {
     label: "Marketing",
+    collapsible: true,
     items: [
       { title: "Blog", url: "/admin/blog", icon: FileText },
       { title: "News", url: "/admin/news", icon: Newspaper },
@@ -96,6 +98,7 @@ const sections: Section[] = [
   },
   {
     label: "Instrumente",
+    collapsible: true,
     items: [
       { title: "Agent Vocal AI", url: "/admin/agent-vocal", icon: PhoneCall },
       { title: "Rapoarte", url: "/admin/rapoarte", icon: ChartNoAxesCombined },
@@ -106,6 +109,7 @@ const sections: Section[] = [
   },
   {
     label: "Administrare",
+    collapsible: true,
     items: [{ title: "Setări", url: "/admin/setari", icon: Settings }],
   },
 ];
@@ -125,6 +129,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   const notifiedEmailIdsRef = useRef<Set<string>>(new Set());
   const isInitialLoadRef = useRef(true);
   const hasRequestedPermissionRef = useRef(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const { data: unreadEmails = [] } = useQuery({
     queryKey: ["unread-emails-for-notifications"],
@@ -196,7 +201,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
         title={collapsed ? item.title : undefined}
         className={[
           "group relative flex items-center rounded-md text-[13px] font-medium transition-colors duration-200",
-          collapsed ? "justify-center h-10 w-10 mx-auto" : "gap-3 px-3 py-2",
+          collapsed ? "justify-center h-10 w-10 mx-auto" : isMobileSheet ? "gap-3 px-3 py-3 min-h-[48px] text-sm" : "gap-3 px-3 py-2",
           active
             ? "bg-graphite text-paper"
             : "text-paper/65 hover:text-paper hover:bg-graphite/70",
@@ -236,19 +241,37 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
 
   const nav = (
     <TooltipProvider>
-      <div className={`space-y-6 ${collapsed ? "px-2" : "px-3"} py-4`}>
-        {sections.map((section) => (
-          <div key={section.label} className="space-y-1">
-            {collapsed ? (
-              <div className="mx-auto mb-2 h-px w-6 bg-paper/10" />
-            ) : (
-              <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-paper/35">
-                {section.label}
-              </p>
-            )}
-            {section.items.map(renderItem)}
-          </div>
-        ))}
+      <div className={`space-y-5 ${collapsed ? "px-2" : "px-3"} py-4`}>
+        {sections.map((section) => {
+          const hasActive = section.items.some(isItemActive);
+          const isOpen = collapsed || !section.collapsible || (openSections[section.label] ?? hasActive);
+          return (
+            <div key={section.label} className="space-y-1">
+              {collapsed ? (
+                <div className="mx-auto mb-2 h-px w-6 bg-paper/10" />
+              ) : section.collapsible ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenSections((prev) => ({
+                      ...prev,
+                      [section.label]: !(prev[section.label] ?? hasActive),
+                    }))
+                  }
+                  className="flex w-full items-center justify-between rounded-md px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-paper/35 transition-colors hover:text-paper/70"
+                >
+                  <span>{section.label}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                </button>
+              ) : (
+                <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-paper/35">
+                  {section.label}
+                </p>
+              )}
+              {isOpen && section.items.map(renderItem)}
+            </div>
+          );
+        })}
       </div>
     </TooltipProvider>
   );
