@@ -443,8 +443,8 @@ const DashboardPage = () => {
 
           {/* Proprietăți recente */}
           <div className="admin-glass-card flex flex-col">
-            <div className="flex items-center justify-between gap-2 p-4 md:p-5 pb-2">
-              <h3 className="text-sm md:text-base font-semibold truncate">Proprietăți recente</h3>
+            <div className="flex flex-nowrap items-center justify-between gap-2 p-4 md:p-5 pb-2">
+              <h3 className="min-w-0 truncate text-sm md:text-base font-semibold">Proprietăți recente</h3>
               <Link to="/admin/proprietati" className="shrink-0 text-xs font-medium text-brass hover:underline">Vezi toate →</Link>
             </div>
             <div className="flex-1 divide-y divide-border/60 px-2 pb-2 md:px-3">
