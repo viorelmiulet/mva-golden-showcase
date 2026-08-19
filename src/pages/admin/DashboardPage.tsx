@@ -30,7 +30,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 
-const COLORS = ['hsl(45, 100%, 58%)', 'hsl(152, 69%, 53%)', 'hsl(217, 91%, 60%)', 'hsl(38, 92%, 50%)', 'hsl(0, 84%, 60%)', 'hsl(258, 90%, 66%)'];
+const COLORS = ['hsl(var(--brass))', 'hsl(var(--graphite))', 'hsl(var(--slate))', 'hsl(var(--brass-light))', 'hsl(var(--brass-dark))', 'hsl(var(--stone))'];
 
 type PeriodFilter = '7d' | '30d' | 'month' | 'year';
 
@@ -334,9 +334,9 @@ const DashboardPage = () => {
                 <SelectItem value="year">Anul curent</SelectItem>
               </SelectContent>
             </Select>
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] text-emerald-600 font-medium">Live</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-brass/10 border border-brass/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-brass animate-pulse" />
+              <span className="text-[10px] text-brass font-medium">Live</span>
             </div>
             <Badge variant="secondary" className="text-[10px] md:text-xs px-2.5 py-1 rounded-full bg-secondary/50 border-border/20">
               {format(new Date(), isMobile ? 'dd MMM' : 'dd MMMM yyyy', { locale: ro })}
@@ -355,8 +355,8 @@ const DashboardPage = () => {
               key={to}
               to={to} 
               className={`flex flex-col md:flex-row items-center gap-2 md:gap-3 p-3 md:p-4 rounded-xl border transition-all hover:shadow-lg group
-                ${color === 'emerald' ? 'bg-emerald-500/5 border-emerald-500/15 hover:border-emerald-500/30' : ''}
-                ${color === 'blue' ? 'bg-blue-500/5 border-blue-500/15 hover:border-blue-500/30' : ''}
+                ${color === 'emerald' ? 'bg-brass/5 border-brass/15 hover:border-brass/30' : ''}
+                ${color === 'blue' ? 'bg-brass/5 border-brass/15 hover:border-brass/30' : ''}
                 ${color === 'gold' ? 'bg-primary/5 border-primary/15 hover:border-primary/30' : ''}
               `}
             >
@@ -422,12 +422,12 @@ const DashboardPage = () => {
                         <AreaChart data={commissionsData.currentMonthDailyTrend} onClick={handleSparklineClick}>
                           <defs>
                             <linearGradient id="sparkMonth" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="hsl(152, 69%, 53%)" stopOpacity={0.4} />
-                              <stop offset="95%" stopColor="hsl(152, 69%, 53%)" stopOpacity={0} />
+                              <stop offset="5%" stopColor="hsl(var(--graphite))" stopOpacity={0.4} />
+                              <stop offset="95%" stopColor="hsl(var(--graphite))" stopOpacity={0} />
                             </linearGradient>
                           </defs>
                           <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v.toLocaleString()} €`, '']} labelFormatter={(l) => `Ziua ${l}`} />
-                          <Area type="monotone" dataKey="value" stroke="hsl(152, 69%, 53%)" strokeWidth={1.5} fill="url(#sparkMonth)" />
+                          <Area type="monotone" dataKey="value" stroke="hsl(var(--graphite))" strokeWidth={1.5} fill="url(#sparkMonth)" />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
@@ -462,12 +462,12 @@ const DashboardPage = () => {
                         <AreaChart data={commissionsData.dailyTrend30} onClick={handleSparklineClick}>
                           <defs>
                             <linearGradient id="spark30" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="hsl(45, 100%, 58%)" stopOpacity={0.4} />
-                              <stop offset="95%" stopColor="hsl(45, 100%, 58%)" stopOpacity={0} />
+                              <stop offset="5%" stopColor="hsl(var(--brass))" stopOpacity={0.4} />
+                              <stop offset="95%" stopColor="hsl(var(--brass))" stopOpacity={0} />
                             </linearGradient>
                           </defs>
                           <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v.toLocaleString()} €`, '']} labelFormatter={(l) => l as string} />
-                          <Area type="monotone" dataKey="value" stroke="hsl(45, 100%, 58%)" strokeWidth={1.5} fill="url(#spark30)" />
+                          <Area type="monotone" dataKey="value" stroke="hsl(var(--brass))" strokeWidth={1.5} fill="url(#spark30)" />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
@@ -481,19 +481,19 @@ const DashboardPage = () => {
         {/* Secondary Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
           <MiniCard icon={DollarSign} label="Comision Mediu" value={`${(commissionsData?.avgEUR || 0).toLocaleString()} €`} color="bg-yellow-500" loading={loadingCommissions} />
-          <MiniCard icon={BarChart3} label="YTD Comisioane" value={`${(commissionsData?.ytdEUR || 0).toLocaleString()} €`} color="bg-blue-500" loading={loadingCommissions} />
+          <MiniCard icon={BarChart3} label="YTD Comisioane" value={`${(commissionsData?.ytdEUR || 0).toLocaleString()} €`} color="bg-brass" loading={loadingCommissions} />
           <Link to="/admin/inbox">
             <MiniCard icon={Mail} label="Email-uri necitite" value={emailsData?.unread || 0} color="bg-red-500" loading={loadingEmails} highlight={!!emailsData?.unread && emailsData.unread > 0} />
           </Link>
-          <MiniCard icon={Users} label="Clienți" value={clientsData?.total || 0} color="bg-purple-500" loading={loadingClients} badge={clientsData?.newThisMonth ? `+${clientsData.newThisMonth}` : undefined} />
+          <MiniCard icon={Users} label="Clienți" value={clientsData?.total || 0} color="bg-brass" loading={loadingClients} badge={clientsData?.newThisMonth ? `+${clientsData.newThisMonth}` : undefined} />
         </div>
 
         {/* Viewings Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-          <MiniCard icon={Calendar} label="Vizionări Total" value={viewingsData?.total || 0} color="bg-indigo-500" loading={loadingViewings} />
-          <MiniCard icon={Clock} label="În Așteptare" value={viewingsData?.pending || 0} color="bg-orange-500" loading={loadingViewings} />
-          <MiniCard icon={CheckCircle} label="Confirmate" value={viewingsData?.confirmed || 0} color="bg-emerald-500" loading={loadingViewings} />
-          <MiniCard icon={Eye} label="Luna Aceasta" value={viewingsData?.thisMonthCount || 0} color="bg-cyan-500" loading={loadingViewings} trend={viewingsData?.monthlyGrowth} />
+          <MiniCard icon={Calendar} label="Vizionări Total" value={viewingsData?.total || 0} color="bg-brass" loading={loadingViewings} />
+          <MiniCard icon={Clock} label="În Așteptare" value={viewingsData?.pending || 0} color="bg-brass" loading={loadingViewings} />
+          <MiniCard icon={CheckCircle} label="Confirmate" value={viewingsData?.confirmed || 0} color="bg-brass" loading={loadingViewings} />
+          <MiniCard icon={Eye} label="Luna Aceasta" value={viewingsData?.thisMonthCount || 0} color="bg-brass" loading={loadingViewings} trend={viewingsData?.monthlyGrowth} />
         </div>
 
         {/* Charts Row */}
@@ -520,8 +520,8 @@ const DashboardPage = () => {
                     <ComposedChart data={isMobile ? commissionsData?.monthlyTrend?.slice(-6) || [] : commissionsData?.monthlyTrend || []} margin={isMobile ? { left: -20, right: 5 } : { left: 0, right: 10 }}>
                       <defs>
                         <linearGradient id="colorEUR" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(45, 100%, 58%)" stopOpacity={0.7} />
-                          <stop offset="95%" stopColor="hsl(45, 100%, 58%)" stopOpacity={0.05} />
+                          <stop offset="5%" stopColor="hsl(var(--brass))" stopOpacity={0.7} />
+                          <stop offset="95%" stopColor="hsl(var(--brass))" stopOpacity={0.05} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
@@ -530,8 +530,8 @@ const DashboardPage = () => {
                       {!isMobile && <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} width={40} />}
                       <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v.toLocaleString()} €`, 'Comisioane']} />
                       {!isMobile && <Legend wrapperStyle={{ fontSize: '11px' }} />}
-                      <Area yAxisId="left" type="monotone" dataKey="EUR" stroke="hsl(45, 100%, 58%)" strokeWidth={2} fillOpacity={1} fill="url(#colorEUR)" name="Comisioane (€)" />
-                      {!isMobile && <Line yAxisId="right" type="monotone" dataKey="count" stroke="hsl(217, 91%, 60%)" strokeWidth={2} dot={{ fill: 'hsl(217, 91%, 60%)', r: 3 }} name="Nr. Tranzacții" />}
+                      <Area yAxisId="left" type="monotone" dataKey="EUR" stroke="hsl(var(--brass))" strokeWidth={2} fillOpacity={1} fill="url(#colorEUR)" name="Comisioane (€)" />
+                      {!isMobile && <Line yAxisId="right" type="monotone" dataKey="count" stroke="hsl(var(--slate))" strokeWidth={2} dot={{ fill: 'hsl(var(--slate))', r: 3 }} name="Nr. Tranzacții" />}
                     </ComposedChart>
                   </ResponsiveContainer>
                 )}
@@ -543,8 +543,8 @@ const DashboardPage = () => {
           <div className="admin-glass-card">
             <div className="p-4 md:p-5 pb-2">
               <div className="flex items-center gap-2.5 mb-0.5">
-                <div className="p-1.5 rounded-lg bg-purple-500/10 border border-purple-500/15">
-                  <Layers className="h-4 w-4 text-purple-500" />
+                <div className="p-1.5 rounded-lg bg-brass/10 border border-brass/15">
+                  <Layers className="h-4 w-4 text-brass" />
                 </div>
                 <h3 className="text-sm md:text-base font-semibold">Distribuție</h3>
               </div>
@@ -580,8 +580,8 @@ const DashboardPage = () => {
         <div className="admin-glass-card">
           <div className="p-4 md:p-5 pb-2">
             <div className="flex items-center gap-2.5 mb-0.5">
-              <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/15">
-                <Building2 className="h-4 w-4 text-emerald-500" />
+              <div className="p-1.5 rounded-lg bg-brass/10 border border-brass/15">
+                <Building2 className="h-4 w-4 text-brass" />
               </div>
               <h3 className="text-sm md:text-base font-semibold">{isMobile ? "Complexe" : "Apartamente pe Complex"}</h3>
             </div>
@@ -602,9 +602,9 @@ const DashboardPage = () => {
                       return [v, labels[key] ?? key];
                     }} />
                     {!isMobile && <Legend wrapperStyle={{ fontSize: '11px' }} />}
-                    <Bar dataKey="available" stackId="a" fill="hsl(152, 69%, 53%)" name="Disponibile" radius={[2, 2, 0, 0]} />
-                    <Bar dataKey="sold" stackId="a" fill="hsl(45, 100%, 58%)" name="Vândute" />
-                    <Bar dataKey="reserved" stackId="a" fill="hsl(217, 91%, 60%)" name="Rezervate" radius={[2, 2, 0, 0]} />
+                    <Bar dataKey="available" stackId="a" fill="hsl(var(--graphite))" name="Disponibile" radius={[2, 2, 0, 0]} />
+                    <Bar dataKey="sold" stackId="a" fill="hsl(var(--brass))" name="Vândute" />
+                    <Bar dataKey="reserved" stackId="a" fill="hsl(var(--slate))" name="Rezervate" radius={[2, 2, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
@@ -643,7 +643,7 @@ const DashboardPage = () => {
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">Noi luna aceasta:</span>
-                    <Badge variant="secondary" className="text-[10px] bg-emerald-500/10 text-emerald-500 border-emerald-500/20">+{propertiesData?.newThisMonth || 0}</Badge>
+                    <Badge variant="secondary" className="text-[10px] bg-brass/10 text-brass border-brass/20">+{propertiesData?.newThisMonth || 0}</Badge>
                   </div>
                 </div>
               )}
@@ -704,8 +704,8 @@ const DashboardPage = () => {
                     <p className="text-2xl font-bold text-primary">{selectedDayDetails.totalEUR.toLocaleString()} €</p>
                     <p className="text-xs text-muted-foreground">Total EUR</p>
                   </div>
-                  <div className="p-3 rounded-lg bg-blue-500/10 text-center">
-                    <p className="text-2xl font-bold text-blue-500">{selectedDayDetails.totalRON.toLocaleString()} RON</p>
+                  <div className="p-3 rounded-lg bg-brass/10 text-center">
+                    <p className="text-2xl font-bold text-brass">{selectedDayDetails.totalRON.toLocaleString()} RON</p>
                     <p className="text-xs text-muted-foreground">Total RON</p>
                   </div>
                 </div>
@@ -743,8 +743,8 @@ const DashboardPage = () => {
 // --- Sub-components ---
 
 const TrendBadge = ({ value, label }: { value: number; label?: string }) => (
-  <div className={`text-[10px] md:text-xs mt-1.5 flex items-center gap-1 ${value >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
-    <span className={`p-0.5 rounded-full ${value >= 0 ? 'bg-emerald-500/10' : 'bg-destructive/10'}`}>
+  <div className={`text-[10px] md:text-xs mt-1.5 flex items-center gap-1 ${value >= 0 ? 'text-brass' : 'text-destructive'}`}>
+    <span className={`p-0.5 rounded-full ${value >= 0 ? 'bg-brass/10' : 'bg-destructive/10'}`}>
       {value >= 0 ? <ArrowUpRight className="h-2.5 w-2.5" /> : <ArrowDownRight className="h-2.5 w-2.5" />}
     </span>
     <span className="font-medium">{Math.abs(value)}%{label ? ` ${label}` : ''}</span>
@@ -769,7 +769,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, loading, trend, badge }:
         <>
           <div className="flex items-baseline gap-2">
             <span className="text-lg md:text-2xl font-bold">{value}</span>
-            {badge && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 bg-emerald-500/10 text-emerald-500 border-emerald-500/20">{badge}</Badge>}
+            {badge && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 bg-brass/10 text-brass border-brass/20">{badge}</Badge>}
           </div>
           {subtitle && <p className="text-[10px] text-muted-foreground mt-0.5">{subtitle}</p>}
           {trend && <TrendBadge value={trend.value} label={trend.label} />}
@@ -794,7 +794,7 @@ const MiniCard = ({ icon: Icon, label, value, color, loading, badge, highlight, 
         ) : (
           <div className="flex items-baseline gap-1.5">
             <p className="text-base md:text-lg font-bold truncate">{value}</p>
-            {badge && <Badge variant="secondary" className="text-[9px] px-1 py-0 bg-emerald-500/10 text-emerald-500">{badge}</Badge>}
+            {badge && <Badge variant="secondary" className="text-[9px] px-1 py-0 bg-brass/10 text-brass">{badge}</Badge>}
           </div>
         )}
         <p className="text-[9px] md:text-[11px] text-muted-foreground truncate">{label}</p>
