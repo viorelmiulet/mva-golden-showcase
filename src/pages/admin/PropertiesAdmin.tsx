@@ -1,6 +1,6 @@
 import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useAllPropertyViews } from "@/hooks/usePropertyViews";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { toast as sonnerToast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,15 @@ import {
   Maximize,
   MapPin,
   RefreshCw,
+  Search,
+  SlidersHorizontal,
+  LayoutGrid,
+  List as ListIcon,
+  MoreVertical,
+  Copy,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, isPoleProperty, type ImmofluxProperty } from "@/hooks/useImmoflux";
@@ -48,12 +57,155 @@ import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicato
 import PropertyImageEditor from "@/components/admin/PropertyImageEditor";
 import { Checkbox } from "@/components/ui/checkbox";
 import { enqueueOfferToFacebook } from "@/lib/facebookQueue";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const PAGE_SIZE = 24;
+
+type PropStatus = "active" | "hidden" | "sold" | "rented";
+
+const statusOf = (p: any): PropStatus => {
+  if (p?.is_published === false) return "hidden";
+  if (p?.availability_status === "sold" || p?.availability_status === "rezervat")
+    return p?.transaction_type === "rent" ? "rented" : "sold";
+  return "active";
+};
+
+const STATUS_META: Record<PropStatus, { label: string; className: string }> = {
+  active: { label: "Activă", className: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30" },
+  hidden: { label: "Ascunsă", className: "bg-muted text-muted-foreground border-border" },
+  sold: { label: "Vândută", className: "bg-rose-500/15 text-rose-700 border-rose-500/30" },
+  rented: { label: "Închiriată", className: "bg-blue-500/15 text-blue-700 border-blue-500/30" },
+};
+
+const StatusPill = ({ status }: { status: PropStatus }) => (
+  <Badge variant="outline" className={`text-[10px] font-medium px-2 py-0.5 ${STATUS_META[status].className}`}>
+    {STATUS_META[status].label}
+  </Badge>
+);
+
+const FormSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <section className="rounded-xl border border-border/60 bg-card/50 p-4">
+    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</h4>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>
+  </section>
+);
+
+const StatCard = ({ label, value, tone }: { label: string; value: number; tone: string }) => (
+  <div className="rounded-xl border border-border/60 bg-card px-3 py-2.5 sm:px-4 sm:py-3">
+    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
+    <p className={`mt-0.5 text-xl font-bold sm:text-2xl ${tone}`}>{value}</p>
+  </div>
+);
+
+const TYPE_LABELS: Record<string, string> = {
+  apartament: "Apartamente",
+  garsoniera: "Garsoniere",
+  casa: "Case",
+  teren: "Terenuri",
+  spatiu: "Spații comerciale",
+  depozit: "Depozite",
+};
+
+interface FilterSelectsProps {
+  statusFilter: string;
+  setStatusFilter: (v: any) => void;
+  typeFilter: string;
+  setTypeFilter: (v: string) => void;
+  txFilter: string;
+  setTxFilter: (v: string) => void;
+  zoneFilter: string;
+  setZoneFilter: (v: string) => void;
+  roomsFilter: string;
+  setRoomsFilter: (v: string) => void;
+  typeOptions: string[];
+  zoneOptions: string[];
+  roomOptions: number[];
+  full?: boolean;
+}
+
+const FilterSelects = ({
+  statusFilter, setStatusFilter, typeFilter, setTypeFilter, txFilter, setTxFilter,
+  zoneFilter, setZoneFilter, roomsFilter, setRoomsFilter,
+  typeOptions, zoneOptions, roomOptions, full,
+}: FilterSelectsProps) => {
+  const cls = full ? "h-11 w-full" : "h-11 w-[160px]";
+  return (
+    <>
+      <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <SelectTrigger className={cls} aria-label="Status"><SelectValue placeholder="Status" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Toate statusurile</SelectItem>
+          <SelectItem value="active">Active</SelectItem>
+          <SelectItem value="hidden">Ascunse</SelectItem>
+          <SelectItem value="sold">Vândute</SelectItem>
+          <SelectItem value="rented">Închiriate</SelectItem>
+        </SelectContent>
+      </Select>
+      <Select value={typeFilter} onValueChange={setTypeFilter}>
+        <SelectTrigger className={cls} aria-label="Tip proprietate"><SelectValue placeholder="Tip" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Toate tipurile</SelectItem>
+          {typeOptions.map((t) => (
+            <SelectItem key={t} value={t}>{TYPE_LABELS[t] ?? t}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={txFilter} onValueChange={setTxFilter}>
+        <SelectTrigger className={cls} aria-label="Tranzacție"><SelectValue placeholder="Tranzacție" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Vânzare și închiriere</SelectItem>
+          <SelectItem value="sale">Vânzare</SelectItem>
+          <SelectItem value="rent">Închiriere</SelectItem>
+        </SelectContent>
+      </Select>
+      <Select value={zoneFilter} onValueChange={setZoneFilter}>
+        <SelectTrigger className={cls} aria-label="Zonă"><SelectValue placeholder="Zonă" /></SelectTrigger>
+        <SelectContent className="max-h-72">
+          <SelectItem value="all">Toate zonele</SelectItem>
+          {zoneOptions.map((z) => (
+            <SelectItem key={z} value={z}>{z}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={roomsFilter} onValueChange={setRoomsFilter}>
+        <SelectTrigger className={cls} aria-label="Camere"><SelectValue placeholder="Camere" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Oricâte camere</SelectItem>
+          {roomOptions.map((r) => (
+            <SelectItem key={r} value={String(r)}>{r} {r === 1 ? "cameră" : "camere"}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
+  );
+};
+
 
 const PropertiesAdmin = () => {
   const { data: immofluxSlugMap } = useImmofluxSlugMap();
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
-  const [sortBy, setSortBy] = useState<"recent" | "views_total" | "views_7d">("recent");
+  const [sortBy, setSortBy] = useState<
+    "recent" | "oldest" | "price_asc" | "price_desc" | "surface_desc" | "views_total" | "views_7d"
+  >("recent");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | PropStatus>("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [txFilter, setTxFilter] = useState("all");
+  const [zoneFilter, setZoneFilter] = useState("all");
+  const [roomsFilter, setRoomsFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [page, setPage] = useState(1);
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   // IMMOFLUX properties
   const [immofluxPage, setImmofluxPage] = useState(1);
@@ -149,15 +301,108 @@ const PropertiesAdmin = () => {
     },
   });
 
-  // Sorting, including by view counts from `property_views`.
+  // Quick stats over the full (unfiltered) list.
+  const stats = useMemo(() => {
+    const base = { active: 0, hidden: 0, sold: 0, rented: 0 };
+    (rawProperties ?? []).forEach((p: any) => { base[statusOf(p)] += 1; });
+    return base;
+  }, [rawProperties]);
+
+  const typeOptions = useMemo(
+    () => [...new Set((rawProperties ?? []).map((p: any) => p.property_type).filter(Boolean))].sort(),
+    [rawProperties]
+  );
+  const zoneOptions = useMemo(
+    () => [...new Set((rawProperties ?? []).map((p: any) => p.zone || p.city).filter(Boolean))].sort(),
+    [rawProperties]
+  );
+  const roomOptions = useMemo(
+    () => [...new Set((rawProperties ?? []).map((p: any) => p.rooms).filter(Boolean))].sort((a: any, b: any) => a - b),
+    [rawProperties]
+  );
+
+  // Filtering + sorting, including by view counts from `property_views`.
   const properties = useMemo(() => {
     if (!rawProperties) return rawProperties;
-    const list = [...rawProperties];
+    const q = search.trim().toLowerCase();
+    let list = rawProperties.filter((p: any) => {
+      if (statusFilter !== "all" && statusOf(p) !== statusFilter) return false;
+      if (typeFilter !== "all" && p.property_type !== typeFilter) return false;
+      if (txFilter !== "all" && (p.transaction_type || "sale") !== txFilter) return false;
+      if (zoneFilter !== "all" && (p.zone || p.city) !== zoneFilter) return false;
+      if (roomsFilter !== "all" && String(p.rooms) !== roomsFilter) return false;
+      if (q) {
+        const hay = [p.title, p.location, p.zone, p.city, p.project_name, p.external_id, p.id]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    list = [...list];
     const v = (id: string) => viewCounts?.[id] ?? { total: 0, last7: 0 };
     if (sortBy === "views_total") list.sort((a, b) => v(b.id).total - v(a.id).total);
     else if (sortBy === "views_7d") list.sort((a, b) => v(b.id).last7 - v(a.id).last7);
+    else if (sortBy === "price_asc") list.sort((a: any, b: any) => (a.price_min ?? 0) - (b.price_min ?? 0));
+    else if (sortBy === "price_desc") list.sort((a: any, b: any) => (b.price_min ?? 0) - (a.price_min ?? 0));
+    else if (sortBy === "surface_desc") list.sort((a: any, b: any) => (b.surface_min ?? 0) - (a.surface_min ?? 0));
+    else if (sortBy === "oldest")
+      list.sort((a: any, b: any) => Date.parse(a.created_at) - Date.parse(b.created_at));
     return list;
-  }, [rawProperties, viewCounts, sortBy]);
+  }, [rawProperties, viewCounts, sortBy, search, statusFilter, typeFilter, txFilter, zoneFilter, roomsFilter]);
+
+  const activeFilters =
+    (statusFilter !== "all" ? 1 : 0) +
+    (typeFilter !== "all" ? 1 : 0) +
+    (txFilter !== "all" ? 1 : 0) +
+    (zoneFilter !== "all" ? 1 : 0) +
+    (roomsFilter !== "all" ? 1 : 0);
+
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setTypeFilter("all");
+    setTxFilter("all");
+    setZoneFilter("all");
+    setRoomsFilter("all");
+    setSearch("");
+  };
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter, typeFilter, txFilter, zoneFilter, roomsFilter, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil((properties?.length ?? 0) / PAGE_SIZE));
+  const pageItems = useMemo(
+    () => (properties ?? []).slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [properties, page]
+  );
+
+  const duplicateProperty = async (property: any) => {
+    setDuplicatingId(property.id);
+    try {
+      const {
+        id, created_at, updated_at, slug, legacy_slug, immoflux_slug, homedirect_id,
+        homedirect_short_id, homedirect_status, homedirect_synced_at, external_id,
+        date_added, ...rest
+      } = property;
+      const { data, error } = await invokeAdminFn("admin-offers", {
+        body: {
+          action: "insert_offer",
+          offer: { ...rest, title: `${property.title} (copie)`, is_published: false },
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Insert failed");
+      toast({ title: "Duplicat creat", description: "Copia a fost salvată ca ascunsă." });
+      queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+    } catch (e: any) {
+      toast({ title: "Eroare", description: e?.message || "Nu am putut duplica proprietatea", variant: "destructive" });
+    } finally {
+      setDuplicatingId(null);
+    }
+  };
+
 
   const deleteProperty = async (id: string) => {
     setDeletingId(id);
@@ -635,433 +880,461 @@ const PropertiesAdmin = () => {
         />
       )}
       <div className="space-y-4 md:space-y-8">
-      {/* Properties List */}
-      <Card className="glass border-brass/20">
-        <CardHeader className="p-4 md:p-6">
-          <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-base md:text-lg">
-              <Home className="w-4 h-4 md:w-5 md:h-5 text-brass" />
-              Proprietăți ({properties?.length || 0})
-            </div>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                onClick={() => setShowAddDialog(true)}
-                className="bg-brass hover:bg-brass/90 text-black h-8 text-xs md:text-sm"
+      {/* Header */}
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <div className="min-w-0">
+          <h2 className="truncate text-lg font-bold text-foreground sm:text-2xl">Proprietăți</h2>
+          <p className="truncate text-xs text-muted-foreground sm:text-sm">
+            {properties?.length ?? 0} din {rawProperties?.length ?? 0} proprietăți
+          </p>
+        </div>
+        <Button
+          onClick={() => setShowAddDialog(true)}
+          className="h-11 shrink-0 bg-brass text-black hover:bg-brass/90"
+        >
+          <Plus className="mr-1.5 h-4 w-4" />
+          <span className="hidden sm:inline">Adaugă proprietate</span>
+          <span className="sm:hidden">Adaugă</span>
+        </Button>
+      </div>
+
+      {/* Quick stats */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+        <StatCard label="Active" value={stats.active} tone="text-emerald-600" />
+        <StatCard label="Ascunse" value={stats.hidden} tone="text-muted-foreground" />
+        <StatCard label="Vândute" value={stats.sold} tone="text-rose-600" />
+        <StatCard label="Închiriate" value={stats.rented} tone="text-blue-600" />
+      </div>
+
+      {/* Toolbar */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[180px] flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Caută după titlu, zonă, proiect sau ID..."
+              className="h-11 pl-9"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                aria-label="Șterge căutarea"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground hover:bg-muted"
               >
-                <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
-                Adaugă Manual
-              </Button>
-            {properties && properties.length > 0 && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-destructive/30 hover:bg-destructive/10 text-destructive h-8 text-xs md:text-sm"
-                  >
-                    <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
-                    Șterge Toate
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="text-base md:text-lg">Confirmare ștergere</AlertDialogTitle>
-                    <AlertDialogDescription className="text-sm">
-                      Ești sigur că vrei să ștergi toate {properties?.length} proprietățile?
-                      <br />
-                      <span className="font-semibold text-destructive">Acțiunea nu poate fi anulată!</span>
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                    <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={deleteAllProperties}
-                      className="bg-destructive hover:bg-destructive/90"
-                    >
-                      Șterge Toate
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                <X className="h-4 w-4" />
+              </button>
             )}
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-          {/* Bulk Actions Bar */}
-          {properties && properties.length > 0 && (
-            <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-muted/30 border border-border/30">
-              <Checkbox
-                id="select-all"
-                checked={properties.length > 0 && selectedProperties.size === properties.length}
-                onCheckedChange={toggleSelectAll}
-              />
-              <Label htmlFor="select-all" className="text-sm cursor-pointer">
-                Selectează toate ({selectedProperties.size}/{properties.length})
-              </Label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                aria-label="Sortează proprietățile"
-                className="h-8 rounded-md border border-border/40 bg-background px-2 text-xs"
-              >
-                <option value="recent">Cele mai recente</option>
-                <option value="views_total">Vizualizări (total)</option>
-                <option value="views_7d">Vizualizări (7 zile)</option>
-              </select>
-              {selectedProperties.size > 0 && (
-                <div className="ml-auto flex flex-wrap items-center gap-2">
-                  {(isBulkSending || isBulkTogglingVisibility) && bulkProgress.total > 0 && (
-                    <div className="flex items-center gap-2">
-                      <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary transition-all duration-300"
-                          style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-muted-foreground font-medium">
-                        {bulkProgress.current}/{bulkProgress.total}
-                      </span>
-                    </div>
-                  )}
-                  {/* Visibility bulk actions */}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => bulkToggleVisibility(false)}
-                    disabled={isBulkTogglingVisibility || isBulkSending}
-                    className="border-muted-foreground/30 hover:bg-muted h-8 text-xs"
-                  >
-                    {isBulkTogglingVisibility ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    ) : (
-                      <EyeOff className="w-3.5 h-3.5 mr-1.5" />
-                    )}
-                    <span className="hidden sm:inline">Ascunde {selectedProperties.size}</span>
-                    <span className="sm:hidden">Ascunde</span>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => bulkToggleVisibility(true)}
-                    disabled={isBulkTogglingVisibility || isBulkSending}
-                    className="border-green-500/30 hover:bg-green-500/10 text-green-600 h-8 text-xs"
-                  >
-                    {isBulkTogglingVisibility ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    ) : (
-                      <Eye className="w-3.5 h-3.5 mr-1.5" />
-                    )}
-                    <span className="hidden sm:inline">Afișează {selectedProperties.size}</span>
-                    <span className="sm:hidden">Afișează</span>
-                  </Button>
-                  {/* Zapier bulk action */}
-                  <Button
-                    size="sm"
-                    onClick={sendSelectedToZapier}
-                    disabled={isBulkSending || isBulkTogglingVisibility || isBulkQueuingFb}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 text-xs"
-                  >
-                    {isBulkSending ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    ) : (
-                      <Send className="w-3.5 h-3.5 mr-1.5" />
-                    )}
-                    <span className="hidden sm:inline">{isBulkSending ? `Trimit...` : `Trimite ${selectedProperties.size} către Zapier`}</span>
-                    <span className="sm:hidden">Zapier</span>
-                  </Button>
-                  {/* Facebook groups queue */}
-                  <Button
-                    size="sm"
-                    onClick={sendSelectedToFacebookGroups}
-                    disabled={isBulkQueuingFb || isBulkSending || isBulkTogglingVisibility}
-                    className="bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs"
-                  >
-                    {isBulkQueuingFb ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    ) : (
-                      <Facebook className="w-3.5 h-3.5 mr-1.5" />
-                    )}
-                    <span className="hidden sm:inline">
-                      {isBulkQueuingFb ? "Adaug..." : `Trimite pe grupuri Facebook (${selectedProperties.size})`}
-                    </span>
-                    <span className="sm:hidden">FB Grupuri</span>
-                  </Button>
+          </div>
+
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+            <SelectTrigger className="h-11 w-[170px]" aria-label="Sortare">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Cele mai recente</SelectItem>
+              <SelectItem value="oldest">Cele mai vechi</SelectItem>
+              <SelectItem value="price_asc">Preț crescător</SelectItem>
+              <SelectItem value="price_desc">Preț descrescător</SelectItem>
+              <SelectItem value="surface_desc">Suprafață mare</SelectItem>
+              <SelectItem value="views_total">Vizualizări (total)</SelectItem>
+              <SelectItem value="views_7d">Vizualizări (7 zile)</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Mobile filters sheet */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="h-11 lg:hidden">
+                <SlidersHorizontal className="mr-1.5 h-4 w-4" />
+                Filtre
+                {activeFilters > 0 && (
+                  <Badge className="ml-1.5 bg-brass px-1.5 text-[10px] text-black">{activeFilters}</Badge>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-2xl">
+              <SheetHeader className="text-left">
+                <SheetTitle>Filtre</SheetTitle>
+              </SheetHeader>
+              <div className="mt-4 grid gap-3">
+                <FilterSelects
+                  statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+                  typeFilter={typeFilter} setTypeFilter={setTypeFilter}
+                  txFilter={txFilter} setTxFilter={setTxFilter}
+                  zoneFilter={zoneFilter} setZoneFilter={setZoneFilter}
+                  roomsFilter={roomsFilter} setRoomsFilter={setRoomsFilter}
+                  typeOptions={typeOptions as string[]}
+                  zoneOptions={zoneOptions as string[]}
+                  roomOptions={roomOptions as number[]}
+                  full
+                />
+                <Button variant="outline" className="h-11" onClick={resetFilters}>
+                  Resetează filtrele
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <div className="ml-auto hidden items-center rounded-lg border border-border/60 p-0.5 sm:flex">
+            <Button
+              variant={viewMode === "list" ? "secondary" : "ghost"}
+              size="sm"
+              className="h-9 px-2.5"
+              onClick={() => setViewMode("list")}
+              aria-label="Vizualizare listă"
+            >
+              <ListIcon className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "grid" ? "secondary" : "ghost"}
+              size="sm"
+              className="h-9 px-2.5"
+              onClick={() => setViewMode("grid")}
+              aria-label="Vizualizare grilă"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Desktop filters */}
+        <div className="hidden flex-wrap items-center gap-2 lg:flex">
+          <FilterSelects
+            statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+            typeFilter={typeFilter} setTypeFilter={setTypeFilter}
+            txFilter={txFilter} setTxFilter={setTxFilter}
+            zoneFilter={zoneFilter} setZoneFilter={setZoneFilter}
+            roomsFilter={roomsFilter} setRoomsFilter={setRoomsFilter}
+            typeOptions={typeOptions as string[]}
+            zoneOptions={zoneOptions as string[]}
+            roomOptions={roomOptions as number[]}
+          />
+          {activeFilters > 0 && (
+            <Button variant="ghost" size="sm" onClick={resetFilters} className="gap-1 text-destructive">
+              <X className="h-4 w-4" /> Resetează ({activeFilters})
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Bulk actions */}
+      {properties && properties.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3">
+          <Checkbox
+            id="select-all"
+            checked={properties.length > 0 && selectedProperties.size === properties.length}
+            onCheckedChange={toggleSelectAll}
+          />
+          <Label htmlFor="select-all" className="cursor-pointer text-sm">
+            Selectează toate ({selectedProperties.size}/{properties.length})
+          </Label>
+          {selectedProperties.size > 0 && (
+            <div className="ml-auto flex flex-wrap items-center gap-2">
+              {(isBulkSending || isBulkTogglingVisibility) && bulkProgress.total > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full bg-primary transition-all duration-300"
+                      style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {bulkProgress.current}/{bulkProgress.total}
+                  </span>
                 </div>
               )}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => bulkToggleVisibility(false)}
+                disabled={isBulkTogglingVisibility || isBulkSending}
+                className="h-10 text-xs"
+              >
+                {isBulkTogglingVisibility ? (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <EyeOff className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                Ascunde
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => bulkToggleVisibility(true)}
+                disabled={isBulkTogglingVisibility || isBulkSending}
+                className="h-10 border-green-500/30 text-xs text-green-600 hover:bg-green-500/10"
+              >
+                {isBulkTogglingVisibility ? (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Eye className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                Afișează
+              </Button>
+              <Button
+                size="sm"
+                onClick={sendSelectedToZapier}
+                disabled={isBulkSending || isBulkTogglingVisibility || isBulkQueuingFb}
+                className="h-10 bg-primary text-xs text-primary-foreground hover:bg-primary/90"
+              >
+                {isBulkSending ? (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Send className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                Zapier
+              </Button>
+              <Button
+                size="sm"
+                onClick={sendSelectedToFacebookGroups}
+                disabled={isBulkQueuingFb || isBulkSending || isBulkTogglingVisibility}
+                className="h-10 bg-blue-600 text-xs text-white hover:bg-blue-700"
+              >
+                {isBulkQueuingFb ? (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Facebook className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                Grupuri FB
+              </Button>
             </div>
           )}
-          {propertiesLoading ? (
-            <div className="text-center py-6 md:py-8">
-              <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-brass" />
-              <p className="text-muted-foreground mt-2 text-sm">Se încarcă...</p>
-            </div>
-          ) : properties && properties.length > 0 ? (
-            <div className="grid gap-3 md:gap-4">
-              {properties.map((property: any) => (
-                <Card
-                  key={property.id}
-                  className={`border-border/30 hover:border-brass/30 transition-colors ${selectedProperties.has(property.id) ? 'border-blue-500/50 bg-blue-500/5' : ''}`}
-                >
-                  <CardContent className="p-3 md:p-4">
-                    {/* Mobile Layout - Card Style */}
-                    <div className="md:hidden">
-                      {/* Full-width image with checkbox overlay */}
-                      <div className="relative -mx-3 -mt-3 mb-3">
-                        {property.images?.[0] ? (
-                          <img
-                            src={property.images[0]}
-                            alt={property.title}
-                            className="w-full h-40 object-cover rounded-t-lg"
-                          />
-                        ) : (
-                          <div className="w-full h-40 bg-muted/30 rounded-t-lg flex items-center justify-center">
-                            <Home className="w-12 h-12 text-muted-foreground/30" />
-                          </div>
-                        )}
-                        {/* Checkbox overlay */}
-                        <div className="absolute top-2 left-2">
-                          <div className="bg-background/90 backdrop-blur-sm rounded-md p-1.5 shadow-sm">
-                            <Checkbox
-                              checked={selectedProperties.has(property.id)}
-                              onCheckedChange={() => togglePropertySelection(property.id)}
-                            />
-                          </div>
-                        </div>
-                        {/* Price badge overlay */}
-                        <div className="absolute bottom-2 right-2">
-                          <Badge className="bg-brass text-black font-semibold text-sm px-2.5 py-1 shadow-lg">
-                            €{property.price_min?.toLocaleString()}
-                          </Badge>
-                        </div>
-                      </div>
+        </div>
+      )}
 
-                      {/* Content */}
-                      <div className="space-y-2.5">
-                        <h3 className="font-semibold text-base leading-tight line-clamp-2">
-                          {property.title}
-                        </h3>
-                        
-                        {/* Property details */}
-                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Ruler className="w-3.5 h-3.5" />
-                            {property.surface_min} mp
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Home className="w-3.5 h-3.5" />
-                            {property.rooms} camere
-                          </span>
-                          <span className="flex items-center gap-1" title="Vizualizări total / ultimele 7 zile">
-                            <Eye className="w-3.5 h-3.5" />
-                            {viewCounts?.[property.id]?.total ?? 0} · 7z: {viewCounts?.[property.id]?.last7 ?? 0}
-                          </span>
-                        </div>
-                        
-                        {property.location && (
-                          <p className="text-xs text-muted-foreground truncate">
-                            📍 {property.location}
-                          </p>
-                        )}
-                      </div>
+      {/* Property list */}
+      {propertiesLoading ? (
+        <div className="py-12 text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-brass" />
+          <p className="mt-2 text-sm text-muted-foreground">Se încarcă...</p>
+        </div>
+      ) : pageItems.length > 0 ? (
+        <>
+          <div className={viewMode === "grid" ? "grid gap-3 sm:grid-cols-2 xl:grid-cols-3" : "grid gap-3"}>
+            {pageItems.map((property: any) => {
+              const status = statusOf(property);
+              const slug = property.slug || generatePropertySlug(property);
+              const selected = selectedProperties.has(property.id);
+              const views = viewCounts?.[property.id];
+              const actions = (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-10 w-10 p-0" aria-label="Acțiuni">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuItem asChild>
+                      <a href={`/proprietati/${slug}`} target="_blank" rel="noreferrer">
+                        <ExternalLink className="mr-2 h-4 w-4" /> Vezi pe site
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditModal(property)}>
+                      <Edit className="mr-2 h-4 w-4" /> Editează
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => duplicateProperty(property)}
+                      disabled={duplicatingId === property.id}
+                    >
+                      <Copy className="mr-2 h-4 w-4" /> Duplică
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openShareDialog(property.id, property.title)}>
+                      <Share2 className="mr-2 h-4 w-4" /> Publică pe social
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => toggleVisibility(property.id, property.is_published !== false)}
+                    >
+                      {property.is_published !== false ? (
+                        <><EyeOff className="mr-2 h-4 w-4" /> Ascunde</>
+                      ) : (
+                        <><Eye className="mr-2 h-4 w-4" /> Afișează</>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => setConfirmDelete(property)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Șterge
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
 
-                      {/* Visibility Toggle and Actions */}
-                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/20">
+              const meta = (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><Home className="h-3.5 w-3.5" />{property.rooms} cam</span>
+                  <span className="flex items-center gap-1"><Ruler className="h-3.5 w-3.5" />{property.surface_min ?? "—"} mp</span>
+                  <span className="flex items-center gap-1" title="Vizualizări total / 7 zile">
+                    <Eye className="h-3.5 w-3.5" />{views?.total ?? 0} · 7z: {views?.last7 ?? 0}
+                  </span>
+                </div>
+              );
+
+              if (viewMode === "grid") {
+                return (
+                  <Card
+                    key={property.id}
+                    className={`overflow-hidden border-border/60 transition-colors hover:border-brass/40 ${selected ? "border-brass/60 ring-1 ring-brass/30" : ""}`}
+                  >
+                    <div className="relative h-40">
+                      {property.images?.[0] ? (
+                        <img src={property.images[0]} alt={property.title} className="h-full w-full object-cover" loading="lazy" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-muted/40">
+                          <Home className="h-10 w-10 text-muted-foreground/30" />
+                        </div>
+                      )}
+                      <div className="absolute left-2 top-2 rounded-md bg-background/90 p-1.5 shadow-sm">
+                        <Checkbox checked={selected} onCheckedChange={() => togglePropertySelection(property.id)} />
+                      </div>
+                      <div className="absolute right-2 top-2"><StatusPill status={status} /></div>
+                      <Badge className="absolute bottom-2 right-2 bg-brass px-2.5 py-1 text-sm font-semibold text-black shadow-lg">
+                        €{property.price_min?.toLocaleString()}
+                      </Badge>
+                    </div>
+                    <CardContent className="space-y-2 p-3">
+                      <h3 className="line-clamp-2 text-sm font-semibold leading-tight">{property.title}</h3>
+                      <p className="truncate text-xs text-muted-foreground">
+                        <MapPin className="mr-1 inline h-3 w-3" />{property.location}
+                      </p>
+                      {meta}
+                      <div className="flex items-center justify-between border-t border-border/40 pt-2">
                         <div className="flex items-center gap-2">
                           <Switch
                             checked={property.is_published !== false}
                             onCheckedChange={() => toggleVisibility(property.id, property.is_published !== false)}
                             disabled={togglingVisibility === property.id}
                           />
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            {property.is_published !== false ? (
-                              <><Eye className="w-3.5 h-3.5 text-green-500" /> Vizibil</>
-                            ) : (
-                              <><EyeOff className="w-3.5 h-3.5 text-muted-foreground" /> Ascuns</>
-                            )}
+                          <span className="text-xs text-muted-foreground">
+                            {property.is_published !== false ? "Vizibil" : "Ascuns"}
                           </span>
                         </div>
-                        {/* Action buttons */}
-                        <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openShareDialog(property.id, property.title)}
-                          disabled={sendingToSocial === property.id}
-                          className="border-blue-500/30 hover:bg-blue-500/10 h-10 w-full"
-                          title="Publică pe social media"
-                        >
-                          {sendingToSocial === property.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                          ) : (
-                            <Share2 className="w-4 h-4 text-blue-500" />
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openEditModal(property)}
-                          className="border-brass/30 hover:bg-brass/10 h-10 w-full"
-                        >
-                          <Edit className="w-4 h-4 text-brass" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-destructive/30 hover:bg-destructive/10 h-10 w-full"
-                            >
-                              {deletingId === property.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-destructive" />
-                              ) : (
-                                <Trash2 className="w-4 h-4 text-destructive" />
-                              )}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Ștergi această proprietate?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                              <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteProperty(property.id)}
-                              >
-                                Șterge
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        {actions}
                       </div>
-                    </div>
-                    </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
 
-                    {/* Desktop Layout */}
-                    <div className="hidden md:flex gap-4">
-                      <div className="flex items-center shrink-0">
-                        <Checkbox
-                          checked={selectedProperties.has(property.id)}
-                          onCheckedChange={() => togglePropertySelection(property.id)}
-                        />
+              return (
+                <Card
+                  key={property.id}
+                  className={`border-border/60 transition-colors hover:border-brass/40 ${selected ? "border-brass/60 ring-1 ring-brass/30" : ""}`}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex gap-3">
+                      <div className="flex items-start pt-1">
+                        <Checkbox checked={selected} onCheckedChange={() => togglePropertySelection(property.id)} />
                       </div>
-                      {property.images?.[0] && (
+                      {property.images?.[0] ? (
                         <img
                           src={property.images[0]}
                           alt={property.title}
-                          className="w-24 h-24 object-cover rounded-lg shrink-0"
+                          loading="lazy"
+                          className="h-20 w-20 shrink-0 rounded-lg object-cover sm:h-24 sm:w-32"
                         />
+                      ) : (
+                        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-muted/40 sm:h-24 sm:w-32">
+                          <Home className="h-7 w-7 text-muted-foreground/30" />
+                        </div>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                          {property.title}
-                        </h3>
-                        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                          <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
-                            <Euro className="w-3 h-3 mr-0.5" />
-                            €{property.price_min?.toLocaleString()}
-                          </Badge>
-                          <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
-                            <Ruler className="w-3 h-3 mr-0.5" />
-                            {property.surface_min}mp
-                          </Badge>
-                          <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
-                            <Home className="w-3 h-3 mr-0.5" />
-                            {property.rooms}cam
-                          </Badge>
-                          <Badge variant="secondary" className="bg-muted text-xs px-1.5 py-0.5" title="Vizualizări total / ultimele 7 zile">
-                            <Eye className="w-3 h-3 mr-0.5" />
-                            {viewCounts?.[property.id]?.total ?? 0} · 7z: {viewCounts?.[property.id]?.last7 ?? 0}
-                          </Badge>
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <div className="flex items-start gap-2">
+                          <h3 className="line-clamp-2 min-w-0 flex-1 text-sm font-semibold leading-tight sm:text-base">
+                            {property.title}
+                          </h3>
+                          <StatusPill status={status} />
+                        </div>
+                        <p className="truncate text-xs text-muted-foreground">
+                          <MapPin className="mr-1 inline h-3 w-3" />{property.location}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span className="text-sm font-bold text-brass">
+                            <Euro className="mr-0.5 inline h-3.5 w-3.5" />
+                            {property.price_min?.toLocaleString()}
+                          </span>
+                          {meta}
                         </div>
                       </div>
-                      {/* Visibility Toggle */}
-                      <div className="flex items-center gap-2 mr-4 shrink-0">
-                        <Switch
-                          checked={property.is_published !== false}
-                          onCheckedChange={() => toggleVisibility(property.id, property.is_published !== false)}
-                          disabled={togglingVisibility === property.id}
-                        />
-                        <span className="text-xs text-muted-foreground flex items-center gap-1 min-w-[70px]">
-                          {property.is_published !== false ? (
-                            <><Eye className="w-3.5 h-3.5 text-green-500" /> Vizibil</>
-                          ) : (
-                            <><EyeOff className="w-3.5 h-3.5" /> Ascuns</>
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex flex-row gap-2 items-start shrink-0">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openShareDialog(property.id, property.title)}
-                          disabled={sendingToSocial === property.id}
-                          className="border-blue-500/30 hover:bg-blue-500/10 h-10 w-10 md:h-8 md:w-8 p-0"
-                          title="Publică pe social media"
-                        >
-                          {sendingToSocial === property.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                          ) : (
-                            <Share2 className="w-4 h-4 text-blue-500" />
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openEditModal(property)}
-                          className="border-brass/30 h-10 w-10 md:h-8 md:w-8 p-0"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-destructive/30 hover:bg-destructive/10 h-10 w-10 md:h-8 md:w-8 p-0"
-                            >
-                              {deletingId === property.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="w-4 h-4" />
-                              )}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Ștergi această proprietate?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                              <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteProperty(property.id)}
-                              >
-                                Șterge
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                      <div className="flex shrink-0 flex-col items-end justify-between gap-2">
+                        {actions}
+                        <div className="hidden items-center gap-2 sm:flex">
+                          <Switch
+                            checked={property.is_published !== false}
+                            onCheckedChange={() => toggleVisibility(property.id, property.is_published !== false)}
+                            disabled={togglingVisibility === property.id}
+                          />
+                        </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6 md:py-8">
-              <Home className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-2" />
-              <p className="text-muted-foreground text-sm">Nu există proprietăți</p>
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3">
+              <Button variant="outline" size="sm" className="h-10" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
+              </Button>
+              <span className="text-sm text-muted-foreground">Pagina {page} din {totalPages}</span>
+              <Button variant="outline" size="sm" className="h-10" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+                Următor <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </>
+      ) : (
+        <div className="rounded-xl border border-dashed border-border/60 py-14 text-center">
+          <Home className="mx-auto mb-3 h-12 w-12 text-muted-foreground/40" />
+          {rawProperties && rawProperties.length > 0 ? (
+            <>
+              <p className="text-sm text-muted-foreground">Nicio proprietate nu corespunde filtrelor.</p>
+              <Button variant="outline" className="mt-4 h-11" onClick={resetFilters}>
+                Resetează filtrele
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">Nu ai încă nicio proprietate.</p>
+              <Button className="mt-4 h-11 bg-brass text-black hover:bg-brass/90" onClick={() => setShowAddDialog(true)}>
+                <Plus className="mr-1.5 h-4 w-4" /> Adaugă prima proprietate
+              </Button>
+            </>
+          )}
+        </div>
+      )}
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ștergi definitiv „{confirmDelete?.title}”? Acțiunea nu poate fi anulată.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel className="mt-0 h-11">Anulează</AlertDialogCancel>
+            <AlertDialogAction
+              className="h-11 bg-destructive hover:bg-destructive/90"
+              onClick={() => {
+                const target = confirmDelete;
+                setConfirmDelete(null);
+                if (target) deleteProperty(target.id);
+              }}
+            >
+              {deletingId ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Șterge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       {/* IMMOFLUX Properties Section */}
       <Card className="glass border-brass/20">
@@ -1251,12 +1524,13 @@ const PropertiesAdmin = () => {
       </Card>
 
       <Dialog open={!!editingProperty} onOpenChange={closeEditModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Editează Proprietatea</DialogTitle>
+        <DialogContent className="max-w-3xl w-[100vw] h-[100dvh] max-h-[100dvh] rounded-none p-0 gap-0 sm:w-auto sm:h-auto sm:max-h-[92vh] sm:rounded-lg">
+          <DialogHeader className="border-b border-border/60 px-4 py-3 sm:px-6">
+            <DialogTitle className="text-base sm:text-lg">Editează proprietatea</DialogTitle>
           </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
           {editingProperty && (
-            <div className="flex items-center gap-4 rounded-md border border-border/30 bg-muted/30 px-3 py-2 text-sm">
+            <div className="mb-4 flex items-center gap-4 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-sm">
               <span className="flex items-center gap-1.5 text-muted-foreground">
                 <Eye className="w-4 h-4" /> Vizualizări
               </span>
@@ -1268,39 +1542,13 @@ const PropertiesAdmin = () => {
               </span>
             </div>
           )}
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+          <div className="space-y-6">
+            <FormSection title="Informații generale">
+              <div className="sm:col-span-2">
                 <Label>Titlu</Label>
                 <Input
                   value={editForm.title || ""}
                   onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                />
-              </div>
-              <div className="col-span-2">
-                <Label>Descriere</Label>
-                <Textarea
-                  value={editForm.description || ""}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, description: e.target.value })
-                  }
-                  rows={3}
-                />
-              </div>
-              <div>
-                <Label>Locație</Label>
-                <Input
-                  value={editForm.location || ""}
-                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label>Nume Proiect</Label>
-                <Input
-                  value={editForm.project_name || ""}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, project_name: e.target.value })
-                  }
                 />
               </div>
               <div>
@@ -1309,6 +1557,26 @@ const PropertiesAdmin = () => {
                   type="number"
                   value={editForm.price_min || ""}
                   onChange={(e) => setEditForm({ ...editForm, price_min: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Nume proiect</Label>
+                <Input
+                  value={editForm.project_name || ""}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, project_name: e.target.value })
+                  }
+                />
+              </div>
+            </FormSection>
+
+            <FormSection title="Detalii">
+              <div>
+                <Label>Camere</Label>
+                <Input
+                  type="number"
+                  value={editForm.rooms || ""}
+                  onChange={(e) => setEditForm({ ...editForm, rooms: e.target.value })}
                 />
               </div>
               <div>
@@ -1321,248 +1589,307 @@ const PropertiesAdmin = () => {
                   }
                 />
               </div>
-              <div>
-                <Label>Camere</Label>
+            </FormSection>
+
+            <FormSection title="Locație">
+              <div className="sm:col-span-2">
+                <Label>Locație</Label>
                 <Input
-                  type="number"
-                  value={editForm.rooms || ""}
-                  onChange={(e) => setEditForm({ ...editForm, rooms: e.target.value })}
+                  value={editForm.location || ""}
+                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
                 />
               </div>
-              <div className="col-span-2">
-                <PropertyImageEditor
-                  images={editImages}
-                  onChange={setEditImages}
-                  label="Imagini Proprietate"
-                />
-              </div>
-              <div className="col-span-2">
+            </FormSection>
+
+            <FormSection title="Caracteristici">
+              <div className="sm:col-span-2">
                 <Label>Facilități (separate prin virgulă)</Label>
                 <Input
                   value={editForm.features || ""}
                   onChange={(e) => setEditForm({ ...editForm, features: e.target.value })}
                 />
               </div>
-              <div className="col-span-2">
+              <div className="sm:col-span-2">
                 <Label>Amenajări (separate prin virgulă)</Label>
                 <Input
                   value={editForm.amenities || ""}
                   onChange={(e) => setEditForm({ ...editForm, amenities: e.target.value })}
                 />
               </div>
-              <div className="col-span-2">
+            </FormSection>
+
+            <FormSection title="Descriere">
+              <div className="sm:col-span-2">
+                <Textarea
+                  value={editForm.description || ""}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, description: e.target.value })
+                  }
+                  rows={5}
+                />
+              </div>
+            </FormSection>
+
+            <FormSection title="Media">
+              <div className="sm:col-span-2">
+                <PropertyImageEditor
+                  images={editImages}
+                  onChange={setEditImages}
+                  label="Fotografii"
+                />
+              </div>
+              <div className="sm:col-span-2">
                 <YouTubeVideoField
                   value={editForm.video_manual || ""}
                   onChange={(v) => setEditForm({ ...editForm, video_manual: v })}
                   onClear={() => setEditForm({ ...editForm, video_manual: "" })}
                 />
               </div>
-            </div>
-            <div className="flex flex-wrap gap-2 justify-end">
-              <Button
-                variant="outline"
-                disabled={sendingToGBP}
-                onClick={async () => {
-                  if (!editingProperty) return;
-                  setSendingToGBP(true);
-                  try {
-                    // Read Google webhook URL from settings
-                    const { data: settingsData } = await supabase
-                      .from('site_settings')
-                      .select('value')
-                      .eq('key', 'social_webhooks')
-                      .single();
-                    const webhookSettings = settingsData?.value ? JSON.parse(settingsData.value) : {};
-                    const googleWebhookUrl = webhookSettings.google;
-                    if (!googleWebhookUrl) {
-                      toast({ title: "Eroare", description: "Configurează webhook-ul Google Business Profile din Marketing AI.", variant: "destructive" });
-                      setSendingToGBP(false);
-                      return;
-                    }
-                    const slug = generatePropertySlug({
-                      id: editingProperty.id,
-                      rooms: editingProperty.rooms,
-                      project_name: editingProperty.project_name,
-                      zone: editingProperty.zone,
-                      location: editingProperty.location,
-                    });
-                    const images = Array.isArray(editingProperty.images) ? editingProperty.images : [];
-                    const res = await fetch(googleWebhookUrl, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        title: editingProperty.title || "",
-                        price: editingProperty.price_min || 0,
-                        rooms: editingProperty.rooms || 0,
-                        surface: editingProperty.surface_min || 0,
-                        slug,
-                        url: `https://www.mvaimobiliare.ro/proprietati/${slug}`,
-                        image: images[0] || "",
-                        description: editingProperty.description || "",
-                      }),
-                    });
-                    if (!res.ok) throw new Error("Request failed");
-                    toast({ title: "Succes!", description: "Proprietatea a fost trimisă pe Google Business Profile!" });
-                  } catch {
-                    toast({ title: "Eroare", description: "Eroare la trimitere. Încearcă din nou.", variant: "destructive" });
-                  } finally {
-                    setSendingToGBP(false);
+            </FormSection>
+
+            <FormSection title="Publicare">
+              <div className="sm:col-span-2 flex flex-wrap items-center gap-3">
+                <Switch
+                  checked={editingProperty?.is_published !== false}
+                  onCheckedChange={() =>
+                    editingProperty &&
+                    toggleVisibility(editingProperty.id, editingProperty.is_published !== false)
                   }
-                }}
-                className="border-brass text-brass hover:bg-brass hover:text-black transition-all"
-              >
-                {sendingToGBP ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4 mr-2" />
-                )}
-                Postează pe Google Business Profile
-              </Button>
-              <Button variant="outline" onClick={closeEditModal}>
-                Anulează
-              </Button>
-              <Button onClick={updateProperty} disabled={isUpdating} variant="luxury">
-                {isUpdating ? (
-                  <>
+                  disabled={togglingVisibility === editingProperty?.id}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {editingProperty?.is_published !== false ? "Vizibilă pe site" : "Ascunsă de pe site"}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={sendingToGBP}
+                  onClick={async () => {
+                    if (!editingProperty) return;
+                    setSendingToGBP(true);
+                    try {
+                      // Read Google webhook URL from settings
+                      const { data: settingsData } = await supabase
+                        .from('site_settings')
+                        .select('value')
+                        .eq('key', 'social_webhooks')
+                        .single();
+                      const webhookSettings = settingsData?.value ? JSON.parse(settingsData.value) : {};
+                      const googleWebhookUrl = webhookSettings.google;
+                      if (!googleWebhookUrl) {
+                        toast({ title: "Eroare", description: "Configurează webhook-ul Google Business Profile din Marketing AI.", variant: "destructive" });
+                        setSendingToGBP(false);
+                        return;
+                      }
+                      const slug = generatePropertySlug({
+                        id: editingProperty.id,
+                        rooms: editingProperty.rooms,
+                        project_name: editingProperty.project_name,
+                        zone: editingProperty.zone,
+                        location: editingProperty.location,
+                      });
+                      const images = Array.isArray(editingProperty.images) ? editingProperty.images : [];
+                      const res = await fetch(googleWebhookUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          title: editingProperty.title || "",
+                          price: editingProperty.price_min || 0,
+                          rooms: editingProperty.rooms || 0,
+                          surface: editingProperty.surface_min || 0,
+                          slug,
+                          url: `https://www.mvaimobiliare.ro/proprietati/${slug}`,
+                          image: images[0] || "",
+                          description: editingProperty.description || "",
+                        }),
+                      });
+                      if (!res.ok) throw new Error("Request failed");
+                      toast({ title: "Succes!", description: "Proprietatea a fost trimisă pe Google Business Profile!" });
+                    } catch {
+                      toast({ title: "Eroare", description: "Eroare la trimitere. Încearcă din nou.", variant: "destructive" });
+                    } finally {
+                      setSendingToGBP(false);
+                    }
+                  }}
+                  className="ml-auto border-brass/40 text-brass hover:bg-brass/10"
+                >
+                  {sendingToGBP ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Se salvează...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Salvează
-                  </>
-                )}
-              </Button>
-            </div>
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  Google Business Profile
+                </Button>
+              </div>
+            </FormSection>
+          </div>
+          </div>
+          <div className="sticky bottom-0 flex gap-2 border-t border-border/60 bg-background px-4 py-3 sm:px-6">
+            <Button variant="outline" onClick={closeEditModal} className="flex-1 sm:flex-none h-11">
+              Anulează
+            </Button>
+            <Button
+              onClick={updateProperty}
+              disabled={isUpdating}
+              className="flex-1 sm:flex-none sm:ml-auto h-11 bg-brass text-black hover:bg-brass/90"
+            >
+              {isUpdating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Se salvează...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Salvează modificările
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Add Property Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Adaugă Proprietate Manual</DialogTitle>
+        <DialogContent className="max-w-3xl w-[100vw] h-[100dvh] max-h-[100dvh] rounded-none p-0 gap-0 sm:w-auto sm:h-auto sm:max-h-[92vh] sm:rounded-lg">
+          <DialogHeader className="border-b border-border/60 px-4 py-3 sm:px-6">
+            <DialogTitle className="text-base sm:text-lg">Adaugă proprietate</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <Label>Titlu *</Label>
-                <Input
-                  value={addForm.title}
-                  onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
-                  placeholder="Ex: Apartament 2 camere central"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label>Descriere</Label>
-                <Textarea
-                  value={addForm.description}
-                  onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
-                  rows={3}
-                  placeholder="Descriere detaliată a proprietății..."
-                />
-              </div>
-              <div>
-                <Label>Locație *</Label>
-                <Input
-                  value={addForm.location}
-                  onChange={(e) => setAddForm({ ...addForm, location: e.target.value })}
-                  placeholder="Ex: București, Sector 1"
-                />
-              </div>
-              <div>
-                <Label>Nume Proiect</Label>
-                <Input
-                  value={addForm.project_name}
-                  onChange={(e) => setAddForm({ ...addForm, project_name: e.target.value })}
-                  placeholder="Ex: Residence Park"
-                />
-              </div>
-              <div>
-                <Label>Preț (€) *</Label>
-                <Input
-                  type="number"
-                  value={addForm.price_min}
-                  onChange={(e) => setAddForm({ ...addForm, price_min: e.target.value })}
-                  placeholder="85000"
-                />
-              </div>
-              <div>
-                <Label>Suprafață (mp)</Label>
-                <Input
-                  type="number"
-                  value={addForm.surface_min}
-                  onChange={(e) => setAddForm({ ...addForm, surface_min: e.target.value })}
-                  placeholder="55"
-                />
-              </div>
-              <div>
-                <Label>Camere *</Label>
-                <Input
-                  type="number"
-                  value={addForm.rooms}
-                  onChange={(e) => setAddForm({ ...addForm, rooms: e.target.value })}
-                  placeholder="2"
-                />
-              </div>
-              <div className="col-span-2">
-                <PropertyImageEditor
-                  images={addImages}
-                  onChange={setAddImages}
-                  label="Imagini Proprietate"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label>Facilități (separate prin virgulă)</Label>
-                <Input
-                  value={addForm.features}
-                  onChange={(e) => setAddForm({ ...addForm, features: e.target.value })}
-                  placeholder="Balcon, Parcare, Centrală proprie"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label>Amenajări (separate prin virgulă)</Label>
-                <Input
-                  value={addForm.amenities}
-                  onChange={(e) => setAddForm({ ...addForm, amenities: e.target.value })}
-                  placeholder="Lift, Pază, Interfon"
-                />
-              </div>
-              <div className="col-span-2">
-                <YouTubeVideoField
-                  value={addForm.video_manual}
-                  onChange={(v) => setAddForm({ ...addForm, video_manual: v })}
-                  onClear={() => setAddForm({ ...addForm, video_manual: "" })}
-                />
-              </div>
+          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+            <div className="space-y-6">
+              <FormSection title="Informații generale">
+                <div className="sm:col-span-2">
+                  <Label>Titlu *</Label>
+                  <Input
+                    value={addForm.title}
+                    onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                    placeholder="Ex: Apartament 2 camere central"
+                  />
+                </div>
+                <div>
+                  <Label>Preț (€) *</Label>
+                  <Input
+                    type="number"
+                    value={addForm.price_min}
+                    onChange={(e) => setAddForm({ ...addForm, price_min: e.target.value })}
+                    placeholder="85000"
+                  />
+                </div>
+                <div>
+                  <Label>Nume proiect</Label>
+                  <Input
+                    value={addForm.project_name}
+                    onChange={(e) => setAddForm({ ...addForm, project_name: e.target.value })}
+                    placeholder="Ex: Residence Park"
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="Detalii">
+                <div>
+                  <Label>Camere *</Label>
+                  <Input
+                    type="number"
+                    value={addForm.rooms}
+                    onChange={(e) => setAddForm({ ...addForm, rooms: e.target.value })}
+                    placeholder="2"
+                  />
+                </div>
+                <div>
+                  <Label>Suprafață (mp)</Label>
+                  <Input
+                    type="number"
+                    value={addForm.surface_min}
+                    onChange={(e) => setAddForm({ ...addForm, surface_min: e.target.value })}
+                    placeholder="55"
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="Locație">
+                <div className="sm:col-span-2">
+                  <Label>Locație *</Label>
+                  <Input
+                    value={addForm.location}
+                    onChange={(e) => setAddForm({ ...addForm, location: e.target.value })}
+                    placeholder="Ex: București, Sector 1"
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="Caracteristici">
+                <div className="sm:col-span-2">
+                  <Label>Facilități (separate prin virgulă)</Label>
+                  <Input
+                    value={addForm.features}
+                    onChange={(e) => setAddForm({ ...addForm, features: e.target.value })}
+                    placeholder="Balcon, Parcare, Centrală proprie"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <Label>Amenajări (separate prin virgulă)</Label>
+                  <Input
+                    value={addForm.amenities}
+                    onChange={(e) => setAddForm({ ...addForm, amenities: e.target.value })}
+                    placeholder="Lift, Pază, Interfon"
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="Descriere">
+                <div className="sm:col-span-2">
+                  <Textarea
+                    value={addForm.description}
+                    onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                    rows={5}
+                    placeholder="Descriere detaliată a proprietății..."
+                  />
+                </div>
+              </FormSection>
+
+              <FormSection title="Media">
+                <div className="sm:col-span-2">
+                  <PropertyImageEditor
+                    images={addImages}
+                    onChange={setAddImages}
+                    label="Fotografii"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <YouTubeVideoField
+                    value={addForm.video_manual}
+                    onChange={(v) => setAddForm({ ...addForm, video_manual: v })}
+                    onClear={() => setAddForm({ ...addForm, video_manual: "" })}
+                  />
+                </div>
+              </FormSection>
             </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-                Anulează
-              </Button>
-              <Button
-                onClick={addProperty}
-                disabled={isAdding}
-                className="bg-brass hover:bg-brass/90 text-black"
-              >
-                {isAdding ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Se adaugă...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Adaugă Proprietate
-                  </>
-                )}
-              </Button>
-            </div>
+          </div>
+          <div className="sticky bottom-0 flex gap-2 border-t border-border/60 bg-background px-4 py-3 sm:px-6">
+            <Button variant="outline" onClick={() => setShowAddDialog(false)} className="flex-1 sm:flex-none h-11">
+              Anulează
+            </Button>
+            <Button
+              onClick={addProperty}
+              disabled={isAdding}
+              className="flex-1 sm:flex-none sm:ml-auto h-11 bg-brass text-black hover:bg-brass/90"
+            >
+              {isAdding ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Se adaugă...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Salvează proprietatea
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
+
 
       {/* Platform Selection Dialog */}
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
