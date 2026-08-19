@@ -795,433 +795,461 @@ const PropertiesAdmin = () => {
         />
       )}
       <div className="space-y-4 md:space-y-8">
-      {/* Properties List */}
-      <Card className="glass border-brass/20">
-        <CardHeader className="p-4 md:p-6">
-          <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-base md:text-lg">
-              <Home className="w-4 h-4 md:w-5 md:h-5 text-brass" />
-              Proprietăți ({properties?.length || 0})
-            </div>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                onClick={() => setShowAddDialog(true)}
-                className="bg-brass hover:bg-brass/90 text-black h-8 text-xs md:text-sm"
+      {/* Header */}
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <div className="min-w-0">
+          <h2 className="truncate text-lg font-bold text-foreground sm:text-2xl">Proprietăți</h2>
+          <p className="truncate text-xs text-muted-foreground sm:text-sm">
+            {properties?.length ?? 0} din {rawProperties?.length ?? 0} proprietăți
+          </p>
+        </div>
+        <Button
+          onClick={() => setShowAddDialog(true)}
+          className="h-11 shrink-0 bg-brass text-black hover:bg-brass/90"
+        >
+          <Plus className="mr-1.5 h-4 w-4" />
+          <span className="hidden sm:inline">Adaugă proprietate</span>
+          <span className="sm:hidden">Adaugă</span>
+        </Button>
+      </div>
+
+      {/* Quick stats */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+        <StatCard label="Active" value={stats.active} tone="text-emerald-600" />
+        <StatCard label="Ascunse" value={stats.hidden} tone="text-muted-foreground" />
+        <StatCard label="Vândute" value={stats.sold} tone="text-rose-600" />
+        <StatCard label="Închiriate" value={stats.rented} tone="text-blue-600" />
+      </div>
+
+      {/* Toolbar */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[180px] flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Caută după titlu, zonă, proiect sau ID..."
+              className="h-11 pl-9"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                aria-label="Șterge căutarea"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground hover:bg-muted"
               >
-                <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
-                Adaugă Manual
-              </Button>
-            {properties && properties.length > 0 && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-destructive/30 hover:bg-destructive/10 text-destructive h-8 text-xs md:text-sm"
-                  >
-                    <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
-                    Șterge Toate
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="text-base md:text-lg">Confirmare ștergere</AlertDialogTitle>
-                    <AlertDialogDescription className="text-sm">
-                      Ești sigur că vrei să ștergi toate {properties?.length} proprietățile?
-                      <br />
-                      <span className="font-semibold text-destructive">Acțiunea nu poate fi anulată!</span>
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                    <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={deleteAllProperties}
-                      className="bg-destructive hover:bg-destructive/90"
-                    >
-                      Șterge Toate
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                <X className="h-4 w-4" />
+              </button>
             )}
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-          {/* Bulk Actions Bar */}
-          {properties && properties.length > 0 && (
-            <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-muted/30 border border-border/30">
-              <Checkbox
-                id="select-all"
-                checked={properties.length > 0 && selectedProperties.size === properties.length}
-                onCheckedChange={toggleSelectAll}
-              />
-              <Label htmlFor="select-all" className="text-sm cursor-pointer">
-                Selectează toate ({selectedProperties.size}/{properties.length})
-              </Label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                aria-label="Sortează proprietățile"
-                className="h-8 rounded-md border border-border/40 bg-background px-2 text-xs"
-              >
-                <option value="recent">Cele mai recente</option>
-                <option value="views_total">Vizualizări (total)</option>
-                <option value="views_7d">Vizualizări (7 zile)</option>
-              </select>
-              {selectedProperties.size > 0 && (
-                <div className="ml-auto flex flex-wrap items-center gap-2">
-                  {(isBulkSending || isBulkTogglingVisibility) && bulkProgress.total > 0 && (
-                    <div className="flex items-center gap-2">
-                      <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary transition-all duration-300"
-                          style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-muted-foreground font-medium">
-                        {bulkProgress.current}/{bulkProgress.total}
-                      </span>
-                    </div>
-                  )}
-                  {/* Visibility bulk actions */}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => bulkToggleVisibility(false)}
-                    disabled={isBulkTogglingVisibility || isBulkSending}
-                    className="border-muted-foreground/30 hover:bg-muted h-8 text-xs"
-                  >
-                    {isBulkTogglingVisibility ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    ) : (
-                      <EyeOff className="w-3.5 h-3.5 mr-1.5" />
-                    )}
-                    <span className="hidden sm:inline">Ascunde {selectedProperties.size}</span>
-                    <span className="sm:hidden">Ascunde</span>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => bulkToggleVisibility(true)}
-                    disabled={isBulkTogglingVisibility || isBulkSending}
-                    className="border-green-500/30 hover:bg-green-500/10 text-green-600 h-8 text-xs"
-                  >
-                    {isBulkTogglingVisibility ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    ) : (
-                      <Eye className="w-3.5 h-3.5 mr-1.5" />
-                    )}
-                    <span className="hidden sm:inline">Afișează {selectedProperties.size}</span>
-                    <span className="sm:hidden">Afișează</span>
-                  </Button>
-                  {/* Zapier bulk action */}
-                  <Button
-                    size="sm"
-                    onClick={sendSelectedToZapier}
-                    disabled={isBulkSending || isBulkTogglingVisibility || isBulkQueuingFb}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 text-xs"
-                  >
-                    {isBulkSending ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    ) : (
-                      <Send className="w-3.5 h-3.5 mr-1.5" />
-                    )}
-                    <span className="hidden sm:inline">{isBulkSending ? `Trimit...` : `Trimite ${selectedProperties.size} către Zapier`}</span>
-                    <span className="sm:hidden">Zapier</span>
-                  </Button>
-                  {/* Facebook groups queue */}
-                  <Button
-                    size="sm"
-                    onClick={sendSelectedToFacebookGroups}
-                    disabled={isBulkQueuingFb || isBulkSending || isBulkTogglingVisibility}
-                    className="bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs"
-                  >
-                    {isBulkQueuingFb ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    ) : (
-                      <Facebook className="w-3.5 h-3.5 mr-1.5" />
-                    )}
-                    <span className="hidden sm:inline">
-                      {isBulkQueuingFb ? "Adaug..." : `Trimite pe grupuri Facebook (${selectedProperties.size})`}
-                    </span>
-                    <span className="sm:hidden">FB Grupuri</span>
-                  </Button>
+          </div>
+
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+            <SelectTrigger className="h-11 w-[170px]" aria-label="Sortare">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Cele mai recente</SelectItem>
+              <SelectItem value="oldest">Cele mai vechi</SelectItem>
+              <SelectItem value="price_asc">Preț crescător</SelectItem>
+              <SelectItem value="price_desc">Preț descrescător</SelectItem>
+              <SelectItem value="surface_desc">Suprafață mare</SelectItem>
+              <SelectItem value="views_total">Vizualizări (total)</SelectItem>
+              <SelectItem value="views_7d">Vizualizări (7 zile)</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Mobile filters sheet */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="h-11 lg:hidden">
+                <SlidersHorizontal className="mr-1.5 h-4 w-4" />
+                Filtre
+                {activeFilters > 0 && (
+                  <Badge className="ml-1.5 bg-brass px-1.5 text-[10px] text-black">{activeFilters}</Badge>
+                )}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-2xl">
+              <SheetHeader className="text-left">
+                <SheetTitle>Filtre</SheetTitle>
+              </SheetHeader>
+              <div className="mt-4 grid gap-3">
+                <FilterSelects
+                  statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+                  typeFilter={typeFilter} setTypeFilter={setTypeFilter}
+                  txFilter={txFilter} setTxFilter={setTxFilter}
+                  zoneFilter={zoneFilter} setZoneFilter={setZoneFilter}
+                  roomsFilter={roomsFilter} setRoomsFilter={setRoomsFilter}
+                  typeOptions={typeOptions as string[]}
+                  zoneOptions={zoneOptions as string[]}
+                  roomOptions={roomOptions as number[]}
+                  full
+                />
+                <Button variant="outline" className="h-11" onClick={resetFilters}>
+                  Resetează filtrele
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <div className="ml-auto hidden items-center rounded-lg border border-border/60 p-0.5 sm:flex">
+            <Button
+              variant={viewMode === "list" ? "secondary" : "ghost"}
+              size="sm"
+              className="h-9 px-2.5"
+              onClick={() => setViewMode("list")}
+              aria-label="Vizualizare listă"
+            >
+              <ListIcon className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "grid" ? "secondary" : "ghost"}
+              size="sm"
+              className="h-9 px-2.5"
+              onClick={() => setViewMode("grid")}
+              aria-label="Vizualizare grilă"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Desktop filters */}
+        <div className="hidden flex-wrap items-center gap-2 lg:flex">
+          <FilterSelects
+            statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+            typeFilter={typeFilter} setTypeFilter={setTypeFilter}
+            txFilter={txFilter} setTxFilter={setTxFilter}
+            zoneFilter={zoneFilter} setZoneFilter={setZoneFilter}
+            roomsFilter={roomsFilter} setRoomsFilter={setRoomsFilter}
+            typeOptions={typeOptions as string[]}
+            zoneOptions={zoneOptions as string[]}
+            roomOptions={roomOptions as number[]}
+          />
+          {activeFilters > 0 && (
+            <Button variant="ghost" size="sm" onClick={resetFilters} className="gap-1 text-destructive">
+              <X className="h-4 w-4" /> Resetează ({activeFilters})
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Bulk actions */}
+      {properties && properties.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-3">
+          <Checkbox
+            id="select-all"
+            checked={properties.length > 0 && selectedProperties.size === properties.length}
+            onCheckedChange={toggleSelectAll}
+          />
+          <Label htmlFor="select-all" className="cursor-pointer text-sm">
+            Selectează toate ({selectedProperties.size}/{properties.length})
+          </Label>
+          {selectedProperties.size > 0 && (
+            <div className="ml-auto flex flex-wrap items-center gap-2">
+              {(isBulkSending || isBulkTogglingVisibility) && bulkProgress.total > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full bg-primary transition-all duration-300"
+                      style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {bulkProgress.current}/{bulkProgress.total}
+                  </span>
                 </div>
               )}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => bulkToggleVisibility(false)}
+                disabled={isBulkTogglingVisibility || isBulkSending}
+                className="h-10 text-xs"
+              >
+                {isBulkTogglingVisibility ? (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <EyeOff className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                Ascunde
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => bulkToggleVisibility(true)}
+                disabled={isBulkTogglingVisibility || isBulkSending}
+                className="h-10 border-green-500/30 text-xs text-green-600 hover:bg-green-500/10"
+              >
+                {isBulkTogglingVisibility ? (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Eye className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                Afișează
+              </Button>
+              <Button
+                size="sm"
+                onClick={sendSelectedToZapier}
+                disabled={isBulkSending || isBulkTogglingVisibility || isBulkQueuingFb}
+                className="h-10 bg-primary text-xs text-primary-foreground hover:bg-primary/90"
+              >
+                {isBulkSending ? (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Send className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                Zapier
+              </Button>
+              <Button
+                size="sm"
+                onClick={sendSelectedToFacebookGroups}
+                disabled={isBulkQueuingFb || isBulkSending || isBulkTogglingVisibility}
+                className="h-10 bg-blue-600 text-xs text-white hover:bg-blue-700"
+              >
+                {isBulkQueuingFb ? (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Facebook className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                Grupuri FB
+              </Button>
             </div>
           )}
-          {propertiesLoading ? (
-            <div className="text-center py-6 md:py-8">
-              <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-brass" />
-              <p className="text-muted-foreground mt-2 text-sm">Se încarcă...</p>
-            </div>
-          ) : properties && properties.length > 0 ? (
-            <div className="grid gap-3 md:gap-4">
-              {properties.map((property: any) => (
-                <Card
-                  key={property.id}
-                  className={`border-border/30 hover:border-brass/30 transition-colors ${selectedProperties.has(property.id) ? 'border-blue-500/50 bg-blue-500/5' : ''}`}
-                >
-                  <CardContent className="p-3 md:p-4">
-                    {/* Mobile Layout - Card Style */}
-                    <div className="md:hidden">
-                      {/* Full-width image with checkbox overlay */}
-                      <div className="relative -mx-3 -mt-3 mb-3">
-                        {property.images?.[0] ? (
-                          <img
-                            src={property.images[0]}
-                            alt={property.title}
-                            className="w-full h-40 object-cover rounded-t-lg"
-                          />
-                        ) : (
-                          <div className="w-full h-40 bg-muted/30 rounded-t-lg flex items-center justify-center">
-                            <Home className="w-12 h-12 text-muted-foreground/30" />
-                          </div>
-                        )}
-                        {/* Checkbox overlay */}
-                        <div className="absolute top-2 left-2">
-                          <div className="bg-background/90 backdrop-blur-sm rounded-md p-1.5 shadow-sm">
-                            <Checkbox
-                              checked={selectedProperties.has(property.id)}
-                              onCheckedChange={() => togglePropertySelection(property.id)}
-                            />
-                          </div>
-                        </div>
-                        {/* Price badge overlay */}
-                        <div className="absolute bottom-2 right-2">
-                          <Badge className="bg-brass text-black font-semibold text-sm px-2.5 py-1 shadow-lg">
-                            €{property.price_min?.toLocaleString()}
-                          </Badge>
-                        </div>
-                      </div>
+        </div>
+      )}
 
-                      {/* Content */}
-                      <div className="space-y-2.5">
-                        <h3 className="font-semibold text-base leading-tight line-clamp-2">
-                          {property.title}
-                        </h3>
-                        
-                        {/* Property details */}
-                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Ruler className="w-3.5 h-3.5" />
-                            {property.surface_min} mp
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Home className="w-3.5 h-3.5" />
-                            {property.rooms} camere
-                          </span>
-                          <span className="flex items-center gap-1" title="Vizualizări total / ultimele 7 zile">
-                            <Eye className="w-3.5 h-3.5" />
-                            {viewCounts?.[property.id]?.total ?? 0} · 7z: {viewCounts?.[property.id]?.last7 ?? 0}
-                          </span>
-                        </div>
-                        
-                        {property.location && (
-                          <p className="text-xs text-muted-foreground truncate">
-                            📍 {property.location}
-                          </p>
-                        )}
-                      </div>
+      {/* Property list */}
+      {propertiesLoading ? (
+        <div className="py-12 text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-brass" />
+          <p className="mt-2 text-sm text-muted-foreground">Se încarcă...</p>
+        </div>
+      ) : pageItems.length > 0 ? (
+        <>
+          <div className={viewMode === "grid" ? "grid gap-3 sm:grid-cols-2 xl:grid-cols-3" : "grid gap-3"}>
+            {pageItems.map((property: any) => {
+              const status = statusOf(property);
+              const slug = property.slug || generatePropertySlug(property);
+              const selected = selectedProperties.has(property.id);
+              const views = viewCounts?.[property.id];
+              const actions = (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-10 w-10 p-0" aria-label="Acțiuni">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuItem asChild>
+                      <a href={`/proprietati/${slug}`} target="_blank" rel="noreferrer">
+                        <ExternalLink className="mr-2 h-4 w-4" /> Vezi pe site
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditModal(property)}>
+                      <Edit className="mr-2 h-4 w-4" /> Editează
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => duplicateProperty(property)}
+                      disabled={duplicatingId === property.id}
+                    >
+                      <Copy className="mr-2 h-4 w-4" /> Duplică
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openShareDialog(property.id, property.title)}>
+                      <Share2 className="mr-2 h-4 w-4" /> Publică pe social
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => toggleVisibility(property.id, property.is_published !== false)}
+                    >
+                      {property.is_published !== false ? (
+                        <><EyeOff className="mr-2 h-4 w-4" /> Ascunde</>
+                      ) : (
+                        <><Eye className="mr-2 h-4 w-4" /> Afișează</>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => setConfirmDelete(property)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Șterge
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
 
-                      {/* Visibility Toggle and Actions */}
-                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/20">
+              const meta = (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><Home className="h-3.5 w-3.5" />{property.rooms} cam</span>
+                  <span className="flex items-center gap-1"><Ruler className="h-3.5 w-3.5" />{property.surface_min ?? "—"} mp</span>
+                  <span className="flex items-center gap-1" title="Vizualizări total / 7 zile">
+                    <Eye className="h-3.5 w-3.5" />{views?.total ?? 0} · 7z: {views?.last7 ?? 0}
+                  </span>
+                </div>
+              );
+
+              if (viewMode === "grid") {
+                return (
+                  <Card
+                    key={property.id}
+                    className={`overflow-hidden border-border/60 transition-colors hover:border-brass/40 ${selected ? "border-brass/60 ring-1 ring-brass/30" : ""}`}
+                  >
+                    <div className="relative h-40">
+                      {property.images?.[0] ? (
+                        <img src={property.images[0]} alt={property.title} className="h-full w-full object-cover" loading="lazy" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-muted/40">
+                          <Home className="h-10 w-10 text-muted-foreground/30" />
+                        </div>
+                      )}
+                      <div className="absolute left-2 top-2 rounded-md bg-background/90 p-1.5 shadow-sm">
+                        <Checkbox checked={selected} onCheckedChange={() => togglePropertySelection(property.id)} />
+                      </div>
+                      <div className="absolute right-2 top-2"><StatusPill status={status} /></div>
+                      <Badge className="absolute bottom-2 right-2 bg-brass px-2.5 py-1 text-sm font-semibold text-black shadow-lg">
+                        €{property.price_min?.toLocaleString()}
+                      </Badge>
+                    </div>
+                    <CardContent className="space-y-2 p-3">
+                      <h3 className="line-clamp-2 text-sm font-semibold leading-tight">{property.title}</h3>
+                      <p className="truncate text-xs text-muted-foreground">
+                        <MapPin className="mr-1 inline h-3 w-3" />{property.location}
+                      </p>
+                      {meta}
+                      <div className="flex items-center justify-between border-t border-border/40 pt-2">
                         <div className="flex items-center gap-2">
                           <Switch
                             checked={property.is_published !== false}
                             onCheckedChange={() => toggleVisibility(property.id, property.is_published !== false)}
                             disabled={togglingVisibility === property.id}
                           />
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            {property.is_published !== false ? (
-                              <><Eye className="w-3.5 h-3.5 text-green-500" /> Vizibil</>
-                            ) : (
-                              <><EyeOff className="w-3.5 h-3.5 text-muted-foreground" /> Ascuns</>
-                            )}
+                          <span className="text-xs text-muted-foreground">
+                            {property.is_published !== false ? "Vizibil" : "Ascuns"}
                           </span>
                         </div>
-                        {/* Action buttons */}
-                        <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openShareDialog(property.id, property.title)}
-                          disabled={sendingToSocial === property.id}
-                          className="border-blue-500/30 hover:bg-blue-500/10 h-10 w-full"
-                          title="Publică pe social media"
-                        >
-                          {sendingToSocial === property.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                          ) : (
-                            <Share2 className="w-4 h-4 text-blue-500" />
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openEditModal(property)}
-                          className="border-brass/30 hover:bg-brass/10 h-10 w-full"
-                        >
-                          <Edit className="w-4 h-4 text-brass" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-destructive/30 hover:bg-destructive/10 h-10 w-full"
-                            >
-                              {deletingId === property.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-destructive" />
-                              ) : (
-                                <Trash2 className="w-4 h-4 text-destructive" />
-                              )}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Ștergi această proprietate?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                              <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteProperty(property.id)}
-                              >
-                                Șterge
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        {actions}
                       </div>
-                    </div>
-                    </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
 
-                    {/* Desktop Layout */}
-                    <div className="hidden md:flex gap-4">
-                      <div className="flex items-center shrink-0">
-                        <Checkbox
-                          checked={selectedProperties.has(property.id)}
-                          onCheckedChange={() => togglePropertySelection(property.id)}
-                        />
+              return (
+                <Card
+                  key={property.id}
+                  className={`border-border/60 transition-colors hover:border-brass/40 ${selected ? "border-brass/60 ring-1 ring-brass/30" : ""}`}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex gap-3">
+                      <div className="flex items-start pt-1">
+                        <Checkbox checked={selected} onCheckedChange={() => togglePropertySelection(property.id)} />
                       </div>
-                      {property.images?.[0] && (
+                      {property.images?.[0] ? (
                         <img
                           src={property.images[0]}
                           alt={property.title}
-                          className="w-24 h-24 object-cover rounded-lg shrink-0"
+                          loading="lazy"
+                          className="h-20 w-20 shrink-0 rounded-lg object-cover sm:h-24 sm:w-32"
                         />
+                      ) : (
+                        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-muted/40 sm:h-24 sm:w-32">
+                          <Home className="h-7 w-7 text-muted-foreground/30" />
+                        </div>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                          {property.title}
-                        </h3>
-                        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                          <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
-                            <Euro className="w-3 h-3 mr-0.5" />
-                            €{property.price_min?.toLocaleString()}
-                          </Badge>
-                          <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
-                            <Ruler className="w-3 h-3 mr-0.5" />
-                            {property.surface_min}mp
-                          </Badge>
-                          <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
-                            <Home className="w-3 h-3 mr-0.5" />
-                            {property.rooms}cam
-                          </Badge>
-                          <Badge variant="secondary" className="bg-muted text-xs px-1.5 py-0.5" title="Vizualizări total / ultimele 7 zile">
-                            <Eye className="w-3 h-3 mr-0.5" />
-                            {viewCounts?.[property.id]?.total ?? 0} · 7z: {viewCounts?.[property.id]?.last7 ?? 0}
-                          </Badge>
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <div className="flex items-start gap-2">
+                          <h3 className="line-clamp-2 min-w-0 flex-1 text-sm font-semibold leading-tight sm:text-base">
+                            {property.title}
+                          </h3>
+                          <StatusPill status={status} />
+                        </div>
+                        <p className="truncate text-xs text-muted-foreground">
+                          <MapPin className="mr-1 inline h-3 w-3" />{property.location}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span className="text-sm font-bold text-brass">
+                            <Euro className="mr-0.5 inline h-3.5 w-3.5" />
+                            {property.price_min?.toLocaleString()}
+                          </span>
+                          {meta}
                         </div>
                       </div>
-                      {/* Visibility Toggle */}
-                      <div className="flex items-center gap-2 mr-4 shrink-0">
-                        <Switch
-                          checked={property.is_published !== false}
-                          onCheckedChange={() => toggleVisibility(property.id, property.is_published !== false)}
-                          disabled={togglingVisibility === property.id}
-                        />
-                        <span className="text-xs text-muted-foreground flex items-center gap-1 min-w-[70px]">
-                          {property.is_published !== false ? (
-                            <><Eye className="w-3.5 h-3.5 text-green-500" /> Vizibil</>
-                          ) : (
-                            <><EyeOff className="w-3.5 h-3.5" /> Ascuns</>
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex flex-row gap-2 items-start shrink-0">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openShareDialog(property.id, property.title)}
-                          disabled={sendingToSocial === property.id}
-                          className="border-blue-500/30 hover:bg-blue-500/10 h-10 w-10 md:h-8 md:w-8 p-0"
-                          title="Publică pe social media"
-                        >
-                          {sendingToSocial === property.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                          ) : (
-                            <Share2 className="w-4 h-4 text-blue-500" />
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openEditModal(property)}
-                          className="border-brass/30 h-10 w-10 md:h-8 md:w-8 p-0"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-destructive/30 hover:bg-destructive/10 h-10 w-10 md:h-8 md:w-8 p-0"
-                            >
-                              {deletingId === property.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="w-4 h-4" />
-                              )}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Ștergi această proprietate?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                              <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteProperty(property.id)}
-                              >
-                                Șterge
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                      <div className="flex shrink-0 flex-col items-end justify-between gap-2">
+                        {actions}
+                        <div className="hidden items-center gap-2 sm:flex">
+                          <Switch
+                            checked={property.is_published !== false}
+                            onCheckedChange={() => toggleVisibility(property.id, property.is_published !== false)}
+                            disabled={togglingVisibility === property.id}
+                          />
+                        </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6 md:py-8">
-              <Home className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-2" />
-              <p className="text-muted-foreground text-sm">Nu există proprietăți</p>
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3">
+              <Button variant="outline" size="sm" className="h-10" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
+              </Button>
+              <span className="text-sm text-muted-foreground">Pagina {page} din {totalPages}</span>
+              <Button variant="outline" size="sm" className="h-10" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+                Următor <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </>
+      ) : (
+        <div className="rounded-xl border border-dashed border-border/60 py-14 text-center">
+          <Home className="mx-auto mb-3 h-12 w-12 text-muted-foreground/40" />
+          {rawProperties && rawProperties.length > 0 ? (
+            <>
+              <p className="text-sm text-muted-foreground">Nicio proprietate nu corespunde filtrelor.</p>
+              <Button variant="outline" className="mt-4 h-11" onClick={resetFilters}>
+                Resetează filtrele
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">Nu ai încă nicio proprietate.</p>
+              <Button className="mt-4 h-11 bg-brass text-black hover:bg-brass/90" onClick={() => setShowAddDialog(true)}>
+                <Plus className="mr-1.5 h-4 w-4" /> Adaugă prima proprietate
+              </Button>
+            </>
+          )}
+        </div>
+      )}
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ștergi definitiv „{confirmDelete?.title}”? Acțiunea nu poate fi anulată.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel className="mt-0 h-11">Anulează</AlertDialogCancel>
+            <AlertDialogAction
+              className="h-11 bg-destructive hover:bg-destructive/90"
+              onClick={() => {
+                const target = confirmDelete;
+                setConfirmDelete(null);
+                if (target) deleteProperty(target.id);
+              }}
+            >
+              {deletingId ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Șterge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       {/* IMMOFLUX Properties Section */}
       <Card className="glass border-brass/20">
