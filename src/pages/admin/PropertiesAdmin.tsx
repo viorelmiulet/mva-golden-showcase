@@ -105,6 +105,90 @@ const StatCard = ({ label, value, tone }: { label: string; value: number; tone: 
   </div>
 );
 
+const TYPE_LABELS: Record<string, string> = {
+  apartament: "Apartamente",
+  garsoniera: "Garsoniere",
+  casa: "Case",
+  teren: "Terenuri",
+  spatiu: "Spații comerciale",
+  depozit: "Depozite",
+};
+
+interface FilterSelectsProps {
+  statusFilter: string;
+  setStatusFilter: (v: any) => void;
+  typeFilter: string;
+  setTypeFilter: (v: string) => void;
+  txFilter: string;
+  setTxFilter: (v: string) => void;
+  zoneFilter: string;
+  setZoneFilter: (v: string) => void;
+  roomsFilter: string;
+  setRoomsFilter: (v: string) => void;
+  typeOptions: string[];
+  zoneOptions: string[];
+  roomOptions: number[];
+  full?: boolean;
+}
+
+const FilterSelects = ({
+  statusFilter, setStatusFilter, typeFilter, setTypeFilter, txFilter, setTxFilter,
+  zoneFilter, setZoneFilter, roomsFilter, setRoomsFilter,
+  typeOptions, zoneOptions, roomOptions, full,
+}: FilterSelectsProps) => {
+  const cls = full ? "h-11 w-full" : "h-11 w-[160px]";
+  return (
+    <>
+      <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <SelectTrigger className={cls} aria-label="Status"><SelectValue placeholder="Status" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Toate statusurile</SelectItem>
+          <SelectItem value="active">Active</SelectItem>
+          <SelectItem value="hidden">Ascunse</SelectItem>
+          <SelectItem value="sold">Vândute</SelectItem>
+          <SelectItem value="rented">Închiriate</SelectItem>
+        </SelectContent>
+      </Select>
+      <Select value={typeFilter} onValueChange={setTypeFilter}>
+        <SelectTrigger className={cls} aria-label="Tip proprietate"><SelectValue placeholder="Tip" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Toate tipurile</SelectItem>
+          {typeOptions.map((t) => (
+            <SelectItem key={t} value={t}>{TYPE_LABELS[t] ?? t}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={txFilter} onValueChange={setTxFilter}>
+        <SelectTrigger className={cls} aria-label="Tranzacție"><SelectValue placeholder="Tranzacție" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Vânzare și închiriere</SelectItem>
+          <SelectItem value="sale">Vânzare</SelectItem>
+          <SelectItem value="rent">Închiriere</SelectItem>
+        </SelectContent>
+      </Select>
+      <Select value={zoneFilter} onValueChange={setZoneFilter}>
+        <SelectTrigger className={cls} aria-label="Zonă"><SelectValue placeholder="Zonă" /></SelectTrigger>
+        <SelectContent className="max-h-72">
+          <SelectItem value="all">Toate zonele</SelectItem>
+          {zoneOptions.map((z) => (
+            <SelectItem key={z} value={z}>{z}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={roomsFilter} onValueChange={setRoomsFilter}>
+        <SelectTrigger className={cls} aria-label="Camere"><SelectValue placeholder="Camere" /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Oricâte camere</SelectItem>
+          {roomOptions.map((r) => (
+            <SelectItem key={r} value={String(r)}>{r} {r === 1 ? "cameră" : "camere"}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
+  );
+};
+
+
 const PropertiesAdmin = () => {
   const { data: immofluxSlugMap } = useImmofluxSlugMap();
   const isMobile = useIsMobile();
