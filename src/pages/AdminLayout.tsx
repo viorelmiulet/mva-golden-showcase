@@ -81,6 +81,8 @@ const AdminHeader = ({
   const location = useLocation();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
 
   const pageTitle = useMemo(() => {
     const path = location.pathname.replace(/\/$/, "");
