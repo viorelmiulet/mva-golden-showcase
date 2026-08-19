@@ -16,7 +16,7 @@ import {
   Home, Clock, CheckCircle, XCircle, Users, Target, DollarSign,
   BarChart3, Activity, ArrowUpRight, ArrowDownRight, Percent,
   Layers, Plus, FileSpreadsheet, Coins, ArrowRight, Mail,
-  MailOpen, Calendar, RefreshCw, Eye
+  MailOpen, Calendar, RefreshCw, Eye, FileSignature, ChevronDown
 } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { 
@@ -40,6 +40,7 @@ const DashboardPage = () => {
   const reduceMotion = shouldReduceMotion || isMobile;
   const queryClient = useQueryClient();
   const [period, setPeriod] = useState<PeriodFilter>('month');
+  const [showSecondary, setShowSecondary] = useState(false);
   const [selectedDayDetails, setSelectedDayDetails] = useState<{
     date: string;
     totalEUR: number;
@@ -779,6 +780,27 @@ const MiniCard = ({ icon: Icon, label, value, color, loading, badge, highlight, 
         {trend !== undefined && trend !== 0 && <TrendBadge value={trend} />}
       </div>
     </div>
+  </div>
+);
+
+const StatusBadge = ({ status }: { status: string | null }) => {
+  const map: Record<string, string> = {
+    available: 'Activă',
+    sold: 'Vândută',
+    reserved: 'Rezervată',
+    rented: 'Închiriată',
+  };
+  const label = map[status || ''] || 'Draft';
+  return (
+    <span className="rounded-sm border border-border bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+      {label}
+    </span>
+  );
+};
+
+const EmptyState = ({ label }: { label: string }) => (
+  <div className="flex h-full min-h-[120px] flex-col items-center justify-center gap-1 py-6 text-center">
+    <p className="text-xs text-muted-foreground">{label}</p>
   </div>
 );
 
