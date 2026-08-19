@@ -638,7 +638,7 @@ const GeneratedContractsPage = () => {
                 {isIntermediere ? (
                   <Users className="h-4 w-4 text-orange-400 shrink-0" />
                 ) : (
-                  <Home className="h-4 w-4 text-cyan-400 shrink-0" />
+                  <Home className="h-4 w-4 text-brass shrink-0" />
                 )}
                 <span className="font-medium text-foreground text-sm md:text-base truncate max-w-[150px] md:max-w-none">
                   {contract.client_name} {contract.client_prenume}
@@ -756,7 +756,7 @@ const GeneratedContractsPage = () => {
           <div className="flex items-start justify-between gap-2 md:gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-1.5">
-                <Building2 className="h-4 w-4 text-purple-400 shrink-0" />
+                <Building2 className="h-4 w-4 text-brass shrink-0" />
                 <span className="font-medium text-foreground text-sm md:text-base truncate max-w-[150px] md:max-w-none">
                   {contract.beneficiary_name} {contract.beneficiary_prenume}
                 </span>

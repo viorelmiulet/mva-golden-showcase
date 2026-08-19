@@ -263,10 +263,10 @@ const AnalyticsPage = () => {
   const pageviewsPerVisit = data?.visitors ? (data.pageviews / data.visitors).toFixed(2) : '0';
 
   const statsCards = [
-    { title: "Vizitatori Unici", value: data?.visitors?.toLocaleString() || 0, icon: Users, gradient: "from-blue-500/20 to-cyan-500/20", iconColor: "text-blue-400" },
+    { title: "Vizitatori Unici", value: data?.visitors?.toLocaleString() || 0, icon: Users, gradient: "from-blue-500/20 to-brass/20", iconColor: "text-blue-400" },
     { title: "Vizualizări Pagini", value: data?.pageviews?.toLocaleString() || 0, subtitle: `${pageviewsPerVisit} pagini/vizită`, icon: Eye, gradient: "from-emerald-500/20 to-green-500/20", iconColor: "text-emerald-400" },
     { title: "Lead-uri (conversii)", value: data?.totalConversions?.toLocaleString() || 0, subtitle: `${data?.conversionRate || 0}% rată de conversie`, icon: PhoneCall, gradient: "from-amber-500/20 to-orange-500/20", iconColor: "text-amber-400" },
-    { title: "Durată Medie Sesiune", value: formatDuration(data?.avgDuration || 0), icon: Clock, gradient: "from-purple-500/20 to-violet-500/20", iconColor: "text-purple-400" },
+    { title: "Durată Medie Sesiune", value: formatDuration(data?.avgDuration || 0), icon: Clock, gradient: "from-brass/20 to-brass/20", iconColor: "text-brass" },
   ];
 
 
@@ -469,7 +469,7 @@ const AnalyticsPage = () => {
                 { key: 'click_to_call', icon: PhoneCall, color: 'text-amber-400' },
                 { key: 'whatsapp_click', icon: MessageCircle, color: 'text-emerald-400' },
                 { key: 'email_click', icon: Mail, color: 'text-blue-400' },
-                { key: 'contact_form_submit', icon: Send, color: 'text-violet-400' },
+                { key: 'contact_form_submit', icon: Send, color: 'text-brass' },
               ].map(({ key, icon: Icon, color }) => (
                 <div key={key} className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-5">
                   <div className="flex items-center justify-between mb-3">

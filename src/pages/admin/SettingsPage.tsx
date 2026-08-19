@@ -362,7 +362,7 @@ const SettingsPage = () => {
       title: "Contact",
       description: "Informații de contact afișate pe site",
       icon: Phone,
-      gradient: "from-blue-500/20 to-cyan-500/20",
+      gradient: "from-blue-500/20 to-brass/20",
       iconColor: "text-blue-400",
       fields: [
         { id: "phone", label: "Telefon", type: "input", icon: Phone, value: settings.phone, placeholder: "+40..." },
@@ -375,8 +375,8 @@ const SettingsPage = () => {
       title: "Social Media",
       description: "Link-uri către rețelele sociale",
       icon: Globe,
-      gradient: "from-purple-500/20 to-violet-500/20",
-      iconColor: "text-purple-400",
+      gradient: "from-brass/20 to-brass/20",
+      iconColor: "text-brass",
       fields: [
         { id: "websiteUrl", label: "Website", type: "input", icon: Globe, value: settings.websiteUrl },
         { id: "facebookUrl", label: "Facebook", type: "input", icon: Facebook, value: settings.facebookUrl },
@@ -594,7 +594,7 @@ const SettingsPage = () => {
 
         {/* Integration API Keys */}
         <motion.div variants={itemVariants} className="relative group lg:col-span-2">
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-brass/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
           <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden backdrop-blur-sm">
             <div className="p-6 border-b border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-3">

@@ -1064,14 +1064,14 @@ const PropertiesAdmin = () => {
       </Card>
 
       {/* IMMOFLUX Properties Section */}
-      <Card className="glass border-purple-500/20">
+      <Card className="glass border-brass/20">
         <CardHeader className="p-4 md:p-6">
           <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-base md:text-lg">
-              <Building2 className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
+              <Building2 className="w-4 h-4 md:w-5 md:h-5 text-brass" />
               Proprietăți IMMOFLUX ({immofluxData?.total || 0})
             </div>
-            <Badge variant="outline" className="border-purple-500/30 text-purple-400 text-xs w-fit">
+            <Badge variant="outline" className="border-brass/30 text-brass text-xs w-fit">
               Sincronizate din CRM
             </Badge>
           </CardTitle>
@@ -1079,7 +1079,7 @@ const PropertiesAdmin = () => {
         <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
           {immofluxLoading ? (
             <div className="text-center py-6 md:py-8">
-              <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-purple-400" />
+              <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-brass" />
               <p className="text-muted-foreground mt-2 text-sm">Se încarcă proprietățile IMMOFLUX...</p>
             </div>
           ) : immofluxData && immofluxData.data.length > 0 ? (
@@ -1091,7 +1091,7 @@ const PropertiesAdmin = () => {
                   return (
                     <Card
                       key={`immoflux-${property.idnum}`}
-                      className="border-border/30 hover:border-purple-500/30 transition-colors"
+                      className="border-border/30 hover:border-brass/30 transition-colors"
                     >
                       <CardContent className="p-3 md:p-4">
                         {/* Mobile Layout */}
@@ -1104,7 +1104,7 @@ const PropertiesAdmin = () => {
                               loading="lazy"
                             />
                             <div className="absolute top-2 left-2 flex gap-1.5 flex-wrap">
-                              <Badge className="bg-purple-600 text-white text-[10px]">IMMOFLUX</Badge>
+                              <Badge className="bg-brass text-white text-[10px]">IMMOFLUX</Badge>
                               <Badge className={isSale ? "bg-emerald-600 text-white text-[10px]" : "bg-blue-600 text-white text-[10px]"}>
                                 {isSale ? "Vânzare" : "Închiriere"}
                               </Badge>
@@ -1112,7 +1112,7 @@ const PropertiesAdmin = () => {
                                 <Badge className="bg-brass text-black font-bold text-[10px]">TOP</Badge>
                               )}
                               {isPoleProperty(property) && (
-                                <Badge className="bg-purple-700 text-white font-bold text-[10px]">POLE</Badge>
+                                <Badge className="bg-brass text-white font-bold text-[10px]">POLE</Badge>
                               )}
                             </div>
                             <div className="absolute bottom-2 right-2">
@@ -1164,7 +1164,7 @@ const PropertiesAdmin = () => {
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <Badge className="bg-purple-600 text-white text-[10px]">IMMOFLUX</Badge>
+                              <Badge className="bg-brass text-white text-[10px]">IMMOFLUX</Badge>
                               <Badge className={isSale ? "bg-emerald-600 text-white text-[10px]" : "bg-blue-600 text-white text-[10px]"}>
                                 {isSale ? "Vânzare" : "Închiriere"}
                               </Badge>
@@ -1172,25 +1172,25 @@ const PropertiesAdmin = () => {
                                 <Badge className="bg-brass text-black font-bold text-[10px]">TOP</Badge>
                               )}
                               {isPoleProperty(property) && (
-                                <Badge className="bg-purple-700 text-white font-bold text-[10px]">POLE</Badge>
+                                <Badge className="bg-brass text-white font-bold text-[10px]">POLE</Badge>
                               )}
                             </div>
                             <h3 className="font-semibold text-lg mb-1 line-clamp-1">
                               {getTitle(property)}
                             </h3>
                             <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                              <Badge variant="secondary" className="bg-purple-500/10 text-xs px-1.5 py-0.5">
+                              <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
                                 <Euro className="w-3 h-3 mr-0.5" />
                                 {formatPrice(property)}
                               </Badge>
                               {surface > 0 && (
-                                <Badge variant="secondary" className="bg-purple-500/10 text-xs px-1.5 py-0.5">
+                                <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
                                   <Ruler className="w-3 h-3 mr-0.5" />
                                   {surface}mp
                                 </Badge>
                               )}
                               {property.nrcamere > 0 && (
-                                <Badge variant="secondary" className="bg-purple-500/10 text-xs px-1.5 py-0.5">
+                                <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
                                   <Home className="w-3 h-3 mr-0.5" />
                                   {property.nrcamere}cam
                                 </Badge>
@@ -1203,7 +1203,7 @@ const PropertiesAdmin = () => {
                           </div>
                           <div className="flex items-center shrink-0">
                             <Link to={resolveImmofluxUrl(property, immofluxSlugMap)} target="_blank">
-                              <Button variant="outline" size="sm" className="border-purple-500/30 hover:bg-purple-500/10 h-8 text-xs">
+                              <Button variant="outline" size="sm" className="border-brass/30 hover:bg-brass/10 h-8 text-xs">
                                 <ExternalLink className="w-3.5 h-3.5 mr-1" />
                                 Vezi
                               </Button>
@@ -1588,7 +1588,7 @@ const PropertiesAdmin = () => {
                 className="justify-start gap-3 h-12"
                 onClick={() => handleShareToSocial('instagram')}
               >
-                <Instagram className="h-5 w-5 text-pink-600" />
+                <Instagram className="h-5 w-5 text-brass" />
                 <span>Instagram</span>
               </Button>
               <Button

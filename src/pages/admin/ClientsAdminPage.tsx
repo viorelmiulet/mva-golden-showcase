@@ -260,9 +260,9 @@ export default function ClientsAdminPage() {
       >
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/40 to-blue-600/10 rounded-2xl blur-xl" />
-            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/5 border border-cyan-500/20">
-              <Users className="h-6 w-6 text-cyan-400" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brass/40 to-blue-600/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-blue-600/5 border border-brass/20">
+              <Users className="h-6 w-6 text-brass" />
             </div>
           </div>
           <div>

@@ -530,11 +530,11 @@ const ReportsPage = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {[
                     { icon: Euro, label: "Comisioane EUR", value: `${reportData.totalEUR.toLocaleString()} €`, gradient: "from-brass/20 to-amber-500/20", iconColor: "text-brass" },
-                    { icon: Euro, label: "Comisioane RON", value: `${reportData.totalRON.toLocaleString()} RON`, gradient: "from-blue-500/20 to-cyan-500/20", iconColor: "text-blue-400" },
+                    { icon: Euro, label: "Comisioane RON", value: `${reportData.totalRON.toLocaleString()} RON`, gradient: "from-blue-500/20 to-brass/20", iconColor: "text-blue-400" },
                     { icon: Building2, label: "Tranzacții", value: reportData.salesCount + reportData.rentCount, gradient: "from-emerald-500/20 to-green-500/20", iconColor: "text-emerald-400" },
-                    { icon: CalendarCheck, label: "Vizionări", value: reportData.viewingsTotal, gradient: "from-purple-500/20 to-violet-500/20", iconColor: "text-purple-400" },
+                    { icon: CalendarCheck, label: "Vizionări", value: reportData.viewingsTotal, gradient: "from-brass/20 to-brass/20", iconColor: "text-brass" },
                     { icon: Building2, label: "Proprietăți", value: reportData.propertiesCount, gradient: "from-orange-500/20 to-red-500/20", iconColor: "text-orange-400" },
-                    { icon: Building2, label: "Complexe", value: reportData.complexesCount, gradient: "from-pink-500/20 to-rose-500/20", iconColor: "text-pink-400" },
+                    { icon: Building2, label: "Complexe", value: reportData.complexesCount, gradient: "from-brass/20 to-rose-500/20", iconColor: "text-brass" },
                   ].map((stat, index) => (
                     <div key={stat.label} className={`p-4 rounded-xl bg-gradient-to-br ${stat.gradient} border border-white/5 hover:border-white/10 transition-all`}>
                       <div className="flex items-center gap-2 text-muted-foreground mb-2">
