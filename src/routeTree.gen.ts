@@ -130,6 +130,7 @@ import { Route as AdminComplexeIdIndexRouteImport } from './routes/admin/complex
 import { Route as AdminComplexeIdEditRouteImport } from './routes/admin/complexe/$id/edit'
 import { Route as AdminGestiuneChiriiProprietatiIndexRouteImport } from './routes/admin/gestiune-chirii/proprietati/index'
 import { Route as AdminGestiuneChiriiProprietatiAdaugaRouteImport } from './routes/admin/gestiune-chirii/proprietati/adauga'
+import { Route as ApiExtensionFacebookSplatRouteImport } from './routes/api/extension/facebook/$'
 import { Route as ApiPublicAuthEmailHookPreviewRouteImport } from './routes/api/public/auth-email-hook/preview'
 import { Route as ApiPublicFbQueueSplatRouteImport } from './routes/api/public/fb-queue/$'
 import { Route as ApiPublicImmofluxProxySplatRouteImport } from './routes/api/public/immoflux-proxy/$'
@@ -769,6 +770,12 @@ const AdminGestiuneChiriiProprietatiAdaugaRoute =
     path: '/proprietati/adauga',
     getParentRoute: () => AdminGestiuneChiriiRoute,
   } as any)
+const ApiExtensionFacebookSplatRoute =
+  ApiExtensionFacebookSplatRouteImport.update({
+    id: '/api/extension/facebook/$',
+    path: '/api/extension/facebook/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicAuthEmailHookPreviewRoute =
   ApiPublicAuthEmailHookPreviewRouteImport.update({
     id: '/preview',
@@ -913,6 +920,7 @@ export interface FileRoutesByFullPath {
   '/admin/gestiune-chirii/': typeof AdminGestiuneChiriiIndexRoute
   '/admin/complexe/$id/edit': typeof AdminComplexeIdEditRoute
   '/admin/gestiune-chirii/proprietati/adauga': typeof AdminGestiuneChiriiProprietatiAdaugaRoute
+  '/api/extension/facebook/$': typeof ApiExtensionFacebookSplatRoute
   '/api/public/auth-email-hook/preview': typeof ApiPublicAuthEmailHookPreviewRoute
   '/api/public/fb-queue/$': typeof ApiPublicFbQueueSplatRoute
   '/api/public/immoflux-proxy/$': typeof ApiPublicImmofluxProxySplatRoute
@@ -1037,6 +1045,7 @@ export interface FileRoutesByTo {
   '/admin/gestiune-chirii': typeof AdminGestiuneChiriiIndexRoute
   '/admin/complexe/$id/edit': typeof AdminComplexeIdEditRoute
   '/admin/gestiune-chirii/proprietati/adauga': typeof AdminGestiuneChiriiProprietatiAdaugaRoute
+  '/api/extension/facebook/$': typeof ApiExtensionFacebookSplatRoute
   '/api/public/auth-email-hook/preview': typeof ApiPublicAuthEmailHookPreviewRoute
   '/api/public/fb-queue/$': typeof ApiPublicFbQueueSplatRoute
   '/api/public/immoflux-proxy/$': typeof ApiPublicImmofluxProxySplatRoute
@@ -1165,6 +1174,7 @@ export interface FileRoutesById {
   '/admin/gestiune-chirii/': typeof AdminGestiuneChiriiIndexRoute
   '/admin/complexe/$id/edit': typeof AdminComplexeIdEditRoute
   '/admin/gestiune-chirii/proprietati/adauga': typeof AdminGestiuneChiriiProprietatiAdaugaRoute
+  '/api/extension/facebook/$': typeof ApiExtensionFacebookSplatRoute
   '/api/public/auth-email-hook/preview': typeof ApiPublicAuthEmailHookPreviewRoute
   '/api/public/fb-queue/$': typeof ApiPublicFbQueueSplatRoute
   '/api/public/immoflux-proxy/$': typeof ApiPublicImmofluxProxySplatRoute
@@ -1294,6 +1304,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/'
     | '/admin/complexe/$id/edit'
     | '/admin/gestiune-chirii/proprietati/adauga'
+    | '/api/extension/facebook/$'
     | '/api/public/auth-email-hook/preview'
     | '/api/public/fb-queue/$'
     | '/api/public/immoflux-proxy/$'
@@ -1418,6 +1429,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii'
     | '/admin/complexe/$id/edit'
     | '/admin/gestiune-chirii/proprietati/adauga'
+    | '/api/extension/facebook/$'
     | '/api/public/auth-email-hook/preview'
     | '/api/public/fb-queue/$'
     | '/api/public/immoflux-proxy/$'
@@ -1545,6 +1557,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/'
     | '/admin/complexe/$id/edit'
     | '/admin/gestiune-chirii/proprietati/adauga'
+    | '/api/extension/facebook/$'
     | '/api/public/auth-email-hook/preview'
     | '/api/public/fb-queue/$'
     | '/api/public/immoflux-proxy/$'
@@ -1628,6 +1641,7 @@ export interface RootRouteChildren {
   ApiPublicReceiveMailgunEmailRoute: typeof ApiPublicReceiveMailgunEmailRoute
   ApiPublicScheduledSocialPostRoute: typeof ApiPublicScheduledSocialPostRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
+  ApiExtensionFacebookSplatRoute: typeof ApiExtensionFacebookSplatRoute
   ApiPublicFbQueueSplatRoute: typeof ApiPublicFbQueueSplatRoute
   ApiPublicImmofluxProxySplatRoute: typeof ApiPublicImmofluxProxySplatRoute
   ApiPublicExtensionFacebookSplatRoute: typeof ApiPublicExtensionFacebookSplatRoute
@@ -2482,6 +2496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminGestiuneChiriiProprietatiAdaugaRouteImport
       parentRoute: typeof AdminGestiuneChiriiRoute
     }
+    '/api/extension/facebook/$': {
+      id: '/api/extension/facebook/$'
+      path: '/api/extension/facebook/$'
+      fullPath: '/api/extension/facebook/$'
+      preLoaderRoute: typeof ApiExtensionFacebookSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/auth-email-hook/preview': {
       id: '/api/public/auth-email-hook/preview'
       path: '/preview'
@@ -2724,6 +2745,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicReceiveMailgunEmailRoute: ApiPublicReceiveMailgunEmailRoute,
   ApiPublicScheduledSocialPostRoute: ApiPublicScheduledSocialPostRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
+  ApiExtensionFacebookSplatRoute: ApiExtensionFacebookSplatRoute,
   ApiPublicFbQueueSplatRoute: ApiPublicFbQueueSplatRoute,
   ApiPublicImmofluxProxySplatRoute: ApiPublicImmofluxProxySplatRoute,
   ApiPublicExtensionFacebookSplatRoute: ApiPublicExtensionFacebookSplatRoute,
