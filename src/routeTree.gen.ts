@@ -71,6 +71,7 @@ import { Route as AdminImmofluxRouteImport } from './routes/admin/immoflux'
 import { Route as AdminImmofluxCodesRouteImport } from './routes/admin/immoflux-codes'
 import { Route as AdminInboxRouteImport } from './routes/admin/inbox'
 import { Route as AdminInstaleazaRouteImport } from './routes/admin/instaleaza'
+import { Route as AdminIntegrariRouteImport } from './routes/admin/integrari'
 import { Route as AdminInventarPresetatRouteImport } from './routes/admin/inventar-presetat'
 import { Route as AdminIstoricRouteImport } from './routes/admin/istoric'
 import { Route as AdminMarketingAiRouteImport } from './routes/admin/marketing-ai'
@@ -453,6 +454,11 @@ const AdminInboxRoute = AdminInboxRouteImport.update({
 const AdminInstaleazaRoute = AdminInstaleazaRouteImport.update({
   id: '/instaleaza',
   path: '/instaleaza',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminIntegrariRoute = AdminIntegrariRouteImport.update({
+  id: '/integrari',
+  path: '/integrari',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminInventarPresetatRoute = AdminInventarPresetatRouteImport.update({
@@ -862,6 +868,7 @@ export interface FileRoutesByFullPath {
   '/admin/immoflux-codes': typeof AdminImmofluxCodesRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/instaleaza': typeof AdminInstaleazaRoute
+  '/admin/integrari': typeof AdminIntegrariRoute
   '/admin/inventar-presetat': typeof AdminInventarPresetatRoute
   '/admin/istoric': typeof AdminIstoricRoute
   '/admin/marketing-ai': typeof AdminMarketingAiRoute
@@ -987,6 +994,7 @@ export interface FileRoutesByTo {
   '/admin/immoflux-codes': typeof AdminImmofluxCodesRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/instaleaza': typeof AdminInstaleazaRoute
+  '/admin/integrari': typeof AdminIntegrariRoute
   '/admin/inventar-presetat': typeof AdminInventarPresetatRoute
   '/admin/istoric': typeof AdminIstoricRoute
   '/admin/marketing-ai': typeof AdminMarketingAiRoute
@@ -1116,6 +1124,7 @@ export interface FileRoutesById {
   '/admin/immoflux-codes': typeof AdminImmofluxCodesRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/instaleaza': typeof AdminInstaleazaRoute
+  '/admin/integrari': typeof AdminIntegrariRoute
   '/admin/inventar-presetat': typeof AdminInventarPresetatRoute
   '/admin/istoric': typeof AdminIstoricRoute
   '/admin/marketing-ai': typeof AdminMarketingAiRoute
@@ -1246,6 +1255,7 @@ export interface FileRouteTypes {
     | '/admin/immoflux-codes'
     | '/admin/inbox'
     | '/admin/instaleaza'
+    | '/admin/integrari'
     | '/admin/inventar-presetat'
     | '/admin/istoric'
     | '/admin/marketing-ai'
@@ -1371,6 +1381,7 @@ export interface FileRouteTypes {
     | '/admin/immoflux-codes'
     | '/admin/inbox'
     | '/admin/instaleaza'
+    | '/admin/integrari'
     | '/admin/inventar-presetat'
     | '/admin/istoric'
     | '/admin/marketing-ai'
@@ -1499,6 +1510,7 @@ export interface FileRouteTypes {
     | '/admin/immoflux-codes'
     | '/admin/inbox'
     | '/admin/instaleaza'
+    | '/admin/integrari'
     | '/admin/inventar-presetat'
     | '/admin/istoric'
     | '/admin/marketing-ai'
@@ -2083,6 +2095,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInstaleazaRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/integrari': {
+      id: '/admin/integrari'
+      path: '/integrari'
+      fullPath: '/admin/integrari'
+      preLoaderRoute: typeof AdminIntegrariRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/inventar-presetat': {
       id: '/admin/inventar-presetat'
       path: '/inventar-presetat'
@@ -2581,6 +2600,7 @@ interface AdminRouteChildren {
   AdminImmofluxCodesRoute: typeof AdminImmofluxCodesRoute
   AdminInboxRoute: typeof AdminInboxRoute
   AdminInstaleazaRoute: typeof AdminInstaleazaRoute
+  AdminIntegrariRoute: typeof AdminIntegrariRoute
   AdminInventarPresetatRoute: typeof AdminInventarPresetatRoute
   AdminIstoricRoute: typeof AdminIstoricRoute
   AdminMarketingAiRoute: typeof AdminMarketingAiRoute
@@ -2614,6 +2634,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminImmofluxCodesRoute: AdminImmofluxCodesRoute,
   AdminInboxRoute: AdminInboxRoute,
   AdminInstaleazaRoute: AdminInstaleazaRoute,
+  AdminIntegrariRoute: AdminIntegrariRoute,
   AdminInventarPresetatRoute: AdminInventarPresetatRoute,
   AdminIstoricRoute: AdminIstoricRoute,
   AdminMarketingAiRoute: AdminMarketingAiRoute,
