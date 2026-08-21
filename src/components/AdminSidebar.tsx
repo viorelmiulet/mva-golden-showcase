@@ -111,7 +111,10 @@ const sections: Section[] = [
   {
     label: "Administrare",
     collapsible: true,
-    items: [{ title: "Setări", url: "/admin/setari", icon: Settings }],
+    items: [
+      { title: "Integrări", url: "/admin/integrari", icon: Plug },
+      { title: "Setări", url: "/admin/setari", icon: Settings },
+    ],
   },
 ];
 
