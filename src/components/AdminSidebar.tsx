@@ -24,6 +24,7 @@ import {
   Database,
   MailWarning,
   Settings,
+  Plug,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
