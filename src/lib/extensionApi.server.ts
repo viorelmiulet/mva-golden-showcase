@@ -95,8 +95,10 @@ export type AuthResult =
 export async function authenticateRequest(request: Request, endpoint: string): Promise<AuthResult> {
   const header = request.headers.get("authorization") || "";
   const match = /^Bearer\s+(.+)$/i.exec(header.trim());
-  const raw = match?.[1]?.trim();
+  // The existing Chrome extension sends the key in `X-Api-Key`; Bearer is also accepted.
+  const raw = (match?.[1] ?? request.headers.get("x-api-key") ?? "").trim();
   if (!raw || !raw.startsWith(KEY_PREFIX)) return { ok: false, status: 401, error: "unauthorized" };
+
 
   const db = await admin();
   const { data, error } = await db
