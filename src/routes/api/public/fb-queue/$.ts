@@ -27,14 +27,27 @@ export const Route = createFileRoute("/api/public/fb-queue/$")({
           const { getRuntimeConfig } = await import("@/lib/runtimeConfig.server");
           const fromDb = await getRuntimeConfig("FB_QUEUE_API_KEY_DB");
           const accepted = [process.env.FB_QUEUE_API_KEY, fromDb].filter(Boolean) as string[];
-          if (accepted.length === 0) {
+
+          // Keys generated in Admin → Integrări (prefix mva_ext_) are also valid here.
+          let authorized = !!apiKey && accepted.includes(apiKey);
+          if (!authorized) {
+            const { KEY_PREFIX, authenticateRequest } = await import("@/lib/extensionApi.server");
+            const candidate = apiKey ?? (/^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") || "")?.[1] ?? "");
+            if (candidate.trim().startsWith(KEY_PREFIX)) {
+              const res = await authenticateRequest(request, `/fb-queue/${params._splat ?? ""}`);
+              if (res.ok) authorized = true;
+              else if (res.status === 429) return json({ error: "rate_limited" }, 429);
+            }
+          }
+          if (!authorized && accepted.length === 0) {
             logger.error("fb-queue.misconfigured", { missingEnv: "FB_QUEUE_API_KEY" });
             return json({ error: "server not configured" }, 500);
           }
-          if (!apiKey || !accepted.includes(apiKey)) {
+          if (!authorized) {
             logger.warn("fb-queue.unauthorized", {});
             return json({ error: "unauthorized" }, 401);
           }
+
 
           const seg = params._splat ?? "";
           logger.info("fb-queue.action", { action: seg });
