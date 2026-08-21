@@ -133,6 +133,7 @@ import { Route as AdminGestiuneChiriiProprietatiAdaugaRouteImport } from './rout
 import { Route as ApiPublicAuthEmailHookPreviewRouteImport } from './routes/api/public/auth-email-hook/preview'
 import { Route as ApiPublicFbQueueSplatRouteImport } from './routes/api/public/fb-queue/$'
 import { Route as ApiPublicImmofluxProxySplatRouteImport } from './routes/api/public/immoflux-proxy/$'
+import { Route as ApiPublicExtensionFacebookSplatRouteImport } from './routes/api/public/extension/facebook/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -785,6 +786,12 @@ const ApiPublicImmofluxProxySplatRoute =
     path: '/api/public/immoflux-proxy/$',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicExtensionFacebookSplatRoute =
+  ApiPublicExtensionFacebookSplatRouteImport.update({
+    id: '/api/public/extension/facebook/$',
+    path: '/api/public/extension/facebook/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -911,6 +918,7 @@ export interface FileRoutesByFullPath {
   '/api/public/immoflux-proxy/$': typeof ApiPublicImmofluxProxySplatRoute
   '/admin/complexe/$id/': typeof AdminComplexeIdIndexRoute
   '/admin/gestiune-chirii/proprietati/': typeof AdminGestiuneChiriiProprietatiIndexRoute
+  '/api/public/extension/facebook/$': typeof ApiPublicExtensionFacebookSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1034,6 +1042,7 @@ export interface FileRoutesByTo {
   '/api/public/immoflux-proxy/$': typeof ApiPublicImmofluxProxySplatRoute
   '/admin/complexe/$id': typeof AdminComplexeIdIndexRoute
   '/admin/gestiune-chirii/proprietati': typeof AdminGestiuneChiriiProprietatiIndexRoute
+  '/api/public/extension/facebook/$': typeof ApiPublicExtensionFacebookSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1161,6 +1170,7 @@ export interface FileRoutesById {
   '/api/public/immoflux-proxy/$': typeof ApiPublicImmofluxProxySplatRoute
   '/admin/complexe/$id/': typeof AdminComplexeIdIndexRoute
   '/admin/gestiune-chirii/proprietati/': typeof AdminGestiuneChiriiProprietatiIndexRoute
+  '/api/public/extension/facebook/$': typeof ApiPublicExtensionFacebookSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1289,6 +1299,7 @@ export interface FileRouteTypes {
     | '/api/public/immoflux-proxy/$'
     | '/admin/complexe/$id/'
     | '/admin/gestiune-chirii/proprietati/'
+    | '/api/public/extension/facebook/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1412,6 +1423,7 @@ export interface FileRouteTypes {
     | '/api/public/immoflux-proxy/$'
     | '/admin/complexe/$id'
     | '/admin/gestiune-chirii/proprietati'
+    | '/api/public/extension/facebook/$'
   id:
     | '__root__'
     | '/'
@@ -1538,6 +1550,7 @@ export interface FileRouteTypes {
     | '/api/public/immoflux-proxy/$'
     | '/admin/complexe/$id/'
     | '/admin/gestiune-chirii/proprietati/'
+    | '/api/public/extension/facebook/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1617,6 +1630,7 @@ export interface RootRouteChildren {
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   ApiPublicFbQueueSplatRoute: typeof ApiPublicFbQueueSplatRoute
   ApiPublicImmofluxProxySplatRoute: typeof ApiPublicImmofluxProxySplatRoute
+  ApiPublicExtensionFacebookSplatRoute: typeof ApiPublicExtensionFacebookSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2489,6 +2503,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicImmofluxProxySplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/extension/facebook/$': {
+      id: '/api/public/extension/facebook/$'
+      path: '/api/public/extension/facebook/$'
+      fullPath: '/api/public/extension/facebook/$'
+      preLoaderRoute: typeof ApiPublicExtensionFacebookSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2705,6 +2726,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   ApiPublicFbQueueSplatRoute: ApiPublicFbQueueSplatRoute,
   ApiPublicImmofluxProxySplatRoute: ApiPublicImmofluxProxySplatRoute,
+  ApiPublicExtensionFacebookSplatRoute: ApiPublicExtensionFacebookSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
