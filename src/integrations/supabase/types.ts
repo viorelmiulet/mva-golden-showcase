@@ -1274,6 +1274,121 @@ export type Database = {
         }
         Relationships: []
       }
+      extension_api_keys: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          name: string
+          revoked_at: string | null
+          scope: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          name?: string
+          revoked_at?: string | null
+          scope?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          name?: string
+          revoked_at?: string | null
+          scope?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      extension_api_usage: {
+        Row: {
+          created_at: string
+          endpoint: string | null
+          id: number
+          key_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          endpoint?: string | null
+          id?: number
+          key_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string | null
+          id?: number
+          key_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extension_api_usage_key_id_fkey"
+            columns: ["key_id"]
+            isOneToOne: false
+            referencedRelation: "extension_api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      extension_publications: {
+        Row: {
+          created_at: string
+          error: string | null
+          group_id: string | null
+          group_name: string | null
+          id: string
+          key_id: string | null
+          listing_id: string | null
+          platform: string
+          published_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          group_id?: string | null
+          group_name?: string | null
+          id?: string
+          key_id?: string | null
+          listing_id?: string | null
+          platform?: string
+          published_at?: string | null
+          status: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          group_id?: string | null
+          group_name?: string | null
+          id?: string
+          key_id?: string | null
+          listing_id?: string | null
+          platform?: string
+          published_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extension_publications_key_id_fkey"
+            columns: ["key_id"]
+            isOneToOne: false
+            referencedRelation: "extension_api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string
