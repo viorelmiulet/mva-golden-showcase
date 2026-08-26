@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadStagingImage, deleteStagingImages } from '@/lib/adminStorage';
+import { generateVirtualStaging } from '@/lib/virtualStaging';
 import { 
   Upload, 
   Wand2, 
@@ -42,7 +43,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  ZoomIn
+  ZoomIn,
+  CircleStop
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -141,6 +143,12 @@ const prepareImageForAi = (dataUrl: string): Promise<string> =>
     image.src = dataUrl;
   });
 
+const dataUrlToBlob = async (dataUrl: string) => {
+  const response = await fetch(dataUrl);
+  if (!response.ok) throw new Error("Imaginea pregătită nu a putut fi citită.");
+  return response.blob();
+};
+
 interface SavedImage {
   name: string;
   url: string;
@@ -159,6 +167,7 @@ export default function VirtualStagingPage() {
   const [showSaved, setShowSaved] = useState(false);
   const [isLoadingSaved, setIsLoadingSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const generationControllerRef = useRef<AbortController | null>(null);
   
   // Preview dialog state
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -349,74 +358,58 @@ export default function VirtualStagingPage() {
         : img
     ));
 
-    // Process images in parallel with delay to avoid rate limiting
-    const processImage = async (img: UploadedImage, index: number) => {
-      // Delay between requests to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, index * 2000));
-      
+    const controller = new AbortController();
+    generationControllerRef.current = controller;
+
+    const processImage = async (img: UploadedImage) => {
       try {
-        // Keep the full-resolution original in the UI, but send an optimized
-        // copy so real-estate photos do not exceed the server-function limit.
         const aiReadyImage = await prepareImageForAi(img.base64);
-        const response = await fetch("/api/virtual-staging", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            imageBase64: aiReadyImage,
-            roomType: img.roomType,
-            style,
-            additionalPrompt,
-            numberOfImages: 1,
-          }),
+        const imageBlob = await dataUrlToBlob(aiReadyImage);
+        const generatedUrl = await generateVirtualStaging({
+          image: imageBlob,
+          roomType: img.roomType,
+          style,
+          additionalPrompt,
+          signal: controller.signal,
+          onFrame: ({ dataUrl }) => {
+            setUploadedImages(prev => prev.map(i =>
+              i.id === img.id ? { ...i, result: dataUrl } : i
+            ));
+          },
         });
-
-        const data = await response.json() as {
-          error?: string;
-          images?: Array<{ imageUrl?: string }>;
-          stagedImage?: string;
-        };
-
-        if (!response.ok) {
-          throw new Error(data.error || `Generarea imaginii a eșuat (${response.status}).`);
-        }
-
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        if (data.images && data.images.length > 0) {
-          const generatedUrl = data.images[0]?.imageUrl || data.stagedImage;
-          if (!generatedUrl) {
-            throw new Error("Generatorul a răspuns fără imagine. Încearcă din nou.");
-          }
-          setUploadedImages(prev => prev.map(i => 
-            i.id === img.id 
-              ? { ...i, status: 'done' as const, result: generatedUrl, error: undefined }
-              : i
-          ));
-          return { success: true as const };
-        } else {
-          throw new Error("Nu s-a generat nicio imagine");
-        }
+        setUploadedImages(prev => prev.map(i =>
+          i.id === img.id
+            ? { ...i, status: 'done' as const, result: generatedUrl, error: undefined }
+            : i
+        ));
+        return { success: true as const };
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : "Generarea imaginii a eșuat.";
+        const aborted = error instanceof DOMException && error.name === "AbortError";
+        const message = aborted ? "Generarea a fost oprită." : error instanceof Error ? error.message : "Generarea imaginii a eșuat.";
         console.error("Error processing image:", error);
         setUploadedImages(prev => prev.map(i => 
           i.id === img.id 
-            ? { ...i, status: 'error' as const, error: message }
+            ? { ...i, status: aborted ? 'pending' as const : 'error' as const, error: aborted ? undefined : message }
             : i
         ));
-        return { success: false as const, message };
+        return { success: false as const, message, aborted };
       }
     };
 
-    // Process all images
-    const outcomes = await Promise.all(pendingImages.map((img, index) => processImage(img, index)));
+    const outcomes: Array<Awaited<ReturnType<typeof processImage>>> = [];
+    for (const image of pendingImages) {
+      if (controller.signal.aborted) break;
+      setUploadedImages(prev => prev.map(item =>
+        item.id === image.id ? { ...item, status: 'processing' as const } : item
+      ));
+      outcomes.push(await processImage(image));
+    }
     
     setIsProcessing(false);
+    generationControllerRef.current = null;
     
     const successCount = outcomes.filter(outcome => outcome.success).length;
-    const failures = outcomes.filter(outcome => !outcome.success);
+    const failures = outcomes.filter(outcome => !outcome.success && !outcome.aborted);
     if (successCount > 0) {
       toast.success(`${successCount} ${successCount === 1 ? 'imagine procesată' : 'imagini procesate'}!`);
     }
@@ -426,6 +419,10 @@ export default function VirtualStagingPage() {
         duration: 8000,
       });
     }
+  };
+
+  const handleCancelGeneration = () => {
+    generationControllerRef.current?.abort();
   };
 
   const handleDownload = (imageUrl: string, name: string, imgRoomType?: string) => {
@@ -696,14 +693,15 @@ export default function VirtualStagingPage() {
             {/* Actions */}
             <div className="flex gap-2">
               <Button
-                onClick={handleStaging}
-                disabled={pendingCount === 0 || isProcessing}
+                onClick={isProcessing ? handleCancelGeneration : handleStaging}
+                disabled={pendingCount === 0 && !isProcessing}
+                variant={isProcessing ? "outline" : "default"}
                 className="flex-1 gap-2"
               >
                 {isProcessing ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Se procesează {processingCount} imagini...
+                    <CircleStop className="h-4 w-4" />
+                    Oprește generarea
                   </>
                 ) : (
                   <>
