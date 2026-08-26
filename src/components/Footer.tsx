@@ -5,8 +5,8 @@ import { useSiteSettings } from "@/hooks/useSiteSettings"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 const LEGAL_BADGE_FALLBACKS = {
-  anpc: "https://anpc.ro/wp-content/uploads/2022/07/SAL-PICTOGRAMA.png",
-  sol: "https://anpc.ro/wp-content/uploads/2022/08/pictogramaSOL.png",
+  anpc: "/anpc-badge.png",
+  sol: "/sol-badge.png",
 }
 
 interface BeforeInstallPromptEvent extends Event {
@@ -162,10 +162,10 @@ const Footer = () => {
 
         <div className="border-t border-stone/20 py-5 flex flex-wrap items-center gap-3">
           <a href="https://anpc.ro/ce-este-sal/" target="_blank" rel="noopener noreferrer" aria-label="Soluționarea Alternativă a Litigiilor">
-            <img src={LEGAL_BADGE_FALLBACKS.anpc} alt="ANPC - Soluționarea Alternativă a Litigiilor" loading="lazy" referrerPolicy="no-referrer" className="h-12 w-auto bg-white rounded-sm p-1" />
+            <img src={LEGAL_BADGE_FALLBACKS.anpc} alt="ANPC - Soluționarea Alternativă a Litigiilor" loading="lazy" referrerPolicy="no-referrer" className="h-11 w-auto bg-white rounded-sm p-1 shadow-sm" />
           </a>
           <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" aria-label="Soluționarea Online a Litigiilor">
-            <img src={LEGAL_BADGE_FALLBACKS.sol} alt="SOL - Soluționarea Online a Litigiilor" loading="lazy" referrerPolicy="no-referrer" className="h-12 w-auto bg-white rounded-sm p-1" />
+            <img src={LEGAL_BADGE_FALLBACKS.sol} alt="SOL - Soluționarea Online a Litigiilor" loading="lazy" referrerPolicy="no-referrer" className="h-11 w-auto bg-white rounded-sm p-1 shadow-sm" />
           </a>
         </div>
       </div>
