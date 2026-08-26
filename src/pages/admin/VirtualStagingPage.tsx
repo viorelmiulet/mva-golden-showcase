@@ -93,7 +93,7 @@ const prepareImageForAi = (dataUrl: string): Promise<string> =>
   new Promise((resolve, reject) => {
     const image = new Image();
     image.onload = () => {
-      const maxDimension = 1600;
+      const maxDimension = 1280;
       const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
       const width = Math.max(1, Math.round(image.naturalWidth * scale));
       const height = Math.max(1, Math.round(image.naturalHeight * scale));
@@ -108,7 +108,23 @@ const prepareImageForAi = (dataUrl: string): Promise<string> =>
       }
 
       context.drawImage(image, 0, 0, width, height);
-      resolve(canvas.toDataURL("image/jpeg", 0.86));
+
+      // Keep the server-function request comfortably below transport limits.
+      // Base64 adds roughly 33% over the encoded JPEG size.
+      const maxDataUrlLength = 1_200_000;
+      let quality = 0.8;
+      let optimized = canvas.toDataURL("image/jpeg", quality);
+      while (optimized.length > maxDataUrlLength && quality > 0.45) {
+        quality -= 0.1;
+        optimized = canvas.toDataURL("image/jpeg", quality);
+      }
+
+      if (optimized.length > maxDataUrlLength) {
+        reject(new Error("Imaginea este prea complexă pentru procesare. Încearcă o fotografie JPG mai mică."));
+        return;
+      }
+
+      resolve(optimized);
     };
     image.onerror = () => reject(new Error("Imaginea încărcată nu poate fi citită."));
     image.src = dataUrl;
@@ -329,7 +345,7 @@ export default function VirtualStagingPage() {
   };
 
   const handleStaging = async () => {
-    const pendingImages = uploadedImages.filter(img => img.status === 'pending');
+    const pendingImages = uploadedImages.filter(img => img.status === 'pending' || img.status === 'error');
     if (pendingImages.length === 0) {
       toast.error("Nu ai imagini de procesat");
       return;
@@ -339,7 +355,9 @@ export default function VirtualStagingPage() {
     
     // Set all pending to processing
     setUploadedImages(prev => prev.map(img => 
-      img.status === 'pending' ? { ...img, status: 'processing' as const } : img
+      img.status === 'pending' || img.status === 'error'
+        ? { ...img, status: 'processing' as const, error: undefined }
+        : img
     ));
 
     // Process images in parallel with delay to avoid rate limiting
@@ -368,33 +386,46 @@ export default function VirtualStagingPage() {
         }
 
         if (data.images && data.images.length > 0) {
+          const generatedUrl = data.images[0]?.imageUrl || data.stagedImage;
+          if (!generatedUrl) {
+            throw new Error("Generatorul a răspuns fără imagine. Încearcă din nou.");
+          }
           setUploadedImages(prev => prev.map(i => 
             i.id === img.id 
-              ? { ...i, status: 'done' as const, result: data.images[0].imageUrl }
+              ? { ...i, status: 'done' as const, result: generatedUrl, error: undefined }
               : i
           ));
+          return { success: true as const };
         } else {
           throw new Error("Nu s-a generat nicio imagine");
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Generarea imaginii a eșuat.";
         console.error("Error processing image:", error);
         setUploadedImages(prev => prev.map(i => 
           i.id === img.id 
-            ? { ...i, status: 'error' as const, error: error.message }
+            ? { ...i, status: 'error' as const, error: message }
             : i
         ));
+        return { success: false as const, message };
       }
     };
 
     // Process all images
-    await Promise.all(pendingImages.map((img, index) => processImage(img, index)));
+    const outcomes = await Promise.all(pendingImages.map((img, index) => processImage(img, index)));
     
     setIsProcessing(false);
     
-    const successCount = uploadedImages.filter(img => img.status === 'done').length + 
-                         pendingImages.filter(img => img.status !== 'error').length;
+    const successCount = outcomes.filter(outcome => outcome.success).length;
+    const failures = outcomes.filter(outcome => !outcome.success);
     if (successCount > 0) {
       toast.success(`${successCount} ${successCount === 1 ? 'imagine procesată' : 'imagini procesate'}!`);
+    }
+    if (failures.length > 0) {
+      toast.error(failures[0].message, {
+        description: failures.length > 1 ? `${failures.length} imagini nu au putut fi generate.` : undefined,
+        duration: 8000,
+      });
     }
   };
 
@@ -427,7 +458,7 @@ export default function VirtualStagingPage() {
   };
 
   const selectedImage = uploadedImages.find(img => img.id === selectedImageId);
-  const pendingCount = uploadedImages.filter(img => img.status === 'pending').length;
+  const pendingCount = uploadedImages.filter(img => img.status === 'pending' || img.status === 'error').length;
   const processingCount = uploadedImages.filter(img => img.status === 'processing').length;
   const doneCount = uploadedImages.filter(img => img.status === 'done').length;
   const hasResults = uploadedImages.some(img => img.result);
@@ -722,6 +753,20 @@ export default function VirtualStagingPage() {
                     Se procesează {processingCount} imagini (poate dura 1-3 minute)
                   </p>
                 </div>
+              </div>
+            ) : selectedImage?.status === 'error' ? (
+              <div className="h-96 rounded-lg border border-destructive/30 bg-destructive/5 flex flex-col items-center justify-center gap-4 px-6 text-center">
+                <ImageIcon className="h-12 w-12 text-destructive" />
+                <div>
+                  <p className="font-medium text-destructive">Imaginea nu a fost generată</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {selectedImage.error || "Generarea a eșuat. Încearcă din nou."}
+                  </p>
+                </div>
+                <Button onClick={handleStaging} disabled={isProcessing} className="gap-2">
+                  <RefreshCw className="h-4 w-4" />
+                  Încearcă din nou
+                </Button>
               </div>
             ) : selectedImage?.result ? (
               <div className="space-y-4">

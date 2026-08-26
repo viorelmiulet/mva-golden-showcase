@@ -846,7 +846,7 @@ ${additionalPrompt ? `Additional requirements: ${additionalPrompt}` : ""}`;
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash-image-preview",
+          model: "google/gemini-2.5-flash-image",
           messages: [
             {
               role: "user",
@@ -865,38 +865,44 @@ ${additionalPrompt ? `Additional requirements: ${additionalPrompt}` : ""}`;
         console.error(`AI gateway error for image ${i + 1}:`, response.status, errorText);
 
         if (response.status === 429) {
-          console.log("Rate limited, waiting before retry...");
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-          continue;
+          const retryAfter = Number(response.headers.get("Retry-After") || "3");
+          throw new Error(`Serviciul AI este ocupat. Încearcă din nou peste ${retryAfter} secunde.`);
         }
         if (response.status === 402) {
-          if (generatedImages.length === 0) {
-            return { error: "Credite AI insuficiente. Contactează administratorul." };
-          }
-          break;
+          return { error: "Credite AI insuficiente. Adaugă credite în Lovable și încearcă din nou." };
         }
-        continue;
+        let gatewayMessage = errorText;
+        try {
+          const parsed = JSON.parse(errorText) as { error?: { message?: string }; message?: string };
+          gatewayMessage = parsed.error?.message || parsed.message || errorText;
+        } catch {
+          // Preserve the gateway response when it is not JSON.
+        }
+        throw new Error(gatewayMessage || `Generarea imaginii a eșuat (${response.status}).`);
       }
 
       const aiResponse = await response.json();
       const message = aiResponse.choices?.[0]?.message;
       const generatedImage = message?.images?.[0]?.image_url?.url;
 
-      if (generatedImage) {
-        generatedImages.push({
-          index: i + 1,
-          imageUrl: generatedImage,
-          style: `${style} - Variație ${i + 1}`,
-        });
-        console.log(`Successfully generated image ${i + 1}`);
+      if (!generatedImage) {
+        throw new Error("Serviciul AI nu a returnat nicio imagine.");
       }
+
+      generatedImages.push({
+        index: i + 1,
+        imageUrl: generatedImage,
+        style: `${style} - Variație ${i + 1}`,
+      });
+      console.log(`Successfully generated image ${i + 1}`);
 
       if (i < numImages - 1) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
       }
     } catch (err) {
       console.error(`Error generating image ${i + 1}:`, err);
-      continue;
+      const message = err instanceof Error ? err.message : "Generarea imaginii a eșuat.";
+      return { error: message };
     }
   }
 
