@@ -93,14 +93,14 @@ const prepareImageForAi = (dataUrl: string): Promise<string> =>
   new Promise((resolve, reject) => {
     const image = new Image();
     image.onload = () => {
-      const maxDimension = 1280;
-      const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
-      const width = Math.max(1, Math.round(image.naturalWidth * scale));
-      const height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const maxDimension = 1024;
+      const initialScale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+      let width = Math.max(1, Math.round(image.naturalWidth * initialScale));
+      let height = Math.max(1, Math.round(image.naturalHeight * initialScale));
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
-      const context = canvas.getContext("2d");
+      let context = canvas.getContext("2d");
 
       if (!context) {
         reject(new Error("Imaginea nu a putut fi pregătită pentru procesare."));
@@ -109,14 +109,25 @@ const prepareImageForAi = (dataUrl: string): Promise<string> =>
 
       context.drawImage(image, 0, 0, width, height);
 
-      // Keep the server-function request comfortably below transport limits.
-      // Base64 adds roughly 33% over the encoded JPEG size.
-      const maxDataUrlLength = 1_200_000;
-      let quality = 0.8;
+      // Server functions serialize the complete request. Keep enough headroom
+      // for that envelope by reducing both JPEG quality and dimensions.
+      const maxDataUrlLength = 550_000;
+      let quality = 0.76;
       let optimized = canvas.toDataURL("image/jpeg", quality);
-      while (optimized.length > maxDataUrlLength && quality > 0.45) {
-        quality -= 0.1;
+      while (optimized.length > maxDataUrlLength && quality > 0.5) {
+        quality -= 0.08;
         optimized = canvas.toDataURL("image/jpeg", quality);
+      }
+
+      while (optimized.length > maxDataUrlLength && width > 640 && height > 480) {
+        width = Math.max(1, Math.round(width * 0.82));
+        height = Math.max(1, Math.round(height * 0.82));
+        canvas.width = width;
+        canvas.height = height;
+        context = canvas.getContext("2d");
+        if (!context) break;
+        context.drawImage(image, 0, 0, width, height);
+        optimized = canvas.toDataURL("image/jpeg", 0.62);
       }
 
       if (optimized.length > maxDataUrlLength) {
@@ -379,7 +390,7 @@ export default function VirtualStagingPage() {
           },
         });
 
-        if (error) throw error;
+        if (error) throw new Error(error.message);
 
         if (data.error) {
           throw new Error(data.error);
