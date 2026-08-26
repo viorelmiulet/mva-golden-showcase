@@ -44,7 +44,6 @@ import {
   ZoomIn
 } from "lucide-react";
 import { toast } from "sonner";
-import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -380,17 +379,27 @@ export default function VirtualStagingPage() {
         // Keep the full-resolution original in the UI, but send an optimized
         // copy so real-estate photos do not exceed the server-function limit.
         const aiReadyImage = await prepareImageForAi(img.base64);
-        const { data, error } = await invokeAiOpsFn("virtual-staging", {
-          body: {
+        const response = await fetch("/api/virtual-staging", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
             imageBase64: aiReadyImage,
             roomType: img.roomType,
             style,
             additionalPrompt,
             numberOfImages: 1,
-          },
+          }),
         });
 
-        if (error) throw new Error(error.message);
+        const data = await response.json() as {
+          error?: string;
+          images?: Array<{ imageUrl?: string }>;
+          stagedImage?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(data.error || `Generarea imaginii a eșuat (${response.status}).`);
+        }
 
         if (data.error) {
           throw new Error(data.error);

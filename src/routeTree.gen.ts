@@ -85,6 +85,7 @@ import { Route as AdminVizionariRouteImport } from './routes/admin/vizionari'
 import { Route as AdminVizualizariProprietatiRouteImport } from './routes/admin/vizualizari-proprietati'
 import { Route as AdminWatermarkRouteImport } from './routes/admin/watermark'
 import { Route as AnsambluriRezidentialeSlugRouteImport } from './routes/ansambluri-rezidentiale/$slug'
+import { Route as ApiVirtualStagingRouteImport } from './routes/api/virtual-staging'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppCautaRouteImport } from './routes/app/cauta'
 import { Route as AppComplexeRouteImport } from './routes/app/complexe'
@@ -528,6 +529,11 @@ const AnsambluriRezidentialeSlugRoute =
     path: '/ansambluri-rezidentiale/$slug',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiVirtualStagingRoute = ApiVirtualStagingRouteImport.update({
+  id: '/api/virtual-staging',
+  path: '/api/virtual-staging',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -882,6 +888,7 @@ export interface FileRoutesByFullPath {
   '/admin/vizualizari-proprietati': typeof AdminVizualizariProprietatiRoute
   '/admin/watermark': typeof AdminWatermarkRoute
   '/ansambluri-rezidentiale/$slug': typeof AnsambluriRezidentialeSlugRoute
+  '/api/virtual-staging': typeof ApiVirtualStagingRoute
   '/app/cauta': typeof AppCautaRoute
   '/app/complexe': typeof AppComplexeRoute
   '/app/cont': typeof AppContRoute
@@ -1008,6 +1015,7 @@ export interface FileRoutesByTo {
   '/admin/vizualizari-proprietati': typeof AdminVizualizariProprietatiRoute
   '/admin/watermark': typeof AdminWatermarkRoute
   '/ansambluri-rezidentiale/$slug': typeof AnsambluriRezidentialeSlugRoute
+  '/api/virtual-staging': typeof ApiVirtualStagingRoute
   '/app/cauta': typeof AppCautaRoute
   '/app/complexe': typeof AppComplexeRoute
   '/app/cont': typeof AppContRoute
@@ -1138,6 +1146,7 @@ export interface FileRoutesById {
   '/admin/vizualizari-proprietati': typeof AdminVizualizariProprietatiRoute
   '/admin/watermark': typeof AdminWatermarkRoute
   '/ansambluri-rezidentiale/$slug': typeof AnsambluriRezidentialeSlugRoute
+  '/api/virtual-staging': typeof ApiVirtualStagingRoute
   '/app/cauta': typeof AppCautaRoute
   '/app/complexe': typeof AppComplexeRoute
   '/app/cont': typeof AppContRoute
@@ -1269,6 +1278,7 @@ export interface FileRouteTypes {
     | '/admin/vizualizari-proprietati'
     | '/admin/watermark'
     | '/ansambluri-rezidentiale/$slug'
+    | '/api/virtual-staging'
     | '/app/cauta'
     | '/app/complexe'
     | '/app/cont'
@@ -1395,6 +1405,7 @@ export interface FileRouteTypes {
     | '/admin/vizualizari-proprietati'
     | '/admin/watermark'
     | '/ansambluri-rezidentiale/$slug'
+    | '/api/virtual-staging'
     | '/app/cauta'
     | '/app/complexe'
     | '/app/cont'
@@ -1524,6 +1535,7 @@ export interface FileRouteTypes {
     | '/admin/vizualizari-proprietati'
     | '/admin/watermark'
     | '/ansambluri-rezidentiale/$slug'
+    | '/api/virtual-staging'
     | '/app/cauta'
     | '/app/complexe'
     | '/app/cont'
@@ -1628,6 +1640,7 @@ export interface RootRouteChildren {
   TopAnsambluriRezidentialeSector6Route: typeof TopAnsambluriRezidentialeSector6Route
   ViataInMilitariResidenceRoute: typeof ViataInMilitariResidenceRoute
   AnsambluriRezidentialeSlugRoute: typeof AnsambluriRezidentialeSlugRoute
+  ApiVirtualStagingRoute: typeof ApiVirtualStagingRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ComplexeSlugRoute: typeof ComplexeSlugRoute
   NewsSlugRoute: typeof NewsSlugRoute
@@ -2193,6 +2206,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnsambluriRezidentialeSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/virtual-staging': {
+      id: '/api/virtual-staging'
+      path: '/api/virtual-staging'
+      fullPath: '/api/virtual-staging'
+      preLoaderRoute: typeof ApiVirtualStagingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/': {
       id: '/app/'
       path: '/'
@@ -2741,6 +2761,7 @@ const rootRouteChildren: RootRouteChildren = {
   TopAnsambluriRezidentialeSector6Route: TopAnsambluriRezidentialeSector6Route,
   ViataInMilitariResidenceRoute: ViataInMilitariResidenceRoute,
   AnsambluriRezidentialeSlugRoute: AnsambluriRezidentialeSlugRoute,
+  ApiVirtualStagingRoute: ApiVirtualStagingRoute,
   BlogSlugRoute: BlogSlugRoute,
   ComplexeSlugRoute: ComplexeSlugRoute,
   NewsSlugRoute: NewsSlugRoute,
