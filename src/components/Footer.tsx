@@ -161,11 +161,13 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-stone/20 py-5 flex flex-wrap items-center gap-3">
-          <a href="https://anpc.ro/ce-este-sal/" target="_blank" rel="noopener noreferrer" aria-label="Soluționarea Alternativă a Litigiilor">
-            <img src={LEGAL_BADGE_FALLBACKS.anpc} alt="ANPC - Soluționarea Alternativă a Litigiilor" loading="lazy" referrerPolicy="no-referrer" className="h-11 w-auto bg-white rounded-sm p-1 shadow-sm" />
+          <a href="https://anpc.ro/ce-este-sal/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 h-11 border border-stone/20 rounded-sm text-brass hover:border-brass transition-colors" aria-label="Soluționarea Alternativă a Litigiilor">
+            <span className="text-spec tracking-wide">ANPC</span>
+            <span className="text-small text-paper/70 hidden sm:inline">Soluționarea Alternativă a Litigiilor</span>
           </a>
-          <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" aria-label="Soluționarea Online a Litigiilor">
-            <img src={LEGAL_BADGE_FALLBACKS.sol} alt="SOL - Soluționarea Online a Litigiilor" loading="lazy" referrerPolicy="no-referrer" className="h-11 w-auto bg-white rounded-sm p-1 shadow-sm" />
+          <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 h-11 border border-stone/20 rounded-sm text-brass hover:border-brass transition-colors" aria-label="Soluționarea Online a Litigiilor">
+            <span className="text-spec tracking-wide">SOL</span>
+            <span className="text-small text-paper/70 hidden sm:inline">Soluționarea Online a Litigiilor</span>
           </a>
         </div>
       </div>
