@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadStagingImage, deleteStagingImages } from '@/lib/adminStorage';
 import { 
   Upload, 
   Wand2, 
@@ -221,16 +222,7 @@ export default function VirtualStagingPage() {
       
       const fileName = `staging-${img.roomType}-${style}-${Date.now()}-${img.name}.png`;
       
-      const { error } = await supabase.storage
-        .from('virtual-staging')
-        .upload(fileName, blob, {
-          contentType: 'image/png',
-          upsert: false
-        });
-
-      if (error) throw error;
-
-      const publicUrl = supabase.storage.from('virtual-staging').getPublicUrl(fileName).data.publicUrl;
+      const { publicUrl } = await uploadStagingImage(fileName, blob);
       
       setUploadedImages(prev => prev.map(i => 
         i.id === imageId ? { ...i, savedUrl: publicUrl } : i
@@ -259,20 +251,11 @@ export default function VirtualStagingPage() {
         
         const fileName = `staging-${img.roomType}-${style}-${Date.now()}-${img.name}.png`;
         
-        const { error } = await supabase.storage
-          .from('virtual-staging')
-          .upload(fileName, blob, {
-            contentType: 'image/png',
-            upsert: false
-          });
-
-        if (!error) {
-          const publicUrl = supabase.storage.from('virtual-staging').getPublicUrl(fileName).data.publicUrl;
-          setUploadedImages(prev => prev.map(i => 
-            i.id === img.id ? { ...i, savedUrl: publicUrl } : i
-          ));
-          savedCount++;
-        }
+        const { publicUrl } = await uploadStagingImage(fileName, blob);
+        setUploadedImages(prev => prev.map(i => 
+          i.id === img.id ? { ...i, savedUrl: publicUrl } : i
+        ));
+        savedCount++;
       } catch (error) {
         console.error('Error saving image:', error);
       }
@@ -286,11 +269,7 @@ export default function VirtualStagingPage() {
 
   const handleDeleteSavedImage = async (fileName: string) => {
     try {
-      const { error } = await supabase.storage
-        .from('virtual-staging')
-        .remove([fileName]);
-
-      if (error) throw error;
+      await deleteStagingImages([fileName]);
 
       setSavedImages(prev => prev.filter(img => img.name !== fileName));
       toast.success('Imagine ștearsă!');
