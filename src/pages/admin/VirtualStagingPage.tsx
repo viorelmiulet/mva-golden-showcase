@@ -93,7 +93,7 @@ const prepareImageForAi = (dataUrl: string): Promise<string> =>
   new Promise((resolve, reject) => {
     const image = new Image();
     image.onload = () => {
-      const maxDimension = 1600;
+      const maxDimension = 1280;
       const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
       const width = Math.max(1, Math.round(image.naturalWidth * scale));
       const height = Math.max(1, Math.round(image.naturalHeight * scale));
@@ -108,7 +108,23 @@ const prepareImageForAi = (dataUrl: string): Promise<string> =>
       }
 
       context.drawImage(image, 0, 0, width, height);
-      resolve(canvas.toDataURL("image/jpeg", 0.86));
+
+      // Keep the server-function request comfortably below transport limits.
+      // Base64 adds roughly 33% over the encoded JPEG size.
+      const maxDataUrlLength = 1_200_000;
+      let quality = 0.8;
+      let optimized = canvas.toDataURL("image/jpeg", quality);
+      while (optimized.length > maxDataUrlLength && quality > 0.45) {
+        quality -= 0.1;
+        optimized = canvas.toDataURL("image/jpeg", quality);
+      }
+
+      if (optimized.length > maxDataUrlLength) {
+        reject(new Error("Imaginea este prea complexă pentru procesare. Încearcă o fotografie JPG mai mică."));
+        return;
+      }
+
+      resolve(optimized);
     };
     image.onerror = () => reject(new Error("Imaginea încărcată nu poate fi citită."));
     image.src = dataUrl;
