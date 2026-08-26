@@ -89,6 +89,31 @@ interface UploadedImage {
   error?: string;
 }
 
+const prepareImageForAi = (dataUrl: string): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const maxDimension = 1600;
+      const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+      const width = Math.max(1, Math.round(image.naturalWidth * scale));
+      const height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d");
+
+      if (!context) {
+        reject(new Error("Imaginea nu a putut fi pregătită pentru procesare."));
+        return;
+      }
+
+      context.drawImage(image, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", 0.86));
+    };
+    image.onerror = () => reject(new Error("Imaginea încărcată nu poate fi citită."));
+    image.src = dataUrl;
+  });
+
 interface SavedImage {
   name: string;
   url: string;
@@ -323,9 +348,12 @@ export default function VirtualStagingPage() {
       await new Promise(resolve => setTimeout(resolve, index * 2000));
       
       try {
+        // Keep the full-resolution original in the UI, but send an optimized
+        // copy so real-estate photos do not exceed the server-function limit.
+        const aiReadyImage = await prepareImageForAi(img.base64);
         const { data, error } = await invokeAiOpsFn("virtual-staging", {
           body: {
-            imageBase64: img.base64,
+            imageBase64: aiReadyImage,
             roomType: img.roomType,
             style,
             additionalPrompt,
