@@ -41,7 +41,7 @@ export async function aiPropertyRecommendations(body: AnyRecord): Promise<Result
   console.log("Received request for client:", clientId);
   console.log("Preferences:", JSON.stringify(preferences));
 
-  const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+  const LOVABLE_API_KEY = await getRuntimeConfig("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
   const supabase = await db();
@@ -181,7 +181,7 @@ export async function extractIdData(body: AnyRecord): Promise<Result> {
     return { error: "Image is required" };
   }
 
-  const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+  const LOVABLE_API_KEY = await getRuntimeConfig("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
   console.log(`Extracting data from ${images.length} ID image(s)...`);
@@ -314,7 +314,7 @@ export async function extractCompanyData(body: AnyRecord): Promise<Result> {
   const { imageBase64 } = body as { imageBase64?: string };
   if (!imageBase64) return { error: "Image is required" };
 
-  const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+  const LOVABLE_API_KEY = await getRuntimeConfig("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
   console.log("Extracting company data from certificate...");
@@ -408,7 +408,7 @@ export async function generateFacebookContent(body: AnyRecord): Promise<Result> 
     customPrompt?: string;
   };
 
-  const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+  const LOVABLE_API_KEY = await getRuntimeConfig("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
   console.log("Generating content for type:", type);
@@ -666,7 +666,7 @@ export async function generateFurnishedImages(body: AnyRecord): Promise<Result> 
     logoSize?: string;
   };
 
-  const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+  const LOVABLE_API_KEY = await getRuntimeConfig("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
   console.log("Starting image generation with description:", description);
@@ -809,7 +809,7 @@ export async function virtualStaging(body: AnyRecord): Promise<Result> {
 
   if (!imageBase64) throw new Error("Image is required");
 
-  const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+  const LOVABLE_API_KEY = await getRuntimeConfig("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
   const roomDescription = vsRoomPrompts[roomType as string] || vsRoomPrompts.living;
