@@ -146,7 +146,7 @@ async function handle(request: Request): Promise<Response> {
         resolved: Boolean(key),
         source,
         length: key ? key.length : 0,
-        fingerprint: key ? `${key.slice(0, 4)}…${key.slice(-4)}` : null,
+        fingerprint: key ? `${key.slice(0, 3)}…` : null,
       },
       gateway,
       summary: {
