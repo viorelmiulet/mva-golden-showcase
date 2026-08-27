@@ -14,8 +14,9 @@
  * is not reproduced here.
  */
 
-type AnyRecord = Record<string, unknown>;
 import { getRuntimeConfig } from "./runtimeConfig.server";
+
+type AnyRecord = Record<string, unknown>;
 
 type Result = AnyRecord;
 
