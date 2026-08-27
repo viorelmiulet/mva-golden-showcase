@@ -21,7 +21,7 @@ function getRetryAfterSeconds(error: unknown): number {
 }
 
 export async function handleProcessEmailQueue(): Promise<Response> {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = await getRuntimeConfig("LOVABLE_API_KEY");
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 

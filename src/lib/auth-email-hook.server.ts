@@ -81,7 +81,7 @@ export async function handleAuthEmailHookPreview(req: Request): Promise<Response
     return new Response(null, { headers: previewCorsHeaders });
   }
 
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = await getRuntimeConfig("LOVABLE_API_KEY");
   const authHeader = req.headers.get("Authorization");
 
   if (!apiKey || authHeader !== `Bearer ${apiKey}`) {
@@ -122,7 +122,7 @@ export async function handleAuthEmailHookPreview(req: Request): Promise<Response
 
 export async function handleAuthEmailHookWebhook(req: Request): Promise<Response> {
   const corsHeaders = authEmailHookCorsHeaders;
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = await getRuntimeConfig("LOVABLE_API_KEY");
 
   if (!apiKey) {
     console.error("LOVABLE_API_KEY not configured");
