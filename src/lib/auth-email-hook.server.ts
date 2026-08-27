@@ -8,6 +8,7 @@ import { MagicLinkEmail } from "./email-templates/magic-link";
 import { RecoveryEmail } from "./email-templates/recovery";
 import { EmailChangeEmail } from "./email-templates/email-change";
 import { ReauthenticationEmail } from "./email-templates/reauthentication";
+import { getRuntimeConfig } from "./runtimeConfig.server";
 
 export const authEmailHookCorsHeaders = {
   "Access-Control-Allow-Origin": "*",

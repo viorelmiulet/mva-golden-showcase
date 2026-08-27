@@ -1,4 +1,5 @@
 import { sendLovableEmail } from "@lovable.dev/email-js";
+import { getRuntimeConfig } from "./runtimeConfig.server";
 
 const MAX_RETRIES = 5;
 const DEFAULT_BATCH_SIZE = 10;
