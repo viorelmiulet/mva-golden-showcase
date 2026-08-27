@@ -15,8 +15,8 @@
  */
 
 type AnyRecord = Record<string, unknown>;
-
 import { getRuntimeConfig } from "./runtimeConfig.server";
+
 type Result = AnyRecord;
 
 async function db() {
