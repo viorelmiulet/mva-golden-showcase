@@ -47,9 +47,10 @@ export const Route = createFileRoute("/api/virtual-staging")({
             return json({ error: "Sesiunea admin a expirat. Autentifică-te din nou." }, 401);
           }
 
-          const key = process.env['LOVABLE_API_KEY'];
+          const { getRuntimeConfig } = await import("@/lib/runtimeConfig.server");
+          const key = await getRuntimeConfig("LOVABLE_API_KEY");
           if (!key) {
-            return json({ error: "Serviciul AI nu este configurat în această versiune publicată. Republică aplicația." }, 503);
+            return json({ error: "Serviciul AI nu este configurat. Contactează administratorul pentru a sincroniza cheia AI." }, 503);
           }
 
           const { buildVirtualStagingPrompt, gatewayErrorMessage, VIRTUAL_STAGING_MODEL } =

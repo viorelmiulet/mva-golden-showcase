@@ -113,6 +113,7 @@ import { Route as AdminGestiuneChiriiRaportRouteImport } from './routes/admin/ge
 import { Route as AdminGestiuneChiriiServiciiRouteImport } from './routes/admin/gestiune-chirii/servicii'
 import { Route as AdminGestiuneChiriiTicheteRouteImport } from './routes/admin/gestiune-chirii/tichete'
 import { Route as AdminGestiuneChiriiUtilitatiRouteImport } from './routes/admin/gestiune-chirii/utilitati'
+import { Route as ApiAdminBootstrapLovableKeyRouteImport } from './routes/api/admin/bootstrap-lovable-key'
 import { Route as ApiAdminStagingStorageRouteImport } from './routes/api/admin/staging-storage'
 import { Route as ApiPublicAuthEmailHookRouteImport } from './routes/api/public/auth-email-hook'
 import { Route as ApiPublicFacebookCatalogFeedRouteImport } from './routes/api/public/facebook-catalog-feed'
@@ -679,6 +680,12 @@ const AdminGestiuneChiriiUtilitatiRoute =
     path: '/utilitati',
     getParentRoute: () => AdminGestiuneChiriiRoute,
   } as any)
+const ApiAdminBootstrapLovableKeyRoute =
+  ApiAdminBootstrapLovableKeyRouteImport.update({
+    id: '/api/admin/bootstrap-lovable-key',
+    path: '/api/admin/bootstrap-lovable-key',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminStagingStorageRoute = ApiAdminStagingStorageRouteImport.update({
   id: '/api/admin/staging-storage',
   path: '/api/admin/staging-storage',
@@ -921,6 +928,7 @@ export interface FileRoutesByFullPath {
   '/admin/gestiune-chirii/servicii': typeof AdminGestiuneChiriiServiciiRoute
   '/admin/gestiune-chirii/tichete': typeof AdminGestiuneChiriiTicheteRoute
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
+  '/api/admin/bootstrap-lovable-key': typeof ApiAdminBootstrapLovableKeyRoute
   '/api/admin/staging-storage': typeof ApiAdminStagingStorageRoute
   '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRouteWithChildren
   '/api/public/facebook-catalog-feed': typeof ApiPublicFacebookCatalogFeedRoute
@@ -1049,6 +1057,7 @@ export interface FileRoutesByTo {
   '/admin/gestiune-chirii/servicii': typeof AdminGestiuneChiriiServiciiRoute
   '/admin/gestiune-chirii/tichete': typeof AdminGestiuneChiriiTicheteRoute
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
+  '/api/admin/bootstrap-lovable-key': typeof ApiAdminBootstrapLovableKeyRoute
   '/api/admin/staging-storage': typeof ApiAdminStagingStorageRoute
   '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRouteWithChildren
   '/api/public/facebook-catalog-feed': typeof ApiPublicFacebookCatalogFeedRoute
@@ -1181,6 +1190,7 @@ export interface FileRoutesById {
   '/admin/gestiune-chirii/servicii': typeof AdminGestiuneChiriiServiciiRoute
   '/admin/gestiune-chirii/tichete': typeof AdminGestiuneChiriiTicheteRoute
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
+  '/api/admin/bootstrap-lovable-key': typeof ApiAdminBootstrapLovableKeyRoute
   '/api/admin/staging-storage': typeof ApiAdminStagingStorageRoute
   '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRouteWithChildren
   '/api/public/facebook-catalog-feed': typeof ApiPublicFacebookCatalogFeedRoute
@@ -1314,6 +1324,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/servicii'
     | '/admin/gestiune-chirii/tichete'
     | '/admin/gestiune-chirii/utilitati'
+    | '/api/admin/bootstrap-lovable-key'
     | '/api/admin/staging-storage'
     | '/api/public/auth-email-hook'
     | '/api/public/facebook-catalog-feed'
@@ -1442,6 +1453,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/servicii'
     | '/admin/gestiune-chirii/tichete'
     | '/admin/gestiune-chirii/utilitati'
+    | '/api/admin/bootstrap-lovable-key'
     | '/api/admin/staging-storage'
     | '/api/public/auth-email-hook'
     | '/api/public/facebook-catalog-feed'
@@ -1573,6 +1585,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/servicii'
     | '/admin/gestiune-chirii/tichete'
     | '/admin/gestiune-chirii/utilitati'
+    | '/api/admin/bootstrap-lovable-key'
     | '/api/admin/staging-storage'
     | '/api/public/auth-email-hook'
     | '/api/public/facebook-catalog-feed'
@@ -1665,6 +1678,7 @@ export interface RootRouteChildren {
   NewsIndexRoute: typeof NewsIndexRoute
   ProiecteIndexRoute: typeof ProiecteIndexRoute
   ProprietatiIndexRoute: typeof ProprietatiIndexRoute
+  ApiAdminBootstrapLovableKeyRoute: typeof ApiAdminBootstrapLovableKeyRoute
   ApiAdminStagingStorageRoute: typeof ApiAdminStagingStorageRoute
   ApiPublicAuthEmailHookRoute: typeof ApiPublicAuthEmailHookRouteWithChildren
   ApiPublicFacebookCatalogFeedRoute: typeof ApiPublicFacebookCatalogFeedRoute
@@ -2415,6 +2429,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminGestiuneChiriiUtilitatiRouteImport
       parentRoute: typeof AdminGestiuneChiriiRoute
     }
+    '/api/admin/bootstrap-lovable-key': {
+      id: '/api/admin/bootstrap-lovable-key'
+      path: '/api/admin/bootstrap-lovable-key'
+      fullPath: '/api/admin/bootstrap-lovable-key'
+      preLoaderRoute: typeof ApiAdminBootstrapLovableKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/staging-storage': {
       id: '/api/admin/staging-storage'
       path: '/api/admin/staging-storage'
@@ -2794,6 +2815,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewsIndexRoute: NewsIndexRoute,
   ProiecteIndexRoute: ProiecteIndexRoute,
   ProprietatiIndexRoute: ProprietatiIndexRoute,
+  ApiAdminBootstrapLovableKeyRoute: ApiAdminBootstrapLovableKeyRoute,
   ApiAdminStagingStorageRoute: ApiAdminStagingStorageRoute,
   ApiPublicAuthEmailHookRoute: ApiPublicAuthEmailHookRouteWithChildren,
   ApiPublicFacebookCatalogFeedRoute: ApiPublicFacebookCatalogFeedRoute,
