@@ -329,7 +329,9 @@ const InboxPage = () => {
       if (error) throw error;
       return data as ReceivedEmail[];
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    refetchInterval: 1000 * 60,
+    refetchOnWindowFocus: true,
     gcTime: 1000 * 60 * 30,
   });
 
