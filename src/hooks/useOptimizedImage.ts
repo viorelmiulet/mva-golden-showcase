@@ -121,6 +121,15 @@ export const useOptimizedImage = ({
     setHasError(false);
   }, [src]);
 
+  // SSR/hydration: the img may finish loading before React attaches onLoad,
+  // leaving isLoaded stuck at false (image invisible behind placeholder).
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth > 0) {
+      setIsLoaded(true);
+    }
+  }, [src, isInView, optimizedSrc]);
+
   // Handle successful load
   const handleLoad = useCallback(() => {
     setIsLoaded(true);
