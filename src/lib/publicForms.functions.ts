@@ -45,3 +45,23 @@ export const submitJobApplication = createServerFn({ method: "POST" })
     if (!result.success) throw new Error("Eroare la trimiterea aplicării.");
     return { success: true as const };
   });
+
+const viewingSchema = z.object({
+  property_id: z.string().max(64).nullable().optional(),
+  property_title: z.string().min(1).max(300),
+  customer_name: z.string().min(1).max(200),
+  customer_phone: z.string().min(3).max(50),
+  customer_email: z.string().email().max(320).nullable().optional(),
+  preferred_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data invalidă"),
+  preferred_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, "Ora invalidă"),
+  message: z.string().max(2000).nullable().optional(),
+});
+
+export const requestViewing = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => viewingSchema.parse(input))
+  .handler(async ({ data }) => {
+    const { createViewingRequest } = await import("./publicForms.server");
+    const result = await createViewingRequest(data);
+    if (!result.success) throw new Error("Eroare la trimiterea solicitării.");
+    return { success: true as const };
+  });
