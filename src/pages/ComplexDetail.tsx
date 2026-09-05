@@ -697,9 +697,8 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                       {floorsInBuilding[floor]?.map((apt: any) => {
                         const isAvailable = apt.availability_status === 'available';
-                        // Match "AP 21", "Apartament 21", "ap21", "- AP 48", etc.
-                        const aptNumberMatch = apt.title.match(/(?:AP|Apartament)\.?\s*(\d+)/i);
-                        const aptNumber = aptNumberMatch ? aptNumberMatch[1] : '';
+                        const aptNum = getApartmentNumber(apt.title);
+                        const aptNumber = aptNum > 0 ? String(aptNum) : '';
                         const surface = apt.surface_min;
                         const priceCredit = apt.price_max;
                         const priceCash = apt.price_min;
