@@ -33,6 +33,7 @@ import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import { Helmet } from "@/lib/helmet-compat";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
+import ViewingRequestDialog from "@/components/ViewingRequestDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ZoomableFloorPlan } from "@/components/ZoomableFloorPlan";
 import { ComplexDetailSkeleton } from "@/components/skeletons";
@@ -59,6 +60,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
   const [editingApartment, setEditingApartment] = useState<any>(null);
+  const [viewingApartment, setViewingApartment] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [sortBy, setSortBy] = useState<string>("default");
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
@@ -844,7 +846,7 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
                                 )}
                               </div>
 
-                              {/* Schedule Viewing Button - rendered AFTER floor plan to avoid Dialog interference */}
+                              {/* Schedule Viewing Buttons - rendered AFTER floor plan to avoid Dialog interference */}
                               {isAvailable && (
                                 <div className="space-y-1.5 sm:space-y-2">
                                   <a href="tel:0767941512" className="block">
@@ -857,6 +859,14 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
                                       Sună
                                     </Button>
                                   </a>
+                                  <Button
+                                    size="sm"
+                                    className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm bg-brass text-ink hover:bg-brass/90"
+                                    onClick={() => setViewingApartment(apt)}
+                                  >
+                                    <Calendar className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
+                                    Programează vizionare
+                                  </Button>
                                 </div>
                               )}
 
@@ -913,6 +923,18 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
 
         <Footer />
       </div>
+
+      {/* Viewing Request Dialog */}
+      <ViewingRequestDialog
+        open={!!viewingApartment}
+        onOpenChange={(open) => { if (!open) setViewingApartment(null); }}
+        propertyId={viewingApartment?.id ?? null}
+        propertyTitle={viewingApartment
+          ? (project?.name && viewingApartment.title?.includes(project.name)
+              ? viewingApartment.title
+              : `${viewingApartment.title} - ${project?.name ?? ""}`)
+          : ""}
+      />
 
       {/* Floor Plan Dialog */}
       <Dialog open={floorPlanOpen} onOpenChange={setFloorPlanOpen}>
