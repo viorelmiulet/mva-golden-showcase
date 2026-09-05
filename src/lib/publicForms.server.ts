@@ -113,3 +113,62 @@ export async function sendJobApplicationEmail(data: JobApplicationPayload) {
     attachments,
   });
 }
+
+export interface ViewingRequestPayload {
+  property_id?: string | null;
+  property_title: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email?: string | null;
+  preferred_date: string;
+  preferred_time: string;
+  message?: string | null;
+}
+
+export async function createViewingRequest(data: ViewingRequestPayload) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  const { error } = await supabaseAdmin.from("viewing_appointments").insert({
+    property_id: data.property_id || null,
+    property_title: data.property_title,
+    customer_name: data.customer_name,
+    customer_phone: data.customer_phone,
+    customer_email: data.customer_email || null,
+    preferred_date: data.preferred_date,
+    preferred_time: data.preferred_time,
+    message: data.message || null,
+    status: "pending",
+  });
+
+  if (error) {
+    console.error("[viewing] insert failed", error.message);
+    return { success: false as const };
+  }
+
+  try {
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #DAA520;">Programare vizionare nouă</h2>
+        <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p><strong>Proprietate:</strong> ${esc(data.property_title)}</p>
+          <p><strong>Nume:</strong> ${esc(data.customer_name)}</p>
+          <p><strong>Telefon:</strong> <a href="tel:${esc(data.customer_phone)}">${esc(data.customer_phone)}</a></p>
+          ${data.customer_email ? `<p><strong>Email:</strong> <a href="mailto:${esc(data.customer_email)}">${esc(data.customer_email)}</a></p>` : ""}
+          <p><strong>Data preferată:</strong> ${esc(data.preferred_date)}</p>
+          <p><strong>Ora preferată:</strong> ${esc(data.preferred_time)}</p>
+          ${data.message ? `<p><strong>Mesaj:</strong><br>${nl2br(data.message)}</p>` : ""}
+        </div>
+        <p style="color: #666; font-size: 12px;">Trimis din formularul de programare vizionare de pe mvaimobiliare.ro.</p>
+      </div>`;
+    await sendMailgunEmail({
+      to: [INBOX],
+      subject: `Vizionare nouă - ${data.property_title} - ${data.customer_name}`,
+      html,
+      from: "MVA IMOBILIARE - Vizionări <noreply@mvaimobiliare.ro>",
+    });
+  } catch (e) {
+    console.error("[viewing] notification email failed", e);
+  }
+
+  return { success: true as const };
+}
