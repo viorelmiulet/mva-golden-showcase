@@ -168,7 +168,11 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
   const complexVideos = developmentVideos(project);
   // Helper function to extract apartment number numerically
   const getApartmentNumber = (title: string): number => {
-    // Match "AP 21", "Apartament 21", "ap21", "- AP 48", etc.
+    // Unit number is the number right before " - Project" suffix:
+    // "Apartament 2 camere 10 - Zendaya Residence" -> 10, "Garsoniera 1 - Zendaya" -> 1
+    const beforeSuffix = title.match(/(\d+)(?=\s*-\s*[^-]*$)/);
+    if (beforeSuffix) return parseInt(beforeSuffix[1], 10);
+    // Fallback: "AP 21", "Apartament 21", "ap21", "- AP 48"
     const match = title.match(/(?:AP|Apartament)\.?\s*(\d+)/i);
     return match ? parseInt(match[1], 10) : 0;
   };
