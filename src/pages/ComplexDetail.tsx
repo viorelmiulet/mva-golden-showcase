@@ -929,7 +929,11 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
         open={!!viewingApartment}
         onOpenChange={(open) => { if (!open) setViewingApartment(null); }}
         propertyId={viewingApartment?.id ?? null}
-        propertyTitle={viewingApartment ? `${viewingApartment.title} - ${project?.name ?? ""}` : ""}
+        propertyTitle={viewingApartment
+          ? (project?.name && viewingApartment.title?.includes(project.name)
+              ? viewingApartment.title
+              : `${viewingApartment.title} - ${project?.name ?? ""}`)
+          : ""}
       />
 
       {/* Floor Plan Dialog */}
