@@ -924,6 +924,14 @@ const ComplexDetail = ({ initialProject, initialProperties }: ComplexDetailProps
         <Footer />
       </div>
 
+      {/* Viewing Request Dialog */}
+      <ViewingRequestDialog
+        open={!!viewingApartment}
+        onOpenChange={(open) => { if (!open) setViewingApartment(null); }}
+        propertyId={viewingApartment?.id ?? null}
+        propertyTitle={viewingApartment ? `${viewingApartment.title} - ${project?.name ?? ""}` : ""}
+      />
+
       {/* Floor Plan Dialog */}
       <Dialog open={floorPlanOpen} onOpenChange={setFloorPlanOpen}>
         <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] p-3 sm:p-6 glass">
